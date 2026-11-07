@@ -55,7 +55,7 @@ def bar(this, last, fcst, target, higher_better, fmt, fcst_lbl, target_lbl, last
         parts.append(f'<text x="{xt}" y="43" text-anchor="middle" class="tk">{target_lbl}</text>')
     else:
         parts.append(f'<line x1="{TX}" y1="12" x2="{TX}" y2="32" stroke="rgba(43,35,32,.25)" stroke-width="2" stroke-dasharray="3 3"/>')
-        parts.append(f'<text x="{TX}" y="43" text-anchor="middle" class="tk tbc">{target_lbl or "none yet"}</text>')
+        parts.append(f'<text x="{TX}" y="43" text-anchor="middle" class="tk tbc">{target_lbl}</text>')
     # last week hollow marker
     if xl is not None:
         parts.append(f'<circle cx="{xl}" cy="22" r="5.5" fill="#FBF6EE" stroke="{INK}" stroke-width="1.6" opacity=".7"/>')
@@ -109,7 +109,7 @@ def centre(idx, name, places, rows):
 # ============================================================
 # WEEK'S FIGURES — the only part that changes each issue
 # ============================================================
-ISSUE = "2.1"
+ISSUE = "2.2"
 WEEK_LABEL = "6 Nov 26"                 # Friday that closes the week
 SNAPSHOT = "Sat 7 Nov 26, 3:06 am AEDT"  # dashboard build the figures come from
 FORECAST_WINDOW = "weeks of 3 Aug to 26 Oct"
@@ -118,11 +118,13 @@ LASTWEEK_ASOF = "Fri 30 Oct"
 # bar(this, last, forecast, target, higher_is_better, unit, forecast_label, target_label, last_label)
 DATA = {
  "South Morang": {"places": 108, "rows": [
-  ("bar", "Occupancy", "no casual days", "79%", "424 spots", (78.5, 78.9, 76.4, 85, True, "%", "76%", "85%", "79%")),
+  ("bar", "Occupancy", "incl. casual days", "80%", "433 spots", (80.2, 79.4, 78.2, 85, True, "%", "78%", "85%", "79%")),
   ("bar", "Enquiries", "families", "4", "last week 4", (4, 4, 4.3, 7, True, "", "4.3", "7", "4")),
   ("bar", "Tours completed", "families", "1", "last week 4", (1, 4, 4.2, 5.5, True, "", "4.2", "5–6", "4")),
   ("bar", "New enrolments", "children into Owna this week", "2", "last week 2", (2, 2, 1.2, 2.5, True, "", "1.2", "2–3", "2")),
-  ("bar", "Lost spots", "spots a week · excludes school leavers", "7", "2 children", (7, 3, 2.4, 2.1, False, "", "2.4", "2.1", "3")),
+  ("bar", "Spots gained", "spots a week · new children starting", "0", "no starts", (0, 0, 3.0, 7, True, "", "3.0", "7", "0")),
+  ("bar", "Spots lost", "spots a week · excludes school leavers", "7", "2 children", (7, 3, 2.4, 2.1, False, "", "2.4", "2.1", "3")),
+  ("bar", "Casual days", "days a week", "9", "last week 3", (9, 3, 9.8, None, True, "", "9.8", "", "3")),
   ("prof", "$50 deposit paid", "families · not yet enrolled · start month given", 2, "",
       [("Overdue", 0, "—"), ("Nov–Dec", 0, "—"), ("Jan–Feb", 1, "—"), ("Later / none", 1, "—")],
       "Last week 3", False),
@@ -133,11 +135,13 @@ DATA = {
       "Forecast: all 33 gone by end Jan · 28 have no date in Owna", True),
  ]},
  "Craigieburn": {"places": 174, "rows": [
-  ("bar", "Occupancy", "no casual days", "35%", "301 spots", (34.6, 34.0, 32.8, 70, True, "%", "33%", "70%", "34%")),
+  ("bar", "Occupancy", "incl. casual days", "36%", "309 spots", (35.5, 35.1, 33.9, 70, True, "%", "34%", "70%", "35%")),
   ("bar", "Enquiries", "families", "5", "last week 5", (5, 5, 7.7, 35, True, "", "7.7", "35", "5")),
   ("bar", "Tours completed", "families", "5", "last week 4", (5, 4, 5.8, 23, True, "", "5.8", "23", "4")),
   ("bar", "New enrolments", "children into Owna this week", "0", "last week 6", (0, 6, 2.2, 11, True, "", "2.2", "11", "6")),
-  ("bar", "Lost spots", "spots a week · excludes school leavers", "0", "none", (0, 4, 3.8, 2.1, False, "", "3.8", "2.1", "4")),
+  ("bar", "Spots gained", "spots a week · new children starting", "11", "3 children", (11, 0, 4.4, 33, True, "", "4.4", "33", "0")),
+  ("bar", "Spots lost", "spots a week · excludes school leavers", "0", "none", (0, 4, 3.8, 2.1, False, "", "3.8", "2.1", "4")),
+  ("bar", "Casual days", "days a week", "8", "last week 9", (8, 9, 9.3, None, True, "", "9.3", "", "9")),
   ("prof", "$50 deposit paid", "families · not yet enrolled · start month given", 22, "",
       [("Overdue", 5, "—"), ("Nov–Dec", 4, "—"), ("Jan–Feb", 8, "—"), ("Later / none", 5, "—")],
       "Last week 20", False),
@@ -277,8 +281,8 @@ h2 {{ margin:0; font-size:20px; line-height:1; }}
   <details class="foot">
     <summary>About the numbers</summary>
     <p><b>Issue {ISSUE}.</b> Figures from the Billy Button dashboard build of {SNAPSHOT}. The report is cut each Saturday morning from the overnight build, which closes the Monday-to-Friday week; nothing entered after 6 pm Friday counts. Forecast = average of the last 13 full weeks ({FORECAST_WINDOW}), the three-month rule. Solid dot = this week; ring = last week; green = moved from forecast toward target, brown = moved away.</p>
-    <p><b>How each measure is counted.</b> Occupancy: Owna booked child-days, permanent enrolments only (no casual days), Mon–Fri ÷ licensed places × 5. Enquiries and tours completed: the dashboard's certified weekly metrics, counted in families. New enrolments: children pulled into Owna in the week. Lost spots: Owna formal withdrawals by finish week, school leavers apart; day reductions not included. $50 deposit paid, not yet enrolled: LineLeader families with the Owna form in and the $50 paid who have not yet been pulled into Owna, by the start month the parent gave (Overdue = that month has passed and the child is still not in Owna). The total is the families waiting; "Last week" is the same count a week earlier (in this first issue estimated from forms received and children pulled in the week). A deposit is not an enrolment: of the Jan–Aug 26 cohorts, deposits that went on to start were 25 of 32 at South Morang (78%) and 43 of 66 at Craigieburn (65%; 28 of 41 excluding the January opening group). Enrolled, due to start: children with an Owna enrolment whose start date is after the snapshot, by start month; last week as at {LASTWEEK_ASOF}. School leavers: children whose Owna record says they start school in 2027, by the month of their Owna finish date; "No date" means no finish date is entered yet. The forecast assumes every school leaver has gone by the end of January; last season at South Morang 40% of leaver spots went in December, 44% in January and 16% in February.</p>
-    <p><b>Targets</b> are weekly rates: occupancy at 30 Jun 27 (South Morang 85%, Craigieburn 70%); lost spots 9 a month per centre; enquiries, tours and enrolments from the model's Target chain (South Morang 31 enquiries a month, Craigieburn 150, at certified conversion). The deposit and due-to-start profiles are the forward book and carry no target.</p>
+    <p><b>How each measure is counted.</b> Occupancy: all Owna booked child-days Mon–Fri, casual days included, ÷ licensed places × 5. Casual days: the casual booked days inside that total, shown on their own because they move week to week. Enquiries and tours completed: the dashboard's certified weekly metrics, counted in families. New enrolments: children pulled into Owna in the week. Spots gained: booked days a week of new children whose Owna start date falls in the week (extra days added by existing children are not in it). Spots lost: Owna formal withdrawals by finish week, school leavers apart; day reductions not included. $50 deposit paid, not yet enrolled: LineLeader families with the Owna form in and the $50 paid who have not yet been pulled into Owna, by the start month the parent gave (Overdue = that month has passed and the child is still not in Owna). The total is the families waiting; "Last week" is the same count a week earlier (in this first issue estimated from forms received and children pulled in the week). A deposit is not an enrolment: of the Jan–Aug 26 cohorts, deposits that went on to start were 25 of 32 at South Morang (78%) and 43 of 66 at Craigieburn (65%; 28 of 41 excluding the January opening group). Enrolled, due to start: children with an Owna enrolment whose start date is after the snapshot, by start month; last week as at {LASTWEEK_ASOF}. School leavers: children whose Owna record says they start school in 2027, by the month of their Owna finish date; "No date" means no finish date is entered yet. The forecast assumes every school leaver has gone by the end of January; last season at South Morang 40% of leaver spots went in December, 44% in January and 16% in February.</p>
+    <p><b>Targets</b> are weekly rates: occupancy at 30 Jun 27 (South Morang 85%, Craigieburn 70%); spots gained from the Target chain in children × average days (South Morang 7, Craigieburn 33 a week); spots lost 9 a month per centre; casual days carry no target; enquiries, tours and enrolments from the model's Target chain (South Morang 31 enquiries a month, Craigieburn 150, at certified conversion). The deposit and due-to-start profiles are the forward book and carry no target.</p>
   </details>
 </div>
 <script>
