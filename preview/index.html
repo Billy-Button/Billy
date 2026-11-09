@@ -39,10 +39,10 @@ h1 { margin:0; font-size:25px; line-height:1.05; white-space:nowrap; }
 .defs { margin:6px 0 0; } .defs dt { font-weight:700; color:var(--ink); margin-top:7px; } .defs dd { margin:1px 0 0; }
 .ctx { padding:8px 18px 0; font-size:12px; color:var(--ink-70); line-height:1.4; }
 .ctx b { color:var(--ink); }
-.legend { display:none; }
+.legend { display:flex; gap:6px 10px; flex-wrap:wrap; padding:6px 18px 0; font-size:10.5px; font-weight:600; color:var(--ink-50); }
 .legend span { display:inline-flex; align-items:center; gap:5px; }
-.dot { width:16px; height:16px; border-radius:50%; display:inline-block; }
-.ring { background:transparent; border:1.8px solid var(--ink); opacity:.7; width:13px; height:13px; }
+.dot { width:11px; height:11px; border-radius:50%; display:inline-block; }
+.ring { background:transparent; border:1.6px solid var(--ink); opacity:.7; width:10px; height:10px; }
 .centre { padding:0 18px 2px; }
 .c-head { display:flex; align-items:center; gap:8px; padding-bottom:6px; border-bottom:2px solid var(--earth); }
 .c-idx { width:22px; height:22px; border-radius:50%; background:var(--earth); color:var(--cream); font-size:12px; display:inline-flex; align-items:center; justify-content:center; }
@@ -109,8 +109,9 @@ h2 { margin:0; font-size:20px; line-height:1; }
     <button type="button" role="tab" id="tab-cb" aria-controls="craigieburn" aria-selected="false" data-target="craigieburn">Craigieburn</button>
   </nav>
   <div class="legend">
-    <span><i class="dot" style="background:#6E8B57"></i>toward target</span>
-    <span><i class="dot" style="background:#A45823"></i>away</span>
+    <span><i class="dot" style="background:#A45823"></i>below forecast</span>
+    <span><i class="dot" style="background:#E39B2D"></i>forecast to target</span>
+    <span><i class="dot" style="background:#6E8B57"></i>at target</span>
     <span><i class="dot ring"></i>last week</span>
   </div>
   <div class="screens">
@@ -122,14 +123,14 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="m-top"><span class="m-label">Occupancy</span><span class="m-unit">incl. casual days</span></div>
         <div class="m-body">
           <div class="num"><div class="big">80%</div><div class="s">433 spots · 9 casual</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="144.82352941176472" y2="22" stroke="#6E8B57" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">78%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">85%</text><circle cx="125.2941176470589" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="125.2941176470589" y="7" text-anchor="middle" class="tk">79%</text><circle cx="144.82352941176472" cy="22" r="8" fill="#6E8B57" stroke="#FBF6EE" stroke-width="2.5"/></svg>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="144.82352941176472" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">78%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">85%</text><circle cx="125.2941176470589" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="125.2941176470589" y="7" text-anchor="middle" class="tk">79%</text><circle cx="144.82352941176472" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/></svg>
         </div>
       </li>
       <li class="m q">
         <div class="m-top"><span class="m-label">− School leavers</span><span class="m-unit">gone by end Jan</span></div>
         <div class="m-body">
           <div class="num"><div class="big"><span class="neg">(33)</span></div><div class="s">−102 spots</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">last wk <span class="neg">(2)</span></div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v"><span class="neg">(3)</span></div><div class="pm-l">last wk <span class="neg">(3)</span></div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">last wk <span class="neg">(1)</span></div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(28)</span></div><div class="pm-l">last wk <span class="neg">(28)</span></div></div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v"><span class="neg">(3)</span></div><div class="pm-l">9 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">5 spots</div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(28)</span></div><div class="pm-l">87 spots</div></div></div>
         </div>
         <div class="pm-chg">28 have no finish date in Owna</div>
       </li>
@@ -137,17 +138,17 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="m-top"><span class="m-label">+ Due to start</span><span class="m-unit">pulled, not started</span></div>
         <div class="m-body">
           <div class="num"><div class="big">5</div><div class="s">+10 spots</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">last wk 2</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">last wk 1</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">1</div><div class="pm-l">last wk 0</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">1</div><div class="pm-l">last wk 0</div></div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">3 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">1</div><div class="pm-l">3 spots</div></div></div>
         </div>
-        <div class="pm-chg">+2 pulled in this week</div>
+        <div class="pm-chg">2 pulled through this week</div>
       </li>
       <li class="m q">
         <div class="m-top"><span class="m-label">+ Pending in Owna</span><span class="m-unit">form in, not pulled</span></div>
         <div class="m-body">
           <div class="num"><div class="big">2</div><div class="s">+2 spots asked</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">0</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">0</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">1</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">1</div></div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">1</div><div class="pm-l">0 spots</div></div></div>
         </div>
-        <div class="pm-chg">Last week 3 · +1 in, 2 pulled</div>
+        <div class="pm-chg">+1 form in this week, 2 pulled through</div>
       </li>
       <li class="m total">
         <div class="m-top"><span class="m-label">= Base case, end Feb 27</span><span class="m-unit">if nothing else changes</span></div>
@@ -157,7 +158,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li><li class="sec"><span class="sec-t">Performance</span><span class="sec-s">this week</span></li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enquiries</span><span class="m-unit">families</span></div>
+        <div class="m-top"><span class="m-label">New enquiries</span><span class="m-unit">families</span></div>
         <div class="m-body">
           <div class="num"><div class="big">4</div><div class="s">last week 4</div></div>
           <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="77.55555555555557" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">4.3</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">7</text><circle cx="77.55555555555557" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="77.55555555555557" y="7" text-anchor="middle" class="tk">4</text><circle cx="77.55555555555557" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/></svg>
@@ -171,10 +172,10 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna</span></div>
+        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna · not yet started</span></div>
         <div class="m-body">
           <div class="num"><div class="big">2</div><div class="s">last week 2</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="198.15384615384616" y2="22" stroke="#6E8B57" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">1.2</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">2–3</text><circle cx="198.15384615384616" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="198.15384615384616" y="7" text-anchor="middle" class="tk">2</text><circle cx="198.15384615384616" cy="22" r="8" fill="#6E8B57" stroke="#FBF6EE" stroke-width="2.5"/></svg>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="198.15384615384616" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">1.2</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">2–3</text><circle cx="198.15384615384616" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="198.15384615384616" y="7" text-anchor="middle" class="tk">2</text><circle cx="198.15384615384616" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/></svg>
         </div>
       </li>
       <li class="m">
@@ -200,14 +201,14 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="m-top"><span class="m-label">Occupancy</span><span class="m-unit">incl. casual days</span></div>
         <div class="m-body">
           <div class="num"><div class="big">36%</div><div class="s">309 spots · 8 casual</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="103.35734072022161" y2="22" stroke="#6E8B57" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">70%</text><circle cx="101.51800554016621" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="101.51800554016621" y="7" text-anchor="middle" class="tk">35%</text><circle cx="103.35734072022161" cy="22" r="8" fill="#6E8B57" stroke="#FBF6EE" stroke-width="2.5"/></svg>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="103.35734072022161" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">70%</text><circle cx="101.51800554016621" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="101.51800554016621" y="7" text-anchor="middle" class="tk">35%</text><circle cx="103.35734072022161" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/></svg>
         </div>
       </li>
       <li class="m q">
         <div class="m-top"><span class="m-label">− School leavers</span><span class="m-unit">gone by end Jan</span></div>
         <div class="m-body">
           <div class="num"><div class="big"><span class="neg">(22)</span></div><div class="s">−79 spots</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">last wk <span class="neg">(1)</span></div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">0</div><div class="pm-l">last wk 0</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">0</div><div class="pm-l">last wk 0</div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(21)</span></div><div class="pm-l">last wk <span class="neg">(21)</span></div></div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">5 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(21)</span></div><div class="pm-l">74 spots</div></div></div>
         </div>
         <div class="pm-chg">21 have no finish date in Owna</div>
       </li>
@@ -215,27 +216,27 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="m-top"><span class="m-label">+ Due to start</span><span class="m-unit">pulled, not started</span></div>
         <div class="m-body">
           <div class="num"><div class="big">5</div><div class="s">+7 spots</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">last wk 5</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">last wk 1</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">0</div><div class="pm-l">last wk 0</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">2</div><div class="pm-l">last wk 2</div></div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">2</div><div class="pm-l">4 spots</div></div></div>
         </div>
         <div class="pm-chg">3 started this week</div>
       </li>
       <li class="m q">
         <div class="m-top"><span class="m-label">+ Pending in Owna</span><span class="m-unit">form in, not pulled</span></div>
         <div class="m-body">
-          <div class="num"><div class="big">22</div><div class="s">+36 spots asked</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">5</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">4</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">8</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">5</div></div></div>
+          <div class="num"><div class="big">22</div><div class="s">+47 spots asked</div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">5</div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">4</div><div class="pm-l">11 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">8</div><div class="pm-l">32 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">5</div><div class="pm-l">3 spots</div></div></div>
         </div>
-        <div class="pm-chg">Last week 20 · +2 in, 0 pulled · 5 past start</div>
+        <div class="pm-chg">+2 forms in this week · 5 past their start month</div>
       </li>
       <li class="m total">
         <div class="m-top"><span class="m-label">= Base case, end Feb 27</span><span class="m-unit">if nothing else changes</span></div>
         <div class="m-body">
-          <div class="num"><div class="big">31%</div><div class="s">273 spots</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="84.50415512465374" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">70%</text><circle cx="84.50415512465374" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/></svg>
+          <div class="num"><div class="big">33%</div><div class="s">284 spots</div></div>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="90.02216066481996" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">70%</text><circle cx="90.02216066481996" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/></svg>
         </div>
       </li><li class="sec"><span class="sec-t">Performance</span><span class="sec-s">this week</span></li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enquiries</span><span class="m-unit">families</span></div>
+        <div class="m-top"><span class="m-label">New enquiries</span><span class="m-unit">families</span></div>
         <div class="m-body">
           <div class="num"><div class="big">5</div><div class="s">last week 5</div></div>
           <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="79.58241758241758" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">7.7</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">35</text><circle cx="79.58241758241758" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="79.58241758241758" y="7" text-anchor="middle" class="tk">5</text><circle cx="79.58241758241758" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/></svg>
@@ -249,7 +250,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna</span></div>
+        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna · not yet started</span></div>
         <div class="m-body">
           <div class="num"><div class="big">0</div><div class="s">last week 6</div></div>
           <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="54.5" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">2.2</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">11</text><circle cx="167.6818181818182" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="167.6818181818182" y="7" text-anchor="middle" class="tk">6</text><circle cx="54.5" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/></svg>
@@ -259,7 +260,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="m-top"><span class="m-label">Spots gained</span><span class="m-unit">spots a week · started</span></div>
         <div class="m-body">
           <div class="num"><div class="big">11</div><div class="s">3 children started</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="134.30769230769232" y2="22" stroke="#6E8B57" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">4.4</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">33</text><circle cx="70.46153846153845" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="70.46153846153845" y="7" text-anchor="middle" class="tk">0</text><circle cx="134.30769230769232" cy="22" r="8" fill="#6E8B57" stroke="#FBF6EE" stroke-width="2.5"/></svg>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="134.30769230769232" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="43" text-anchor="middle" class="tk">4.4</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="43" text-anchor="middle" class="tk">33</text><circle cx="70.46153846153845" cy="22" r="5.5" fill="#FBF6EE" stroke="#2B2320" stroke-width="1.6" opacity=".7"/><text x="70.46153846153845" y="7" text-anchor="middle" class="tk">0</text><circle cx="134.30769230769232" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/></svg>
         </div>
       </li>
       <li class="m">
@@ -274,14 +275,14 @@ h2 { margin:0; font-size:20px; line-height:1; }
   <details class="foot">
     <summary>About the numbers</summary>
     <p><b>Issue 2.3 DRAFT.</b> Figures from the Billy Button dashboard build of Sat 7 Nov 26, 3:06 am AEDT. The report is cut each Saturday morning from the overnight build, which closes the Monday-to-Friday week; nothing entered after 6 pm Friday counts. Forecast = average of the last 13 full weeks (weeks of 3 Aug to 26 Oct), the three-month rule. Solid dot = this week; ring = last week; green = moved from forecast toward target, brown = moved away.</p>
-    <p><b>How each measure is counted</b> — one line each, in the order shown. The base case adds up: occupancy now, less leavers, plus the two queues, equals the book at end February. The performance rows are weekly rates against the forecast and target.</p>
+    <p><b>How each measure is counted</b> — one line each, in the order shown. The base case is a snapshot: occupancy now, less leavers, plus the two queues, equals the book at end February; month cells show children with their spots. The performance rows are weekly rates against the forecast and target, with last week as the hollow ring. Colours: brown below forecast, amber between forecast and target, green at or beyond target.</p>
     <dl class="defs">
       <dt>Occupancy</dt><dd>All Owna booked child-days Mon–Fri, casual days included, ÷ licensed places × 5. The sub-line shows the casual days inside the total.</dd>
       <dt>− School leavers</dt><dd>Children whose Owna record says they start school in 2027, by the month of their Owna finish date. "No date" = no finish date entered yet. The forecast assumes every leaver has gone by the end of January; last season at South Morang 40% of leaver spots went in December, 44% in January, 16% in February.</dd>
       <dt>+ Due to start</dt><dd>Children with an Owna enrolment whose start date is after the snapshot, by start month, with their booked days a week as the spots they add. Last week as at Fri 30 Oct. The byline shows pulled in and started out.</dd>
       <dt>+ Pending in Owna</dt><dd>Families whose enrolment form is in but has not yet been pulled through, by the start month the parent gave. "Past start" = that month has passed and the child is still not in Owna, so the family is waiting on us. The spots are the days a week the parent asked for on the form. Counted gross: not all will land, see below. Pending is not yet a start: of the Jan–Aug 26 cohorts, forms that went on to a start were 25 of 32 at South Morang (78%) and 43 of 66 at Craigieburn (65%; 28 of 41 excluding the January opening group).</dd>
       <dt>= Base case, end Feb 27</dt><dd>Occupancy now, less the school leavers (all assumed gone by end January), plus due-to-start and pending spots (most start by February), ÷ licensed places × 5. Where each centre lands if nothing else changes: no new enquiries, no new losses, every pending family starts. The gap from here to the forecast and target is what the flow below has to deliver.</dd>
-      <dt>Enquiries</dt><dd>New LineLeader enquiries in the week, counted in families (the dashboard's certified weekly metric).</dd>
+      <dt>New enquiries</dt><dd>New LineLeader enquiries in the week, counted in families (the dashboard's certified weekly metric).</dd>
       <dt>Tours completed</dt><dd>Tours that took place in the week, counted in families (certified weekly metric).</dd>
       <dt>Enrolled</dt><dd>Children pulled into Owna in the week: room, days and compliance confirmed, the account created and the $50 charged. This is the conversion the forecast is built on.</dd>
       <dt>Spots gained</dt><dd>Booked days a week of children whose Owna start date fell in the week. Same children as "Due to start", counted the week they walk in. Extra days added by existing children are not in it.</dd>
