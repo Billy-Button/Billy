@@ -141,14 +141,15 @@ h2 { margin:0; font-size:20px; line-height:1; }
 .measures.fu .sec { padding:18px 0 4px; }
 .fl { display:grid; grid-template-columns:minmax(0,1fr) 66px 50px 50px; align-items:center; gap:6px; padding:9px 0; border-bottom:1px solid rgba(43,35,32,.07); }
 .fl:last-child { border-bottom:0; }
-.fl-lab { font-size:13.5px; font-weight:700; line-height:1.2; min-width:0; }
+.fl-lab { font-size:13.5px; font-weight:700; line-height:1.2; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .fl-unit { display:block; font-size:10.5px; font-weight:600; color:var(--ink-50); margin-top:1px; }
-.fl-now { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:21px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.fl-now { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:22px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; line-height:1; }
+.fl-ns { display:block; font-family:"Nunito",sans-serif; font-size:10px; font-weight:700; color:var(--ink-50); margin-top:2px; }
 .fl-prev { display:flex; flex-direction:column; align-items:center; line-height:1.1; }
-.fa { font-size:15px; font-weight:800; }
+.fa { font-size:24px; font-weight:800; line-height:1; }
 .fa.bad { color:#B3261E; } .fa.good { color:var(--sage); } .fa.same { color:#E39B2D; } .fa.flat { color:var(--ink-50); }
 .fu-open { padding:8px 18px 0; font-size:12.5px; color:var(--ink-70); } .fu-open b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:16px; color:var(--ink); }
-.fl-pv { font-size:12px; font-weight:700; color:var(--ink-70); white-space:nowrap; }
+.fl-pv { font-size:10.5px; font-weight:700; color:var(--ink-70); white-space:nowrap; margin-top:1px; }
 .fl-pk { display:none; font-size:9px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-50); }
 .fu-head { display:grid; grid-template-columns:minmax(0,1fr) 66px 50px 50px; gap:6px; padding:12px 0 0; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-50); text-align:center; }
 .fu-head span:first-child { text-align:left; }
@@ -397,63 +398,63 @@ h2 { margin:0; font-size:20px; line-height:1; }
   <div class="screens">
     <div id="fu-sm" class="screen"><div class="fu-open"><b>48</b> families still waiting on us · 45 last wk · 18 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">Response</span></li>
       <li class="fl">
-        <div class="fl-lab">Enquiries answered within 24 h<span class="fl-unit">of new enquiries</span></div>
-        <div class="fl-now">0 of 4</div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">2 of 4</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">1 of 3</span></div>
+        <div class="fl-lab">Answered within 24 h<span class="fl-unit">of new enquiries</span></div>
+        <div class="fl-now">0%<span class="fl-ns">0 of 4</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">50%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">33%</span></div>
       </li><li class="sec"><span class="sec-t">Tours</span></li>
       <li class="fl">
-        <div class="fl-lab">Tours followed up within 48 h<span class="fl-unit">of tours booked</span></div>
-        <div class="fl-now">3 of 4</div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">2 of 3</span></div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">2 of 4</span></div>
+        <div class="fl-lab">Tour follow-up in 48 h<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-now">75%<span class="fl-ns">3 of 4</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">67%</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">50%</span></div>
       </li>
       <li class="fl">
         <div class="fl-lab">Tour outcomes recorded<span class="fl-unit">of tours booked</span></div>
-        <div class="fl-now">0 of 4</div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">2 of 3</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">3 of 4</span></div>
+        <div class="fl-now">0%<span class="fl-ns">0 of 4</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">67%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">75%</span></div>
       </li>
       <li class="fl">
         <div class="fl-lab">No-shows followed up<span class="fl-unit">of no-shows</span></div>
-        <div class="fl-now">—</div>
+        <div class="fl-now">—<span class="fl-ns">—</span></div>
         <div class="fl-prev"><span class="fa flat">—</span><span class="fl-pv">—</span></div>
-        <div class="fl-prev"><span class="fa flat">—</span><span class="fl-pv">0 of 1</span></div>
+        <div class="fl-prev"><span class="fa flat">—</span><span class="fl-pv">0%</span></div>
       </li><li class="sec"><span class="sec-t">Follow-ups</span></li>
       <li class="fl">
-        <div class="fl-lab">Follow-ups cleared this week<span class="fl-unit">families moved on a stage</span></div>
-        <div class="fl-now">24</div>
+        <div class="fl-lab">Follow-ups cleared<span class="fl-unit">families moved on a stage</span></div>
+        <div class="fl-now">24<span class="fl-ns"></span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">4</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">3</span></div>
       </li></ul></div></div>
     <div id="fu-cb" class="screen" hidden><div class="fu-open"><b>64</b> families still waiting on us · 58 last wk · 41 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">Response</span></li>
       <li class="fl">
-        <div class="fl-lab">Enquiries answered within 24 h<span class="fl-unit">of new enquiries</span></div>
-        <div class="fl-now">4 of 6</div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0 of 5</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">11 of 13</span></div>
+        <div class="fl-lab">Answered within 24 h<span class="fl-unit">of new enquiries</span></div>
+        <div class="fl-now">67%<span class="fl-ns">4 of 6</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">85%</span></div>
       </li><li class="sec"><span class="sec-t">Tours</span></li>
       <li class="fl">
-        <div class="fl-lab">Tours followed up within 48 h<span class="fl-unit">of tours booked</span></div>
-        <div class="fl-now">4 of 6</div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0 of 6</span></div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0 of 4</span></div>
+        <div class="fl-lab">Tour follow-up in 48 h<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-now">67%<span class="fl-ns">4 of 6</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
       </li>
       <li class="fl">
         <div class="fl-lab">Tour outcomes recorded<span class="fl-unit">of tours booked</span></div>
-        <div class="fl-now">1 of 6</div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">2 of 6</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">3 of 4</span></div>
+        <div class="fl-now">17%<span class="fl-ns">1 of 6</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">33%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">75%</span></div>
       </li>
       <li class="fl">
         <div class="fl-lab">No-shows followed up<span class="fl-unit">of no-shows</span></div>
-        <div class="fl-now">2 of 2</div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0 of 1</span></div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">1 of 2</span></div>
+        <div class="fl-now">100%<span class="fl-ns">2 of 2</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">50%</span></div>
       </li><li class="sec"><span class="sec-t">Follow-ups</span></li>
       <li class="fl">
-        <div class="fl-lab">Follow-ups cleared this week<span class="fl-unit">families moved on a stage</span></div>
-        <div class="fl-now">26</div>
+        <div class="fl-lab">Follow-ups cleared<span class="fl-unit">families moved on a stage</span></div>
+        <div class="fl-now">26<span class="fl-ns"></span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">11</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">15</span></div>
       </li></ul></div></div>
