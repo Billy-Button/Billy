@@ -142,7 +142,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
 .fl { display:grid; grid-template-columns:minmax(0,1fr) 66px 50px 50px; align-items:center; gap:6px; padding:9px 0; border-bottom:1px solid rgba(43,35,32,.07); }
 .fl:last-child { border-bottom:0; }
 .fl-lab { font-size:13.5px; font-weight:700; line-height:1.2; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.fl-unit { display:block; font-size:10.5px; font-weight:600; color:var(--ink-50); margin-top:1px; }
+.fl-unit { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:10.5px; font-weight:600; color:var(--ink-50); margin-top:1px; }
 .fl-now { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:22px; text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; line-height:1; }
 .fl-ns { display:block; font-family:"Nunito",sans-serif; font-size:10px; font-weight:700; color:var(--ink-50); margin-top:2px; }
 .fl-prev { display:flex; flex-direction:column; align-items:center; line-height:1.1; }
@@ -220,7 +220,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">− School leavers</span><span class="m-unit">gone by end Jan</span></div>
+        <div class="m-top"><span class="m-label">− Leaving for school</span><span class="m-unit">gone by end Jan</span></div>
         <div class="m-body">
           <div class="num"><div class="big"><span class="neg">(33)</span></div><div class="s">−102 spots</div></div>
           <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v"><span class="neg">(3)</span></div><div class="pm-l">9 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">5 spots</div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(28)</span></div><div class="pm-l">87 spots</div></div></div>
@@ -228,7 +228,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="pm-chg">28 have no finish date in Owna</div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">+ Due to start</span><span class="m-unit">pulled, not started</span></div>
+        <div class="m-top"><span class="m-label">+ Enrolled, not started</span><span class="m-unit">in Owna, start date ahead</span></div>
         <div class="m-body">
           <div class="num"><div class="big">5</div><div class="s">+10 spots</div></div>
           <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">3 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">1</div><div class="pm-l">3 spots</div></div></div>
@@ -236,12 +236,12 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="pm-chg">2 pulled through this week</div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">+ Pending in Owna</span><span class="m-unit">form in, not pulled</span></div>
+        <div class="m-top"><span class="m-label">+ Pending</span><span class="m-unit">Owna form in, not pulled through</span></div>
         <div class="m-body">
-          <div class="num"><div class="big">2</div><div class="s">+2 spots asked</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">1</div><div class="pm-l">0 spots</div></div></div>
+          <div class="num"><div class="big">1</div><div class="s">+2 spots asked</div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div></div>
         </div>
-        <div class="pm-chg">+1 form in this week, 2 pulled through</div>
+        <div class="pm-chg">+1 form in, 2 pulled through · 1 more gone quiet</div>
       </li>
       <li class="m total">
         <div class="m-top"><span class="m-label">= Base case, end Feb 27</span><span class="m-unit">if nothing else changes</span></div>
@@ -265,21 +265,21 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna · not yet started</span></div>
+        <div class="m-top"><span class="m-label">Enrolment complete</span><span class="m-unit">pulled into Owna · $50 charged</span></div>
         <div class="m-body">
           <div class="num"><div class="big">2</div><div class="s">last week 2</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="198.15384615384616" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">1.2</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">2–3</text><circle cx="198.15384615384616" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="198.15384615384616" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Spots gained</span><span class="m-unit">spots a week · started</span></div>
+        <div class="m-top"><span class="m-label">Started</span><span class="m-unit">spots a week · first day in the week</span></div>
         <div class="m-body">
           <div class="num"><div class="big">0</div><div class="s">no starts</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="10" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">3.0</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">7</text><circle cx="10" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="10" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Spots lost</span><span class="m-unit">spots a week · not leavers</span></div>
+        <div class="m-top"><span class="m-label">Lost spots</span><span class="m-unit">spots a week · not school leavers</span></div>
         <div class="m-body">
           <div class="num"><div class="big">7</div><div class="s">2 children</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="10" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">2.4</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">2.1</text><circle cx="10" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="10" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
@@ -298,7 +298,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">− School leavers</span><span class="m-unit">gone by end Jan</span></div>
+        <div class="m-top"><span class="m-label">− Leaving for school</span><span class="m-unit">gone by end Jan</span></div>
         <div class="m-body">
           <div class="num"><div class="big"><span class="neg">(22)</span></div><div class="s">−79 spots</div></div>
           <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v"><span class="neg">(1)</span></div><div class="pm-l">5 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">No date</div><div class="pm-v"><span class="neg">(21)</span></div><div class="pm-l">74 spots</div></div></div>
@@ -306,7 +306,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="pm-chg">21 have no finish date in Owna</div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">+ Due to start</span><span class="m-unit">pulled, not started</span></div>
+        <div class="m-top"><span class="m-label">+ Enrolled, not started</span><span class="m-unit">in Owna, start date ahead</span></div>
         <div class="m-body">
           <div class="num"><div class="big">5</div><div class="s">+7 spots</div></div>
           <div class="prof"><div class="pm"><div class="pm-k">Nov</div><div class="pm-v">2</div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Dec</div><div class="pm-v">1</div><div class="pm-l">2 spots</div></div><div class="pm"><div class="pm-k">Jan</div><div class="pm-v">0</div><div class="pm-l">0 spots</div></div><div class="pm"><div class="pm-k">Feb+</div><div class="pm-v">2</div><div class="pm-l">4 spots</div></div></div>
@@ -314,18 +314,18 @@ h2 { margin:0; font-size:20px; line-height:1; }
         <div class="pm-chg">3 started this week</div>
       </li>
       <li class="m q">
-        <div class="m-top"><span class="m-label">+ Pending in Owna</span><span class="m-unit">form in, not pulled</span></div>
+        <div class="m-top"><span class="m-label">+ Pending</span><span class="m-unit">Owna form in, not pulled through</span></div>
         <div class="m-body">
-          <div class="num"><div class="big">22</div><div class="s">+47 spots asked</div></div>
-          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">5</div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">4</div><div class="pm-l">11 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">8</div><div class="pm-l">32 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">5</div><div class="pm-l">3 spots</div></div></div>
+          <div class="num"><div class="big">13</div><div class="s">+28 spots asked</div></div>
+          <div class="prof"><div class="pm"><div class="pm-k">Past start</div><div class="pm-v">2</div><div class="pm-l">1 spots</div></div><div class="pm"><div class="pm-k">Nov–Dec</div><div class="pm-v">3</div><div class="pm-l">8 spots</div></div><div class="pm"><div class="pm-k">Jan–Feb</div><div class="pm-v">6</div><div class="pm-l">17 spots</div></div><div class="pm"><div class="pm-k">Later / none</div><div class="pm-v">2</div><div class="pm-l">2 spots</div></div></div>
         </div>
-        <div class="pm-chg">+2 forms in this week · 5 past their start month</div>
+        <div class="pm-chg">+2 forms in, 0 pulled · 9 more gone quiet, not counted</div>
       </li>
       <li class="m total">
         <div class="m-top"><span class="m-label">= Base case, end Feb 27</span><span class="m-unit">if nothing else changes</span></div>
         <div class="m-body">
-          <div class="num"><div class="big">33%</div><div class="s">284 spots</div></div>
-          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="90.02216066481996" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">70%</text><circle cx="90.02216066481996" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/><text x="96" y="44" text-anchor="middle" class="hd">forecast</text><text x="262" y="44" text-anchor="middle" class="hd">target</text></svg>
+          <div class="num"><div class="big">30%</div><div class="s">265 spots</div></div>
+          <svg viewBox="0 0 300 50" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="80.3656509695291" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">34%</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">70%</text><circle cx="80.3656509695291" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/><text x="96" y="44" text-anchor="middle" class="hd">forecast</text><text x="262" y="44" text-anchor="middle" class="hd">target</text></svg>
         </div>
       </li><li class="sec"><span class="sec-t">Performance</span><span class="sec-s">this week</span></li>
       <li class="m">
@@ -343,21 +343,21 @@ h2 { margin:0; font-size:20px; line-height:1; }
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Enrolled</span><span class="m-unit">pulled into Owna · not yet started</span></div>
+        <div class="m-top"><span class="m-label">Enrolment complete</span><span class="m-unit">pulled into Owna · $50 charged</span></div>
         <div class="m-body">
           <div class="num"><div class="big">0</div><div class="s">last week 6</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="54.5" y1="22" x2="96" y2="22" stroke="#A45823" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">2.2</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">11</text><circle cx="54.5" cy="22" r="8" fill="#A45823" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="167.6818181818182" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Spots gained</span><span class="m-unit">spots a week · started</span></div>
+        <div class="m-top"><span class="m-label">Started</span><span class="m-unit">spots a week · first day in the week</span></div>
         <div class="m-body">
           <div class="num"><div class="big">11</div><div class="s">3 children started</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="134.30769230769232" y2="22" stroke="#E39B2D" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">4.4</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">33</text><circle cx="134.30769230769232" cy="22" r="8" fill="#E39B2D" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="70.46153846153845" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
         </div>
       </li>
       <li class="m">
-        <div class="m-top"><span class="m-label">Spots lost</span><span class="m-unit">spots a week · not leavers</span></div>
+        <div class="m-top"><span class="m-label">Lost spots</span><span class="m-unit">spots a week · not school leavers</span></div>
         <div class="m-body">
           <div class="num"><div class="big">0</div><div class="s">none</div></div>
           <svg viewBox="0 0 300 38" class="bar" role="img"><line x1="10" y1="22" x2="290" y2="22" stroke="rgba(43,35,32,.14)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="262" y2="22" stroke="rgba(43,35,32,.22)" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="22" x2="290" y2="22" stroke="#6E8B57" stroke-width="6" stroke-linecap="round"/><line x1="96" y1="12" x2="96" y2="32" stroke="#2B2320" stroke-width="2"/><text x="96" y="8" text-anchor="middle" class="tk">3.8</text><line x1="262" y1="12" x2="262" y2="32" stroke="#2B2320" stroke-width="2"/><text x="262" y="8" text-anchor="middle" class="tk">2.1</text><circle cx="290" cy="22" r="8" fill="#6E8B57" stroke="#FBF6EE" stroke-width="2.5"/><circle cx="76.4705882352941" cy="22" r="5.5" fill="none" stroke="#2B2320" stroke-width="1.6" opacity=".75"/></svg>
@@ -368,18 +368,18 @@ h2 { margin:0; font-size:20px; line-height:1; }
   <details class="foot">
     <summary>About the numbers</summary>
     <p><b>Issue 2.3 DRAFT.</b> Figures from the Billy Button dashboard build of Sat 7 Nov 26, 3:06 am AEDT. The report is cut each Saturday morning from the overnight build, which closes the Monday-to-Friday week; nothing entered after 6 pm Friday counts. Forecast = average of the last 13 full weeks (weeks of 3 Aug to 26 Oct), the three-month rule. Solid dot = this week; ring = last week; green = moved from forecast toward target, brown = moved away.</p>
-    <p><b>How each measure is counted</b> — one line each, in the order shown. The base case is a snapshot: occupancy now, less leavers, plus the two queues, equals the book at end February; month cells show children with their spots. The performance rows are weekly rates against the forecast and target, with last week as the hollow ring. Colours: brown below forecast, amber between forecast and target, green at or beyond target.</p>
+    <p><b>How each measure is counted</b> — one line each, in the order shown, using the dashboard's terms, which are LineLeader's and Owna's own words where the data is theirs. The base case is a snapshot: occupancy now, less leavers, plus the two queues, equals the book at end February; month cells show children with their spots. The performance rows are weekly rates against the forecast and target, with last week as the hollow ring. Colours: brown below forecast, amber between forecast and target, green at or beyond target.</p>
     <dl class="defs">
       <dt>Occupancy</dt><dd>All Owna booked child-days Mon–Fri, casual days included, ÷ licensed places × 5. The sub-line shows the casual days inside the total.</dd>
-      <dt>− School leavers</dt><dd>Children whose Owna record says they start school in 2027, by the month of their Owna finish date. "No date" = no finish date entered yet. The forecast assumes every leaver has gone by the end of January; last season at South Morang 40% of leaver spots went in December, 44% in January, 16% in February.</dd>
-      <dt>+ Due to start</dt><dd>Children with an Owna enrolment whose start date is after the snapshot, by start month, with their booked days a week as the spots they add. Last week as at Fri 30 Oct. The byline shows pulled in and started out.</dd>
-      <dt>+ Pending in Owna</dt><dd>Families whose enrolment form is in but has not yet been pulled through, by the start month the parent gave. "Past start" = that month has passed and the child is still not in Owna, so the family is waiting on us. The spots are the days a week the parent asked for on the form. Counted gross: not all will land, see below. Pending is not yet a start: of the Jan–Aug 26 cohorts, forms that went on to a start were 25 of 32 at South Morang (78%) and 43 of 66 at Craigieburn (65%; 28 of 41 excluding the January opening group).</dd>
+      <dt>− Leaving for school</dt><dd>Children whose Owna record says they start school in 2027, by the month of their Owna finish date. "No date" = no finish date entered yet. The forecast assumes every leaver has gone by the end of January; last season at South Morang 40% of leaver spots went in December, 44% in January, 16% in February.</dd>
+      <dt>+ Enrolled, not started</dt><dd>Children with an Owna enrolment whose start date is after the snapshot, by start month, with their booked days a week as the spots they add. Last week as at Fri 30 Oct. The byline shows pulled in and started out.</dd>
+      <dt>+ Pending</dt><dd>Families whose Owna enrolment form is in but has not yet been pulled through (Owna shows them as Pending), by the start month the parent gave. "Past start" = that month has passed and the child is still not in Owna. Families more than 60 days past the step's target are gone quiet (the dashboard's term: mostly lost, not yet closed in LineLeader); they are named in the byline and left out of the count and the base case. Pending is not yet a start: of the Jan–Aug 26 cohorts, forms that went on to a start were 25 of 32 at South Morang (78%) and 43 of 66 at Craigieburn (65%).</dd>
       <dt>= Base case, end Feb 27</dt><dd>Occupancy now, less the school leavers (all assumed gone by end January), plus due-to-start and pending spots (most start by February), ÷ licensed places × 5. Where each centre lands if nothing else changes: no new enquiries, no new losses, every pending family starts. The gap from here to the forecast and target is what the flow below has to deliver.</dd>
       <dt>New enquiries</dt><dd>New LineLeader enquiries in the week, counted in families (the dashboard's certified weekly metric).</dd>
       <dt>Tours completed</dt><dd>Tours that took place in the week, counted in families (certified weekly metric).</dd>
-      <dt>Enrolled</dt><dd>Children pulled into Owna in the week: room, days and compliance confirmed, the account created and the $50 charged. This is the conversion the forecast is built on.</dd>
-      <dt>Spots gained</dt><dd>Booked days a week of children whose Owna start date fell in the week. Same children as "Due to start", counted the week they walk in. Extra days added by existing children are not in it.</dd>
-      <dt>Spots lost</dt><dd>Booked days a week of Owna formal withdrawals by finish week. School leavers are shown separately; day reductions are not included.</dd>
+      <dt>Enrolment complete</dt><dd>Children pulled into Owna in the week: room, days and compliance confirmed, the account created and the $50 charged. This is the conversion the forecast is built on.</dd>
+      <dt>Started</dt><dd>Booked days a week of children whose Owna start date fell in the week. Same children as "Enrolled, not started", counted the week they walk in. Extra days added by existing children are not in it.</dd>
+      <dt>Lost spots</dt><dd>Booked days a week of Owna formal withdrawals by finish week. School leavers are shown separately; day reductions are not included.</dd>
     </dl>
     <p><b>Targets</b> are weekly rates: occupancy at 30 Jun 27 (South Morang 85%, Craigieburn 70%); spots gained from the Target chain in children × average days (South Morang 7, Craigieburn 33 a week); spots lost 9 a month per centre; enquiries, tours and enrolled from the model's Target chain (South Morang 31 enquiries a month, Craigieburn 150, at certified conversion). Pending, due to start and school leavers are the forward book and carry no target.</p>
   </details>
@@ -396,64 +396,76 @@ h2 { margin:0; font-size:20px; line-height:1; }
     <button type="button" role="tab" aria-selected="false" data-fu="fu-cb">Craigieburn</button>
   </nav>
   <div class="screens">
-    <div id="fu-sm" class="screen"><div class="fu-open"><b>48</b> families still waiting on us · 45 last wk · 18 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">Response</span></li>
+    <div id="fu-sm" class="screen"><div class="fu-open"><b>48</b> stalled (waiting on us) · 45 last wk · 18 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">First contact</span></li>
       <li class="fl">
-        <div class="fl-lab">Answered within 24 h<span class="fl-unit">of new enquiries</span></div>
+        <div class="fl-lab">First contact within 10 min<span class="fl-unit">of new enquiries</span></div>
         <div class="fl-now">0%<span class="fl-ns">0 of 4</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">50%</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">33%</span></div>
+        <div class="fl-prev"><span class="fa same">→</span><span class="fl-pv">0%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">25%</span></div>
       </li><li class="sec"><span class="sec-t">Tours</span></li>
       <li class="fl">
-        <div class="fl-lab">Tour follow-up in 48 h<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-lab">Tours kept<span class="fl-unit">show rate · of tours booked</span></div>
+        <div class="fl-now">100%<span class="fl-ns">4 of 4</span></div>
+        <div class="fl-prev"><span class="fa same">→</span><span class="fl-pv">100%</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">75%</span></div>
+      </li>
+      <li class="fl">
+        <div class="fl-lab">Tour followed up, 2 days<span class="fl-unit">of tours booked</span></div>
         <div class="fl-now">75%<span class="fl-ns">3 of 4</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">67%</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">50%</span></div>
       </li>
       <li class="fl">
-        <div class="fl-lab">Tour outcomes recorded<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-lab">Tour outcome recorded<span class="fl-unit">of tours booked</span></div>
         <div class="fl-now">0%<span class="fl-ns">0 of 4</span></div>
         <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">67%</span></div>
         <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">75%</span></div>
       </li>
       <li class="fl">
-        <div class="fl-lab">No-shows followed up<span class="fl-unit">of no-shows</span></div>
+        <div class="fl-lab">No-show followed up<span class="fl-unit">of tours not kept</span></div>
         <div class="fl-now">—<span class="fl-ns">—</span></div>
         <div class="fl-prev"><span class="fa flat">—</span><span class="fl-pv">—</span></div>
         <div class="fl-prev"><span class="fa flat">—</span><span class="fl-pv">0%</span></div>
-      </li><li class="sec"><span class="sec-t">Follow-ups</span></li>
+      </li><li class="sec"><span class="sec-t">Stalled</span></li>
       <li class="fl">
-        <div class="fl-lab">Follow-ups cleared<span class="fl-unit">families moved on a stage</span></div>
+        <div class="fl-lab">Stalled cleared<span class="fl-unit">families moved on a stage</span></div>
         <div class="fl-now">24<span class="fl-ns"></span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">4</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">3</span></div>
       </li></ul></div></div>
-    <div id="fu-cb" class="screen" hidden><div class="fu-open"><b>64</b> families still waiting on us · 58 last wk · 41 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">Response</span></li>
+    <div id="fu-cb" class="screen" hidden><div class="fu-open"><b>64</b> stalled (waiting on us) · 58 last wk · 41 four wks ago</div><div class="centre"><ul class="measures fu"><li class="fu-head"><span></span><span>this wk</span><span>last wk</span><span>4 wks</span></li><li class="sec"><span class="sec-t">First contact</span></li>
       <li class="fl">
-        <div class="fl-lab">Answered within 24 h<span class="fl-unit">of new enquiries</span></div>
-        <div class="fl-now">67%<span class="fl-ns">4 of 6</span></div>
-        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
-        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">85%</span></div>
+        <div class="fl-lab">First contact within 10 min<span class="fl-unit">of new enquiries</span></div>
+        <div class="fl-now">33%<span class="fl-ns">2 of 6</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">17%</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">60%</span></div>
       </li><li class="sec"><span class="sec-t">Tours</span></li>
       <li class="fl">
-        <div class="fl-lab">Tour follow-up in 48 h<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-lab">Tours kept<span class="fl-unit">show rate · of tours booked</span></div>
+        <div class="fl-now">67%<span class="fl-ns">4 of 6</span></div>
+        <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">83%</span></div>
+        <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">50%</span></div>
+      </li>
+      <li class="fl">
+        <div class="fl-lab">Tour followed up, 2 days<span class="fl-unit">of tours booked</span></div>
         <div class="fl-now">67%<span class="fl-ns">4 of 6</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
       </li>
       <li class="fl">
-        <div class="fl-lab">Tour outcomes recorded<span class="fl-unit">of tours booked</span></div>
+        <div class="fl-lab">Tour outcome recorded<span class="fl-unit">of tours booked</span></div>
         <div class="fl-now">17%<span class="fl-ns">1 of 6</span></div>
         <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">33%</span></div>
         <div class="fl-prev"><span class="fa bad">↓</span><span class="fl-pv">75%</span></div>
       </li>
       <li class="fl">
-        <div class="fl-lab">No-shows followed up<span class="fl-unit">of no-shows</span></div>
+        <div class="fl-lab">No-show followed up<span class="fl-unit">of tours not kept</span></div>
         <div class="fl-now">100%<span class="fl-ns">2 of 2</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">0%</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">50%</span></div>
-      </li><li class="sec"><span class="sec-t">Follow-ups</span></li>
+      </li><li class="sec"><span class="sec-t">Stalled</span></li>
       <li class="fl">
-        <div class="fl-lab">Follow-ups cleared<span class="fl-unit">families moved on a stage</span></div>
+        <div class="fl-lab">Stalled cleared<span class="fl-unit">families moved on a stage</span></div>
         <div class="fl-now">26<span class="fl-ns"></span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">11</span></div>
         <div class="fl-prev"><span class="fa good">↑</span><span class="fl-pv">15</span></div>
@@ -465,7 +477,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
     <p>Every line counts families who <b>met the rule</b>, so up is good: green arrow = more than the comparison, red = fewer, orange = within 10% either side. <b>This wk</b> is the week ending Fri 6 Nov 26; <b>last wk</b> ends 30 Oct, <b>4 wks</b> ends 9 Oct. All from the dashboard's rule findings (when each miss was first detected) against the week's enquiries and tours.</p>
     <p><b>Enquiries answered within 24 h</b>: new enquiries in the week less those flagged for no human reply within 24 hours. The rule is set; it carries no forecast or target.</p>
     <p><b>Tours followed up within 48 h</b>: tours booked in the week less those with no call, text or email within 2 business days. <b>Tour outcomes recorded</b>: tours booked less those still with no outcome entered. <b>No-shows followed up</b>: no-shows in the week less those not contacted.</p>
-    <p><b>Follow-ups cleared</b>: families whose stalled flag was cleared in the week because the next step happened. The line above the list is the other side of it: families still waiting on us at the close of the week (stalled at a stage), with the two earlier readings. That one should fall.</p>
+    <p><b>Follow-ups cleared</b>: families whose stalled flag was cleared in the week because the next step happened. The line above the list is the other side of it: stalled (waiting on us) at the close of the week (stalled at a stage), with the two earlier readings. That one should fall.</p>
     <p>Where a miss is detected after the week closes it counts in the week detected, so recent weeks can firm up for a week or two. Names are never shown here; each line has its own list on the dashboard's Follow-ups screen.</p>
 </details>
 </section>
