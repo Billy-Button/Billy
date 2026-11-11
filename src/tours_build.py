@@ -18,12 +18,12 @@ HEAD={"South Morang":(133,24),"Craigieburn":(153,61)}
 MISSING={
  "South Morang":[
   ("Tour giver recorded","of tours",(24,24),(31,35),(83,142)),
-  ("Back-filled Tour Completed","families · not in any rate",(11,None),(11,None),(34,None)),
-  ("Tour outcome not recorded","families now",(13,None),None,None)],
+  ("Tour logged at the time","of Tour Completed",(24,35),(35,46),(142,176)),
+  ("Tour outcome recorded","of booked tours now past",(36,40),(44,47),(169,183))],
  "Craigieburn":[
   ("Tour giver recorded","of tours",(46,49),(45,58),(131,176)),
-  ("Back-filled Tour Completed","families · not in any rate",(18,None),(14,None),(85,None)),
-  ("Tour outcome not recorded","families now",(48,None),None,None)],
+  ("Tour logged at the time","of Tour Completed",(49,67),(58,72),(176,261)),
+  ("Tour outcome recorded","of booked tours now past",(59,63),(62,67),(234,286))],
 }
 SR_ENR={"South Morang":23,"Craigieburn":69}
 # givers: (code, fams, enrolled, closed, fams_recent, enr_recent, fams_prior, enr_prior, med_days, last_tour)
@@ -137,7 +137,7 @@ def section(logo):
     <p><b>Window</b> is the 12 months to the issue date. The trend is a rolling three months, month by month; the open dot is the latest, which always reads low because enrolment runs 10 to 50 days behind the tour. Line and dots are earth below 40%, amber 40 to 80%, sage at 80% and above.</p>
     <p><b>Where 40% and 80% come from</b>: LineLeader, <i>2026 ECE Benchmark Report</i> (data from about 5,700 childcare operators on LineLeader). On the industry rate it says post-tour conversion is "trending toward 40%". On the top tier it defines the best-performing centres as those converting 79% or more of completed tours; we round that to 80% and set it as the mark for every tour giver.</p>
     <p><b>Tour to Enrolled</b>: families toured who moved to <i>Enrolled</i> in LineLeader on or after the tour, credited to the family's last tour (dashboard view tour_giver, metric tour_givers_12_months). Each family counts once.</p>
-    <p><b>Record keeping</b>. <i>Tour giver recorded</i>: tours where a LineLeader record names the person; the rest count in the centre rate but can't be credited to anyone. <i>Back-filled Tour Completed</i> ("status runs"): a Tour Completed status set within ten minutes of a later status, with nobody named and no tour entry — the record caught up as the family moved on. They are left out of every rate here; most of them enrolled, so the rates above are a floor, not a ceiling. <i>Tour outcome not recorded</i>: families whose latest booked tour has passed with no outcome; a record to check with the centre, not a no-show count (metric tour_no_show_families).</p>
+    <p><b>Record keeping</b>. <i>Tour giver recorded</i>: tours where a LineLeader record names the person; the rest count in the centre rate but can't be credited to anyone. <i>Tour logged at the time</i>: of every family marked Tour Completed, the share with a real tour record. The rest were back-filled — a Tour Completed status set within ten minutes of a later status, with nobody named and no tour entry, the record catching up as the family moved on (the dashboard calls these status runs). Back-filled tours are left out of every rate on this screen; most of them enrolled, so the rates are a floor, not a ceiling. <i>Tour outcome recorded</i>: of families whose booked tour has passed, the share with an outcome in LineLeader — a tour run or a tour not completed. The rest are records to check with the centre, not no-shows (metric tour_no_show_families: 13 South Morang, 48 Craigieburn today).</p>
     <p><b>Tour givers</b>: the staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
     <p><b>Closed on the day</b>: moved to <i>Offered</i> or further in LineLeader on the day of the tour. <b>Speed</b>: median days from the tour to <i>Enrolled</i>.</p>
   </details>
