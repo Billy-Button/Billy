@@ -19,7 +19,7 @@ shell_css = """
 .hero .logo { width:150px; height:auto; display:block; flex:0 0 auto; }
 .hero .txt { min-width:0; flex:1 1 auto; }
 .hello { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:27px; line-height:1.05; margin:0 0 5px; white-space:nowrap; }
-.hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--ink); white-space:nowrap; }
+.hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--earth); white-space:nowrap; }
 .tiles { padding:18px 18px 8px; display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
 .tile { min-width:0; display:flex; align-items:center; gap:14px; width:100%; text-align:left; font:inherit; color:var(--ink); background:#fff; border:1px solid var(--ink-12); border-radius:20px; padding:16px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 1px 0 rgba(43,35,32,.04); }
 .tile:active { transform:scale(.99); }
@@ -74,25 +74,35 @@ def _split(rows):
 def _simple(label, unit, big, sub, soon=False):
     h = row(label, unit, big, sub, '<div class="nobar"></div>')
     return h.replace('<li class="m">','<li class="m" style="opacity:.45">',1) if soon else h
-# new weekly rows (w/e Fri 6 Nov 26; last week w/e Fri 30 Oct) — dashboard snapshot 11 Nov 03:08
+# Performance — w/e Fri 6 Nov 26 (last week w/e Fri 30 Oct). Dashboard snapshot 11 Nov 03:08.
+# New lines: forecast tick = 13-week weekly average (8 Aug–6 Nov); target as noted in About the numbers.
 NEW = {
- "South Morang": dict(r10=("0%","0 of 4 · last week 0 of 4"), booked=("4","last week 3"), offered=("0","last week 3"), pending=("1","Owna form in")),
- "Craigieburn": dict(r10=("33%","2 of 6 · last week 1 of 5"), booked=("5","last week 6"), offered=("1","last week 5"), pending=("2","Owna forms in")),
+ "South Morang": dict(
+   c10=("Contacted within 10 min","first human contact · LineLeader","0%","0 of 4 · last week 0 of 4",(0,0,11,100,True,"%","11%","100%","0%")),
+   ts=("Tour Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
+   of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
+   pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1"))),
+ "Craigieburn": dict(
+   c10=("Contacted within 10 min","first human contact · LineLeader","33%","2 of 6 · last week 1 of 5",(33,20,12,100,True,"%","12%","100%","20%")),
+   ts=("Tour Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
+   of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
+   pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3"))),
 }
+RENAME = {"New enquiries":("New Enquiry","families · LineLeader"), "Tours completed":("Tour Completed","families · LineLeader"),
+          "Enrolment complete":("Enrolment complete","pulled into Owna · $50 charged"), "Started":("Started","spots a week · first day in Owna"),
+          "Lost spots":("Lost spots","spots a week · leaving Owna, not school leavers")}
+def _rn(r):
+    lab, unit = RENAME.get(r[1], (r[1], r[2]))
+    return ("bar", lab, unit, r[3], r[4], r[5])
+def _nb(t):
+    return ("bar",) + t
 def perf_rows(c):
     occ, perf = _split(DATA[c]["rows"])
     by = {r[1]: r for r in perf}
     n = NEW[c]
-    out = []
-    out += build_rows([("sec","This week","w/e " + WEEK_LABEL), by["New enquiries"]])
-    out.append(_simple("Responded within 10 min", "first human contact · target 100%", *n["r10"]))
-    out.append(_simple("Tours booked", "families · Tour Scheduled", *n["booked"]))
-    out += build_rows([by["Tours completed"]])
-    out.append(_simple("Offers issued", "families · Offered", *n["offered"]))
-    out.append(_simple("Offers accepted", "$50 and key details at the tour", "—", "once LineLeader records it", soon=True))
-    out.append(_simple("Pending", "Owna form in", *n["pending"]))
-    out += build_rows([by["Enrolment complete"], by["Started"], by["Lost spots"]])
-    return out
+    rows = [("sec","This week","w/e " + WEEK_LABEL), _rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
+            _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"])]
+    return build_rows(rows)
 sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows(_split(DATA["South Morang"]["rows"])[0]))
 cb_occ = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], build_rows(_split(DATA["Craigieburn"]["rows"])[0]))
 sm_pf = centre(1, "South Morang", DATA["South Morang"]["places"], perf_rows("South Morang"))
@@ -105,9 +115,9 @@ home = f'''
     <img class="logo" src="data:image/png;base64,{logo}" alt="Billy Button Early Learning">
   </div>
   <div class="tiles">
-    {tile("report", "Occupancy report", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
+    {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
     {tile("perf", "Performance", "This week · new enquiries to lost spots", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
-    {tile("tours", "Tours report", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
+    {tile("tours", "Tour trends", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("admin", "Administration", "Accepted to Enrolment complete to Started", ICON_PEOPLE, "rgba(110,139,87,.12); color:#4d6a3a", "Next", disabled=True)}
     {tile("cash", "Cash position", "Weekly cash and funding · from the model", ICON_CASH, "rgba(94,128,160,.16); color:#3f5f7d", "Soon", disabled=True)}
     {tile("people", "People & rosters", "Hours, ratios and wage to revenue", ICON_PEOPLE, "rgba(164,88,35,.14); color:#8a4a1e", "Soon", disabled=True)}
@@ -120,7 +130,7 @@ report = f'''
 <section id="report" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Occupancy report</h1><div class="sub">Status as at {WEEK_LABEL}</div></div>
+    <div class="ttl"><h1>Occupancy</h1><div class="sub">Status as at {WEEK_LABEL}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <nav class="toggle" role="tablist" aria-label="Centre">
@@ -139,7 +149,7 @@ perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>This week's performance</h1><div class="sub">Week ending {WEEK_LABEL}</div></div>
+    <div class="ttl"><h1>Performance</h1><div class="sub">Week ending {WEEK_LABEL}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <nav class="toggle pf" role="tablist" aria-label="Centre">
@@ -151,7 +161,7 @@ perf = f'''
     <div id="pf-sm" class="screen">{sm_pf}</div>
     <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
   </div>
-  <details class="foot">{foot}</details>
+  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Contacted within 10 min</i>: share of new enquiries with a first human contact within 10 minutes (dashboard view first_contact); target 100%. <i>Tour Scheduled</i> and <i>Offered</i>: families moved to that LineLeader status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For these four the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tour Scheduled and Offered match the Tour Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):

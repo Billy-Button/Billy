@@ -182,7 +182,7 @@ def build_rows(rows):
             continue
         if r[0] == "bar":
             _, label, unit, big, sub, args = r
-            h = row(label, unit, big, sub, bar(*args, hd=label in ("Occupancy", "New enquiries") or label.startswith("= Base case")))
+            h = row(label, unit, big, sub, bar(*args, hd=label in ("Occupancy", "New enquiries", "New Enquiry") or label.startswith("= Base case")))
             if label == "Occupancy":
                 h = h.replace('<li class="m">', '<li class="m lead">', 1)
             if label.startswith("= Base case"):
