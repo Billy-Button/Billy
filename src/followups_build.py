@@ -11,7 +11,7 @@ FU_FOUR_AGO = "9 Oct"
 DATA = {
  "South Morang": [
   ("sec", "First contact"),
-  ("First contact within 10 min", "of new enquiries", "0 of 4", "0 of 3", "1 of 4", (0, 0, 1)),
+  ("First contact within 10 min", "of new enquiries", "0 of 4", "0 of 4", "1 of 2", (0, 0, 1)),
   ("sec", "Tours"),
   ("Tours kept", "show rate · of tours booked", "4 of 4", "3 of 3", "3 of 4", (4, 3, 3)),
   ("Closed on the tour", "offer or form same day · of tours", "0 of 1", "3 of 4", "2 of 4", (0, 3, 2)),
@@ -23,7 +23,7 @@ DATA = {
  ],
  "Craigieburn": [
   ("sec", "First contact"),
-  ("First contact within 10 min", "of new enquiries", "2 of 6", "1 of 6", "3 of 5", (2, 1, 3)),
+  ("First contact within 10 min", "of new enquiries", "2 of 7", "1 of 5", "3 of 15", (2, 1, 3)),
   ("sec", "Tours"),
   ("Tours kept", "show rate · of tours booked", "4 of 6", "5 of 6", "2 of 4", (4, 5, 2)),
   ("Closed on the tour", "offer or form same day · of tours", "1 of 5", "3 of 4", "7 of 8", (1, 3, 7)),
@@ -105,7 +105,7 @@ fu_css = """
 fu_notes = f"""
     <summary>About the numbers</summary>
     <p>Every line counts families who <b>met the rule</b>, so up is good: green arrow = more than the comparison, red = fewer, orange = within 10% either side. <b>This wk</b> is the week ending {FU_ASOF}; <b>last wk</b> ends {FU_WEEK_AGO}, <b>4 wks</b> ends {FU_FOUR_AGO}. All from the dashboard's rule findings (when each miss was first detected) against the week's enquiries and tours.</p>
-    <p><b>First contact within 10 min</b>: new enquiries in the week whose first outgoing human contact — a call, text or email logged in LineLeader — came within 10 minutes of the enquiry arriving. LineLeader data, read through the dashboard. The rule is 10 minutes; it carries no forecast or target. A call that is not logged does not count.</p>
+    <p><b>First contact within 10 min</b>: new enquiries in the week whose first human contact — a person's message, a logged call or a completed call task, never LineLeader's automatic acknowledgement — came within 10 minutes of the family record being created (dashboard view first_contact). The rule is 10 minutes; it carries no forecast or target. A call that is not logged does not count.</p>
     <p><b>Tours kept</b>: the dashboard's show rate — booked tours whose day has passed less those recorded <i>Tour Not Completed</i>. <b>Offer made at the tour</b>: moved to <i>Offered</i> in LineLeader within two hours of the tour. <b>Tour outcome recorded</b>: tours booked less those still with no outcome entered. <b>Tour followed up, 2 days</b>: tours booked less those with no call, text or email within 2 business days. <b>No-show followed up</b>: tours recorded <i>Tour Not Completed</i> less those not contacted.</p>
     <p><b>Follow-ups cleared</b>: families whose stalled flag was cleared in the week because the next step happened. The line above the list is the other side of it: stalled (waiting on us) at the close of the week (stalled at a stage), with the two earlier readings. That one should fall.</p>
     <p>Where a miss is detected after the week closes it counts in the week detected, so recent weeks can firm up for a week or two. Names are never shown here; each line has its own list on the dashboard's Follow-ups screen.</p>
