@@ -172,7 +172,7 @@ def trend(centre, m=None, bands=True):
     for i in range(1,len(m)):                       # rolling three months, Feb..Nov
         f=sum(x[0] for x in m[max(0,i-2):i+1]); e=sum(x[1] for x in m[max(0,i-2):i+1])
         pts.append((MONTHS[i], pct(e,f), f))
-    W,H,L,R,T,B=330,150,62,10,12,26
+    W,H,L,R,T,B=330,150,92,10,12,26
     xs=lambda i: L+(W-L-R)*i/(len(pts)-1); ys=lambda v: T+(H-T-B)*(1-v/100)
     g=""
     if not bands:
@@ -191,7 +191,7 @@ def trend(centre, m=None, bands=True):
     for v,lab in ((IND,f"ind. ave. {IND}%"),(TOP,f"top performers {TOP}%")):
         g+=f'<line x1="{L}" y1="{ys(v)}" x2="{W-R}" y2="{ys(v)}" stroke="{INK}" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>'
         g+=f'<text x="{L-5}" y="{ys(v)-1}" text-anchor="end" font-size="9.5" font-weight="700" fill="{INK}" opacity=".75">{v}%</text>'
-        g+=f'<text x="{L-5}" y="{ys(v)+10}" text-anchor="end" font-size="8.5" fill="{INK}" opacity=".6">{"top" if v==TOP else "ind. ave."}</text>'
+        g+=f'<text x="{L-5}" y="{ys(v)+10}" text-anchor="end" font-size="8.5" fill="{INK}" opacity=".6">{"Top Performers" if v==TOP else "Industry Average"}</text>'
     for i in range(1,len(pts)):
         v0,v1=pts[i-1][1],pts[i][1]
         g+=f'<line x1="{xs(i-1):.1f}" y1="{ys(v0):.1f}" x2="{xs(i):.1f}" y2="{ys(v1):.1f}" stroke="{col(v1)}" stroke-width="3" stroke-linecap="round"/>'
@@ -241,7 +241,8 @@ def panel(centre):
     <div class="tr-tl">Trend · rolling three months</div>{chart_oa(OFFER_AT[centre])}
     <div class="tr-next"><b>Accepted at the tour</b><span>$50 and key details · once LineLeader records it</span></div></div>
   <div class="centre"><ul class="measures tr">
-    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">12 months · trend Feb–Nov</span></li>{conv}
+    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">12 months · trend Feb–Nov</span></li>
+    <li class="tr-key">Dashed lines · Top Performers 80% · Industry Average 40%</li>{conv}
   </ul></div>'''
 
 def section(logo):
@@ -297,6 +298,7 @@ tr_css = """
 .tr-gs { width:100%; height:auto; display:block; font-family:"Nunito",sans-serif; }
 .measures.tr .tr-g { display:grid; grid-template-columns:104px 1fr; gap:10px; align-items:center; padding:12px 10px; margin:0 -10px; border-radius:12px; }
 .measures.tr .tr-g:nth-child(odd) { background:rgba(164,88,35,.07); }
+.tr-key { font-size:11px; color:var(--ink-70); font-weight:700; padding:2px 0 8px; display:flex; align-items:center; gap:6px; }
 .tr-gn { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:17px; line-height:1.1; }
 .tr-gp { display:flex; align-items:baseline; gap:6px; margin-top:4px; } .tr-gp b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:26px; line-height:1; } .tr-gp span { font-size:11px; color:var(--ink-70); font-weight:700; white-space:nowrap; }
 .tr-gm { font-size:10.5px; color:var(--ink-50); font-weight:700; margin-top:3px; white-space:nowrap; }
