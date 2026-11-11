@@ -118,9 +118,8 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
-    {tile("perf", "Performance", "This week · new enquiries to lost spots", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
+    {tile("perf", "Pipeline", "Performance this week · new enquiries to lost spots", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
-    {tile("admin", "Administration", "Accepted to Enrolment complete to Started", ICON_PEOPLE, "rgba(110,139,87,.12); color:#4d6a3a", "Next", disabled=True)}
     {tile("cash", "Cash position", "Weekly cash and funding · from the model", ICON_CASH, "rgba(94,128,160,.16); color:#3f5f7d", "Soon", disabled=True)}
     {tile("people", "People & rosters", "Hours, ratios and wage to revenue", ICON_PEOPLE, "rgba(164,88,35,.14); color:#8a4a1e", "Soon", disabled=True)}
     {tile("kpis", "KPIs", "The improvement plan's measures, tracked", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Soon", disabled=True)}
@@ -151,7 +150,7 @@ perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Performance</h1><div class="sub">Week ending {WEEK_LABEL}</div></div>
+    <div class="ttl"><h1>Pipeline</h1><div class="sub">Performance this week · w/e {WEEK_LABEL}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <nav class="toggle pf" role="tablist" aria-label="Centre">
