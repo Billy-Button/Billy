@@ -118,7 +118,7 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
-    {tile("perf", "Pipeline", "Performance this week · new enquiries to lost spots", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
+    {tile("perf", "Pipeline", "Performance this week", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("cash", "Cash position", "Weekly cash and funding · from the model", ICON_CASH, "rgba(94,128,160,.16); color:#3f5f7d", "Soon", disabled=True)}
     {tile("people", "People & rosters", "Hours, ratios and wage to revenue", ICON_PEOPLE, "rgba(164,88,35,.14); color:#8a4a1e", "Soon", disabled=True)}
