@@ -97,7 +97,7 @@ def giver_spark(series, minf=3):
     for i in range(1,len(series)):
         f=sum(x[0] for x in series[max(0,i-2):i+1]); e=sum(x[1] for x in series[max(0,i-2):i+1])
         pts.append(pct(e,f) if f>=minf else None)
-    W,H,L,R,T,B=300,40,12,12,4,4
+    W,H,L,R,T,B=220,92,6,6,6,16
     xs=lambda i: L+(W-L-R)*i/(len(pts)-1); ys=lambda v: T+(H-T-B)*(1-v/100)
     g=''
     for v in (IND,TOP):
@@ -111,6 +111,8 @@ def giver_spark(series, minf=3):
         if v is None: continue
         op=(i==len(pts)-1)
         g+=f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="3.2" fill="{"#fff" if op else col(v)}" stroke="{col(v)}" stroke-width="2"/>'
+    for i in range(len(pts)):
+        g+=f'<text x="{xs(i):.1f}" y="{H-3}" text-anchor="middle" font-size="9" fill="{INK}" opacity=".45">{MONTHS[i+1][0]}</text>'
     return f'<svg class="tr-gs" viewBox="0 0 {W} {H}">{g}</svg>'
 RK_TARGET=90
 def rkcol(v): return SAGE if v>=RK_TARGET else (AMBER if v>=70 else EARTH)
@@ -215,11 +217,11 @@ def cell(x, higher_better=False):
 CENTRE_OF=[None]
 def giver_line(code, fams, enr, closed, fr, er, fp, ep, med, last):
     v=pct(enr,fams)
-    now=pct(er,fr) if fr>=5 else None; then=pct(ep,fp) if fp>=5 else None
-    if code is None: now=then=None
-    od='' if code is None else f'<div class="tr-od">offered at the tour {pct(AT_TOUR.get((CENTRE_OF[0],code),0),fams)}%</div>'
-    stale=f' <em>last tour {last}</em>' if code and last in ("Apr","May","Jun","Jul","Aug") else ""
-    return (f'<li class="tr-ln"><div class="tr-lt">{nm(code)}{stale}</div><div class="tr-mid"><div class="tr-n"><b style="color:{col(v)}">{v}%</b><span>{enr} of {fams}</span></div>{giver_spark(GM[CENTRE_OF[0]][code])}{od}</div></li>')
+    off='' if code is None else f'<div class="tr-gm">offered at tour {pct(AT_TOUR.get((CENTRE_OF[0],code),0),fams)}%</div>'
+    stale=f'<div class="tr-gm">last tour {last}</div>' if code and last in ("Apr","May","Jun","Jul","Aug") else ""
+    return (f'<li class="tr-g"><div class="tr-gl"><div class="tr-gn">{nm(code)}</div>'
+            f'<div class="tr-gp"><b style="color:{col(v)}">{v}%</b><span>{enr} of {fams}</span></div>{off}{stale}</div>'
+            f'<div class="tr-gc">{giver_spark(GM[CENTRE_OF[0]][code])}</div></li>')
 
 def panel(centre):
     f,e=HEAD[centre]; v=pct(e,f)
@@ -292,7 +294,12 @@ tr_css = """
 .tr-mt b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:15px; line-height:1.15; } .tr-mt span { font-size:11px; color:var(--ink-70); font-weight:700; }
 .tr-rk { padding:10px 0 4px; } .tr-rkh { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; } .tr-rkh .tr-n { flex-direction:column; align-items:flex-end; gap:2px; } .tr-spark { width:100%; height:auto; display:block; margin-top:2px; font-family:"Nunito",sans-serif; }
 .tr-next { margin-top:12px; padding-top:10px; border-top:1px dashed rgba(43,35,32,.18); } .tr-next b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:15px; color:var(--ink-50); } .tr-next span { font-size:11.5px; color:var(--ink-50); font-weight:700; }
-.tr-gs { width:100%; height:40px; display:block; margin-top:4px; }
+.tr-gs { width:100%; height:auto; display:block; font-family:"Nunito",sans-serif; }
+.measures.tr .tr-g { display:grid; grid-template-columns:104px 1fr; gap:10px; align-items:center; padding:12px 10px; margin:0 -10px; border-radius:12px; }
+.measures.tr .tr-g:nth-child(odd) { background:rgba(164,88,35,.07); }
+.tr-gn { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:17px; line-height:1.1; }
+.tr-gp { display:flex; align-items:baseline; gap:6px; margin-top:4px; } .tr-gp b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:26px; line-height:1; } .tr-gp span { font-size:11px; color:var(--ink-70); font-weight:700; white-space:nowrap; }
+.tr-gm { font-size:10.5px; color:var(--ink-50); font-weight:700; margin-top:3px; white-space:nowrap; }
 .tr-od { font-size:11px; font-weight:700; color:var(--ink-70); margin-top:3px; }
 .tr-c { text-align:center; } .tr-c b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:20px; line-height:1; display:block; } .tr-c span { font-size:9.5px; color:var(--ink-50); font-weight:700; }
 .tr-wb { display:grid; grid-template-columns:84px repeat(5,1fr); align-items:center; gap:4px; padding:8px 0; text-align:center; } .tr-wb .tr-lt { text-align:left; }
