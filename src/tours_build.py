@@ -194,8 +194,7 @@ def panel(centre):
   <div class="tr-team"><div class="k">Tour Completed → Enrolled · 12 months</div><div class="n"><b>{v}%</b><span>{e} of {f} families</span></div>{bar(v)}
     <div class="tr-tl">Trend · rolling three months <span>· open dot still maturing</span></div>{trend(centre)}</div>
   <div class="tr-team"><div class="k">Offered at the tour · target 100%</div><div class="n"><b style="color:{oacol(oa)}">{oa}%</b><span>{oan} of {oad} tours · last three months</span></div>
-    <div class="tr-tl">Trend · rolling three months</div>{chart_oa(OFFER_AT[centre])}
-    <div class="tr-next"><b>Accepted at the tour</b><span>$50 and key details · once LineLeader records it</span></div></div>
+    <div class="tr-tl">Trend · rolling three months</div>{chart_oa(OFFER_AT[centre])}</div>
   <div class="centre"><ul class="measures tr">
     <li class="sec"><span class="sec-t">Record keeping</span><span class="sec-s">last three months · trend by month</span></li>{miss}
     <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">Tour Completed → Enrolled · 12 months</span></li>{conv}
@@ -224,7 +223,6 @@ def section(logo):
     <p><b>Record keeping</b>: the line is the last three months, with the trend as a rolling three months by month; the dashed line is 90%, which is where a kept record should sit. Sage at 90% and above, amber 70 to 90, earth below 70. <i>Tour recorded on the day</i>: of families marked Tour Completed, the share with a tour entry or Tour task made at the time. The rest were marked Tour Completed later, usually in a run of clicks at enrolment (the dashboard calls these status runs); they count in the centre rate but carry no name, so they can't be credited to a tour giver.</p>
     <p><b>Tour givers</b>: tours recorded on the day only, because only those name a person. The staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
     <p><b>Offered at the tour</b>: of tours recorded on the day, the share where the family moved to <i>Offered</i> (or straight to <i>Orientation</i> or <i>Enrolled</i>) within an hour of <i>Tour Completed</i> — the closest the record gets to "before they walk out the door". From 11 Nov 26 every tour ends with an offer, so the target is 100%: sage at 90% and above, amber 70 to 90, earth below 70. LineLeader's status history starts 28 Jan 26, so the trend begins in February. Under each tour giver, <b>offered at the tour</b> is the same measure over 12 months.</p>
-    <p><b>Accepted at the tour</b>: the family accepts the offer at the tour, pays $50 and gives the key details; admin then takes it to <i>Pending</i> and <i>Enrolment complete</i>. It shows here once LineLeader records the step.</p>
   </details>
 </section>'''
 
