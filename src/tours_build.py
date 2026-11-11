@@ -12,8 +12,14 @@ MONTHLY={
  "South Morang":[(1,0),(10,2),(37,5),(24,3),(10,3),(12,6),(4,0),(15,3),(10,1),(10,1),(4,0)],
  "Craigieburn":[(0,0),(25,17),(14,9),(20,5),(5,1),(21,8),(14,5),(16,3),(21,9),(18,4),(5,0)],
 }
+SR={
+ "South Morang":[(0,0),(1,1),(4,3),(5,5),(2,1),(3,1),(1,1),(7,6),(5,3),(6,2),(0,0)],
+ "Craigieburn":[(0,0),(26,24),(22,19),(5,2),(6,4),(5,5),(2,2),(7,6),(7,3),(11,8),(0,0)],
+}
+ALL={c:[(a[0]+b[0],a[1]+b[1]) for a,b in zip(MONTHLY[c],SR[c])] for c in MONTHLY}
 # headline, 12 months (metric tour_givers_12_months, centre total)
-HEAD={"South Morang":(133,24),"Craigieburn":(153,61)}
+HEAD={"South Morang":(167,57),"Craigieburn":(238,130)}   # every Tour Completed, back-filled included
+HEAD_REC={"South Morang":(133,24),"Craigieburn":(153,61)}
 # missing data: (label, sub, this quarter Sep–Nov, last quarter Jun–Aug, year)  each as (n, of) or None
 MISSING={
  "South Morang":[
@@ -28,11 +34,11 @@ MISSING={
 RK={
  "South Morang":{
   "Tour giver recorded":("of tours",[(1,1),(7,10),(8,37),(6,25),(6,10),(10,14),(4,4),(17,17),(10,10),(10,10),(4,4)]),
-  "Tour on file":("of families marked Tour Completed",[(1,1),(10,11),(37,41),(24,29),(10,12),(12,15),(4,5),(15,22),(10,15),(10,16),(4,4)]),
+  "Tour recorded on the day":("of families marked Tour Completed",[(1,1),(10,11),(37,41),(24,29),(10,12),(12,15),(4,5),(15,22),(10,15),(10,16),(4,4)]),
   "Tour outcome recorded":("of booked tours now past",[(1,1),(11,12),(39,42),(29,31),(9,10),(17,17),(10,12),(17,18),(16,16),(16,19),(4,5)])},
  "Craigieburn":{
   "Tour giver recorded":("of tours",[(0,0),(5,28),(11,14),(13,21),(0,6),(12,24),(15,16),(18,18),(25,25),(16,19),(5,5)]),
-  "Tour on file":("of families marked Tour Completed",[(0,0),(25,51),(14,36),(20,25),(5,11),(21,26),(14,16),(16,23),(21,28),(18,29),(5,5)]),
+  "Tour recorded on the day":("of families marked Tour Completed",[(0,0),(25,51),(14,36),(20,25),(5,11),(21,26),(14,16),(16,23),(21,28),(18,29),(5,5)]),
   "Tour outcome recorded":("of booked tours now past",[(0,0),(49,74),(31,41),(23,26),(10,15),(21,23),(14,16),(27,28),(26,28),(27,29),(6,6)])},
 }
 RK_TARGET=90
@@ -89,20 +95,19 @@ def bar(v, maxv=100):
             f'<line x1="{x(TOP):.1f}" y1="0" x2="{x(TOP):.1f}" y2="14" stroke="{INK}" stroke-width="2"/></svg>')
 
 def trend(centre):
-    m=MONTHLY[centre]; pts=[]
+    m=ALL[centre]; pts=[]
     for i in range(1,len(m)):                       # rolling three months, Feb..Nov
         f=sum(x[0] for x in m[max(0,i-2):i+1]); e=sum(x[1] for x in m[max(0,i-2):i+1])
         pts.append((MONTHS[i], pct(e,f), f))
-    W,H,L,R,T,B=330,150,30,10,12,26
+    W,H,L,R,T,B=330,150,62,10,12,26
     xs=lambda i: L+(W-L-R)*i/(len(pts)-1); ys=lambda v: T+(H-T-B)*(1-v/100)
     g=f'<rect x="{L}" y="{ys(100)}" width="{W-L-R}" height="{ys(TOP)-ys(100)}" fill="{SAGE}" opacity=".10"/>'
     g+=f'<rect x="{L}" y="{ys(TOP)}" width="{W-L-R}" height="{ys(IND)-ys(TOP)}" fill="{AMBER}" opacity=".12"/>'
     g+=f'<rect x="{L}" y="{ys(IND)}" width="{W-L-R}" height="{ys(0)-ys(IND)}" fill="{EARTH}" opacity=".08"/>'
     for v,lab in ((IND,f"ind. ave. {IND}%"),(TOP,f"top performers {TOP}%")):
         g+=f'<line x1="{L}" y1="{ys(v)}" x2="{W-R}" y2="{ys(v)}" stroke="{INK}" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>'
-        g+=f'<text x="{L-4}" y="{ys(v)+3.5}" text-anchor="end" font-size="9.5" fill="{INK}" opacity=".7">{v}%</text>'
-    g+=f'<text x="{W-R}" y="{ys(TOP)-4}" text-anchor="end" font-size="9.5" fill="{INK}" opacity=".7">top performers</text>'
-    g+=f'<text x="{W-R}" y="{ys(IND)-4}" text-anchor="end" font-size="9.5" fill="{INK}" opacity=".7">industry average</text>'
+        g+=f'<text x="{L-5}" y="{ys(v)-1}" text-anchor="end" font-size="9.5" font-weight="700" fill="{INK}" opacity=".75">{v}%</text>'
+        g+=f'<text x="{L-5}" y="{ys(v)+10}" text-anchor="end" font-size="8.5" fill="{INK}" opacity=".6">{"top" if v==TOP else "ind. ave."}</text>'
     for i in range(1,len(pts)):
         v0,v1=pts[i-1][1],pts[i][1]
         g+=f'<line x1="{xs(i-1):.1f}" y1="{ys(v0):.1f}" x2="{xs(i):.1f}" y2="{ys(v1):.1f}" stroke="{col(v1)}" stroke-width="3" stroke-linecap="round"/>'
@@ -146,7 +151,7 @@ def panel(centre):
     <div class="tr-tl">Trend · rolling three months <span>· open dot still maturing</span></div>{trend(centre)}</div>
   <div class="centre"><ul class="measures tr">
     <li class="sec"><span class="sec-t">Record keeping</span><span class="sec-s">last three months · trend by month</span></li>{miss}
-    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">Tour Completed → Enrolled · 12 months</span></li>{conv}
+    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">tours recorded on the day · 12 months</span></li>{conv}
     <li class="sec"><span class="sec-t">Closed on the day</span><span class="sec-s">moved to Offered or further on the tour day</span></li>{closed}
     <li class="sec"><span class="sec-t">Speed</span><span class="sec-s">median days from the tour to Enrolled</span></li>{speed}
   </ul></div>'''
@@ -170,9 +175,9 @@ def section(logo):
   <details class="foot"><summary>About the numbers</summary>
     <p><b>Window</b> is the 12 months to the issue date. The trend is a rolling three months, month by month; the open dot is the latest, which always reads low because enrolment runs 10 to 50 days behind the tour. Line and dots are earth below 40%, amber 40 to 80%, sage at 80% and above.</p>
     <p><b>Where 40% and 80% come from</b>: LineLeader, <i>2026 ECE Benchmark Report</i> (data from about 5,700 childcare operators on LineLeader). On the industry rate it says post-tour conversion is "trending toward 40%". On the top tier it defines the best-performing centres as those converting 79% or more of completed tours; we round that to 80% and set it as the mark for every tour giver.</p>
-    <p><b>Tour to Enrolled</b>: families toured who moved to <i>Enrolled</i> in LineLeader on or after the tour, credited to the family's last tour (dashboard view tour_giver, metric tour_givers_12_months). Each family counts once.</p>
-    <p><b>Record keeping</b>: each line is the last three months, with the trend as a rolling three months by month; the dashed line is 90%, which is where a kept record should sit. Sage at 90% and above, amber 70 to 90, earth below 70. <i>Tour giver recorded</i>: of tours on file, the share where the record names who gave it; the rest count in the centre rate but can't be credited to anyone. <i>Tour on file</i>: of families marked Tour Completed, the share with an actual tour record — a tour entry or a Tour task. A family can be marked Tour Completed without one: the status set in a run of clicks when the family moved on (the dashboard calls these status runs). We can't tell whether those families toured, so they are left out of every rate on this screen; most of them enrolled, so the rates are a floor, not a ceiling. <i>Tour outcome recorded</i>: of families whose booked tour has passed, the share with an outcome in LineLeader — a tour run or a tour not completed. The rest are records to check with the centre, not no-shows (metric tour_no_show_families: 13 South Morang, 48 Craigieburn today).</p>
-    <p><b>Tour givers</b>: the staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
+    <p><b>Tour to Enrolled</b> (lead card and trend): of every family marked <i>Tour Completed</i> in LineLeader, the share that moved to <i>Enrolled</i> on or after it. Every family tours before enrolling, so every <i>Tour Completed</i> counts, including those recorded later rather than on the day. A family who toured, was never recorded and didn't enrol can't be counted; outcomes are recorded for 90% or more of booked tours, so that gap is small. Each family counts once (dashboard view tour_giver, status runs included).</p>
+    <p><b>Record keeping</b>: each line is the last three months, with the trend as a rolling three months by month; the dashed line is 90%, which is where a kept record should sit. Sage at 90% and above, amber 70 to 90, earth below 70. <i>Tour giver recorded</i>: of tours on file, the share where the record names who gave it; the rest count in the centre rate but can't be credited to anyone. <i>Tour recorded on the day</i>: of families marked Tour Completed, the share with a tour entry or Tour task made at the time. The rest were marked Tour Completed later, usually in a run of clicks at enrolment (the dashboard calls these status runs); they count in the centre rate but carry no name, so they can't be credited to a tour giver. <i>Tour outcome recorded</i>: of families whose booked tour has passed, the share with an outcome in LineLeader — a tour run or a tour not completed. The rest are records to check with the centre, not no-shows (metric tour_no_show_families: 13 South Morang, 48 Craigieburn today).</p>
+    <p><b>Tour givers</b>: tours recorded on the day only, because only those name a person. The staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
     <p><b>Closed on the day</b>: moved to <i>Offered</i> or further in LineLeader on the day of the tour. <b>Speed</b>: median days from the tour to <i>Enrolled</i>.</p>
   </details>
 </section>'''
