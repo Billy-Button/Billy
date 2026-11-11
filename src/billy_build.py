@@ -78,12 +78,12 @@ def _simple(label, unit, big, sub, soon=False):
 # New lines: forecast tick = 13-week weekly average (8 Aug–6 Nov); target as noted in About the numbers.
 NEW = {
  "South Morang": dict(
-   c10=("Contacted within 10 min","first human contact · LineLeader","0%","0 of 4 · last week 0 of 4",(0,0,11,100,True,"%","11%","100%","0%")),
+   c10=("Time to first contact","median · enquiry to first human contact","2.8 days","2 of 4 contacted · last week 9.7 h",(3.599,2.764,3.414,1.0,False,"","1.8 days","10 min","9.7 h")),
    ts=("Tours Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
    of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
    pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1"))),
  "Craigieburn": dict(
-   c10=("Contacted within 10 min","first human contact · LineLeader","33%","2 of 6 · last week 1 of 5",(33,20,12,100,True,"%","12%","100%","20%")),
+   c10=("Time to first contact","median · enquiry to first human contact","&lt;1 min","3 of 6 contacted · last week 1.5 days",(-0.523,3.332,3.518,1.0,False,"","2.3 days","10 min","1.5 days")),
    ts=("Tours Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
    of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
    pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3"))),
@@ -100,7 +100,7 @@ def perf_rows(c):
     occ, perf = _split(DATA[c]["rows"])
     by = {r[1]: r for r in perf}
     n = NEW[c]
-    rows = [("sec","This week","w/e " + WEEK_LABEL), _rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
+    rows = [_rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
             _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"])]
     return build_rows(rows)
 sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows(_split(DATA["South Morang"]["rows"])[0]))
@@ -161,7 +161,7 @@ perf = f'''
     <div id="pf-sm" class="screen">{sm_pf}</div>
     <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
   </div>
-  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Contacted within 10 min</i>: share of new enquiries with a first human contact within 10 minutes (dashboard view first_contact); target 100%. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For these four the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
+  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. For this line the forecast tick is the 13-week median, and the bar runs on a log scale so minutes, hours and days each get fair space. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):
