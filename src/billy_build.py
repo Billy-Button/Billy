@@ -296,7 +296,7 @@ page = f'''<!DOCTYPE html>
 </html>'''
 
 if __name__ == "__main__":
-    out = pathlib.Path("/mnt/user-data/outputs"); out.mkdir(parents=True, exist_ok=True)
+    import os as _os; out = pathlib.Path(_os.environ.get("BILLY_OUT", "/mnt/user-data/outputs")); out.mkdir(parents=True, exist_ok=True)
     p = out / f"261106 - Billy app - v{ISSUE}.html"
     p.write_text(page, encoding="utf-8")
     print(p, len(page)//1024, "KB")

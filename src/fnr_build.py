@@ -1,8 +1,10 @@
 import base64, pathlib, html as H
-icon = open("/home/claude/wp/icon_b64.txt").read()
-logo = open("/home/claude/wp/logo_b64.txt").read()
+import os as _os, pathlib as _pl
+_A = _pl.Path("/home/claude/wp") if _pl.Path("/home/claude/wp/icon_b64.txt").exists() else _pl.Path(__file__).resolve().parent / "assets"
+icon = open(_A / "icon_b64.txt").read()
+logo = open(_A / "logo_b64.txt").read()
 
-F = pathlib.Path("/home/claude/wp/fonts")
+F = _A / "fonts"
 fred = base64.b64encode((F / "Fredoka-sub.ttf").read_bytes()).decode()
 nun = base64.b64encode((F / "Nunito-sub.ttf").read_bytes()).decode()
 
@@ -369,7 +371,7 @@ h2 {{ margin:0; font-size:20px; line-height:1; }}
 </html>
 """
 if __name__ == "__main__":
-    out = pathlib.Path("/mnt/user-data/outputs"); out.mkdir(parents=True, exist_ok=True)
+    out = pathlib.Path(_os.environ.get("BILLY_OUT", "/mnt/user-data/outputs")); out.mkdir(parents=True, exist_ok=True)
     p = out / f"261106 - Friday Night Report - v{ISSUE}.html"
     p.write_text(html, encoding="utf-8")
     print(p, len(html) // 1024, "KB")

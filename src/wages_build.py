@@ -4,7 +4,7 @@
 import kpis_build as kp
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), 'kpi')); import daily as DL
 SAGE, AMBER, EARTH, INK, SKY = kp.SAGE, kp.AMBER, kp.EARTH, kp.INK, kp.SKY
-ASAT = "11 Nov 26"
+ASAT = getattr(DL, "ASAT", None) or "11 Nov 26"  # date of the daily feed
 FIXED = 130      # hours a week assumed for fixed roles (management, admin, kitchen) until Robyn codes them in Owna
 RATE = 48        # $ an educator hour incl. on-costs, for the dollar view only
 
@@ -220,7 +220,7 @@ def month_daily(c):
     for (i0, v0), (i1, v1) in zip(pts, pts[1:]):
         s += f'<line x1="{xs(i0):.1f}" y1="{yr(v0):.1f}" x2="{xs(i1):.1f}" y2="{yr(v1):.1f}" stroke="{colf(v1)}" stroke-width="2.2"/>'
     for i, v in pts: s += f'<circle cx="{xs(i):.1f}" cy="{yr(v):.1f}" r="2.8" fill="{colf(v)}"/>'
-    ti = next(i for i, (d, h, b) in enumerate(days) if d == "2026-11-11")
+    ti = max(i for i, (d, h, b) in enumerate(days) if b)
     s += f'<line x1="{xs(ti)+bw*.5:.1f}" y1="{T-8}" x2="{xs(ti)+bw*.5:.1f}" y2="{H-B}" stroke="{INK}" stroke-dasharray="2 3" opacity=".45"/>'
     s += f'<text x="{xs(ti)+bw*.5:.1f}" y="{T-9}" text-anchor="middle" font-size="9" font-weight="800" fill="{INK}" opacity=".55">today</text>'
     svg = f'<svg class="kp-ch" viewBox="0 0 {W} {H}">{s}</svg>'
