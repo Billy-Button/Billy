@@ -87,14 +87,12 @@ NEW = {
    c10=("Time to first contact","median · enquiry to first human contact","2.8<small>days</small>","2 of 4 contacted<br>last week 9.7 h",(-0.683,-0.37,0,1,True,"","1 hr","10 min","9.7 h")),
    ts=("Tours Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
    of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
-   pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1")),
-   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster at Oct rate","~58%","Nov to date<br>forecast 55%",(57.9,54.8,58,55,False,"%","58%","55%","55%"))),
+   pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1"))),
  "Craigieburn": dict(
    c10=("Time to first contact","median · enquiry to first human contact","&lt;1<small>min</small>","3 of 6 contacted<br>last week 1.5 days",(2.957,-0.583,0,1,True,"","1 hr","10 min","1.5 days")),
    ts=("Tours Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
    of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
-   pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3")),
-   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster at Oct rate","~69%","Nov to date<br>forecast 69%",(68.5,70.8,75,55,False,"%","75%","55%","71%"))),
+   pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3"))),
 }
 RENAME = {"New enquiries":("New Enquiry","families · LineLeader"), "Tours completed":("Tours Completed","families · LineLeader"),
           "Enrolment complete":("Enrolment complete","pulled into Owna · $50 charged"), "Started":("Started","spots a week · first day in Owna"),
@@ -109,7 +107,7 @@ def perf_rows(c):
     by = {r[1]: r for r in perf}
     n = NEW[c]
     rows = [_rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
-            _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"]), _nb(n["w2r"])]
+            _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"])]
     return build_rows(rows)
 sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows(_split(DATA["South Morang"]["rows"])[0]))
 cb_occ = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], build_rows(_split(DATA["Craigieburn"]["rows"])[0]))
@@ -168,7 +166,7 @@ perf = f'''
     <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
   </div>
   <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p>
-<p class="proxy-note"><b>⚠ Wage to revenue is a proxy, for working within the month.</b> Xero only has a month's wages and fees once the month is closed, which is too late to act. Until then this line estimates it from Owna: rostered paid hours × each person's Owna pay rate, over booked fees including CCS, for the roster weeks starting in the month so far (week 1, then weeks 1+2, and so on; a week crossing month-end counts in the month it starts). Owna's roster misses super, payroll tax, WorkCover, leave accruals, the month-end wage accrual and anyone not rostered, so the raw figure reads far too low (about 39% at South Morang and 45% at Craigieburn in October, against Xero's 55% and 71%). So the estimate is anchored on the cash flow forecast instead: the forecast's wage to revenue for the month × rostered hours ÷ the hours the forecast's wages allow. If the roster runs over the forecast's hours, the estimate rises above the forecast by the same proportion. Read it as an early warning; Xero replaces it when the month closes. Forecast tick = Xero, last three months; target 55%, act line 60% (decision D-17).</p></details>
+<p class="proxy-note">Wage to revenue has moved to the Wages screen, which updates each weekday morning.</p>
 </section>'''
 
 def soon(id_, title, blurb, items):
