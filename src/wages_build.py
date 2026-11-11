@@ -2,6 +2,7 @@
 # Sources: dashboard snapshot 11 Nov 26 03:08 (owna_child ages + booked days, staff_roster_week, room_ratio_day,
 # current_owna_occupancy_day); Xero (read-only) for wage to revenue and agency.
 import kpis_build as kp
+import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), 'kpi')); import daily as DL
 SAGE, AMBER, EARTH, INK, SKY = kp.SAGE, kp.AMBER, kp.EARTH, kp.INK, kp.SKY
 ASAT = "11 Nov 26"
 FIXED = 130      # hours a week assumed for fixed roles (management, admin, kitchen) until Robyn codes them in Owna
@@ -142,164 +143,233 @@ def w2r_est(c):
     f = F[c]; tot = G[c]["rost"][-1] + FIXED; allowed_tot = f["allow"]["2026-11"] + FIXED
     return round(f["w2r"][4] * tot / allowed_tot, 1), tot, allowed_tot
 
-def w2r_chart(c):
-    f = F[c]; est, _, _ = w2r_est(c)
-    W, H, L, R, T, B = 340, 170, 34, 60, 10, 34
-    lo, hi = 45, 85
-    xs = lambda i: L + (W - L - R) * i / 11; ys = lambda v: T + (H - T - B) * (1 - (min(max(v, lo), hi) - lo) / (hi - lo))
-    col = lambda v: SAGE if v < 55 else (AMBER if v <= 60 else EARTH)
-    s = ""
-    for (y0, y1, cc) in ((lo, 55, SAGE), (55, 60, AMBER), (60, hi, EARTH)):
-        s += f'<rect x="{L}" y="{ys(y1):.1f}" width="{W-L-R}" height="{ys(y0)-ys(y1):.1f}" fill="{cc}" opacity=".10"/>'
-    for t in (50, 70, 80):
-        s += f'<text x="{L-4}" y="{ys(t)+3:.1f}" text-anchor="end" font-size="8.5" fill="{INK}" opacity=".45">{t}%</text>'
-    for v, lab, cc in ((55, "Target 55%", INK), (60, "Act 60%", EARTH)):
-        s += f'<line x1="{L}" y1="{ys(v):.1f}" x2="{W-R}" y2="{ys(v):.1f}" stroke="{cc}" stroke-width="1.2" stroke-dasharray="5 3" opacity=".75"/>'
-        s += f'<text x="{W-R+4}" y="{ys(v)+(10 if v==55 else -2):.1f}" font-size="9" font-weight="800" fill="{cc}">{lab}</text>'
-    # forecast region shading
-    s += f'<rect x="{(xs(4)+xs(5))/2:.1f}" y="{T}" width="{W-R-(xs(4)+xs(5))/2:.1f}" height="{H-T-B}" fill="{INK}" opacity=".035"/>'
-    s += f'<text x="{(xs(5)+xs(11))/2:.1f}" y="{T+10}" text-anchor="middle" font-size="9" font-weight="800" fill="{INK}" opacity=".45">forecast</text>'
-    vals = f["w2r"][:4] + [est] + f["w2r"][5:]
-    for i in range(11):
-        dash = '' if i < 3 else ' stroke-dasharray="4 4"'
-        op = 1 if i < 4 else .6
-        s += f'<line x1="{xs(i):.1f}" y1="{ys(vals[i]):.1f}" x2="{xs(i+1):.1f}" y2="{ys(vals[i+1]):.1f}" stroke="{col(vals[i+1])}" stroke-width="2.5" opacity="{op}"{dash}/>'
-    # forecast Nov point too (model) for comparison
-    s += f'<circle cx="{xs(4):.1f}" cy="{ys(f["w2r"][4]):.1f}" r="3" fill="none" stroke="{INK}" stroke-width="1.2" opacity=".5"/>'
-    for i, v in enumerate(vals):
-        if i < 4: s += f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="3.4" fill="{col(v)}"/>'
-        elif i == 4: s += f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="4.6" fill="#FBF6EE" stroke="{col(v)}" stroke-width="2.4"/>'
-        else: s += f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="2.8" fill="{col(v)}" opacity=".6"/>'
-        s += f'<text x="{xs(i):.1f}" y="{H-19}" text-anchor="middle" font-size="9" fill="{INK}" opacity=".45">{FY[i][0]}</text>'
-        s += f'<text x="{xs(i):.1f}" y="{H-5}" text-anchor="middle" font-size="8.5" font-weight="800" fill="{col(v)}" opacity="{1 if i<=4 else .7}">{"~" if i==4 else ""}{v:.0f}</text>'
-    return f'<svg class="kp-ch" viewBox="0 0 {W} {H}">{s}</svg>'
+RANGE = {"South Morang": (45, 72), "Craigieburn": (50, 85)}
+# roster cost ÷ booked fees (Owna, dashboard roster_week_economics), monthly average of weeks starting in month; Nov = weeks to 9 Nov
+EW = {"South Morang": dict(vals=[44.2,42.2,37.6,39.3,44.7], guide=38, why="the level that has gone with about 55% in Xero (2025, Sep–Oct 26)"),
+      "Craigieburn": dict(vals=[55.0,54.0,49.7,45.4,44.5], guide=44, why="the level that matches the forecast's ~69% (Xero ÷ roster in October, 1.56)")}
+# under-3 share of booked spots: today's children aged forward (leavers out from Jan); and with new starters at the last six months' mix
+AGE = {"South Morang": dict(now=[34,32,38,38,35,33,33,32], new=[34,32,38,42,41,40,40,40], mix=72, starters="+44 in Feb, then +11 a month, plus committed starts"),
+       "Craigieburn": dict(now=[38,37,46,46,43,39,39,36], new=[38,37,46,50,48,46,46,44], mix=57, starters="+65 in Feb, then +16 a month, plus committed starts")}
+AM = ["Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"]
 
-def glide3(c):
-    g = G[c]; f = F[c]; n = len(WEEKS); ti = WEEKS.index(TODAY)
-    W, H, L, R, T, B = 340, 200, 8, 72, 14, 22
-    need = [g["need"][w[:7]] for w in WEEKS]
-    allow = [f["allow"].get(w[:7]) for w in WEEKS]
-    rost_now = g["rost"][-1]; rost = g["rost"] + [rost_now] * (n - len(g["rost"]))
-    vals = need + rost + [a for a in allow if a] + [g["feb_hi"]]
-    lo = min(vals) * 0.82; hi = max(vals) * 1.04
-    xs = lambda i: L + (W - L - R) * i / (n - 1); ys = lambda v: T + (H - T - B) * (1 - (v - lo) / (hi - lo))
-    s = ""; prev = None
-    for i, w in enumerate(WEEKS):
-        if w[5:7] != prev:
-            if i: s += f'<line x1="{xs(i)-3:.1f}" y1="{T}" x2="{xs(i)-3:.1f}" y2="{H-B}" stroke="{INK}" opacity=".06"/>'
-            s += f'<text x="{xs(i)+2:.1f}" y="{H-6}" font-size="10" font-weight="700" fill="{INK}" opacity=".45">{MLAB[w[5:7]]}</text>'
-            prev = w[5:7]
-    # gap roster vs forecast allowance (from Nov) shaded
-    for i in range(n - 1):
-        ref = allow[i] if allow[i] else need[i]
-        over = (rost[i] + rost[i+1]) / 2 > ref
-        s += (f'<path d="M{xs(i):.1f},{ys(rost[i]):.1f} L{xs(i+1):.1f},{ys(rost[i+1]):.1f} L{xs(i+1):.1f},{ys(ref):.1f} L{xs(i):.1f},{ys(ref):.1f} Z" '
-              f'fill="{EARTH if over else SAGE}" opacity="{.2 if over else .12}"/>')
-    fi = next(i for i, w in enumerate(WEEKS) if w.startswith("2027-02"))
-    s += f'<rect x="{xs(fi):.1f}" y="{ys(g["feb_hi"]):.1f}" width="{xs(n-1)-xs(fi):.1f}" height="{ys(need[fi])-ys(g["feb_hi"]):.1f}" fill="{SAGE}" opacity=".18"/>'
-    def step(series, col, width, dash=""):
-        pts = [(i, v) for i, v in enumerate(series) if v]
-        d = f'M{xs(pts[0][0]):.1f},{ys(pts[0][1]):.1f}'
+def axis_chart(labels, series, lo, hi, guide=None, glabel="", bands=None, unit="%", H=150, under=None):
+    W, L, R, T, B = 340, 34, 62, 12, 34 if under else 22
+    n = len(labels)
+    xs = lambda i: L + (W - L - R) * i / (n - 1); ys = lambda v: T + (H - T - B) * (1 - (min(max(v, lo), hi) - lo) / (hi - lo))
+    s = ""
+    if bands:
+        for (y0, y1, cc) in bands:
+            s += f'<rect x="{L}" y="{ys(y1):.1f}" width="{W-L-R}" height="{ys(y0)-ys(y1):.1f}" fill="{cc}" opacity=".10"/>'
+    step = 5 if hi - lo <= 30 else 10
+    t = (lo // step + 1) * step
+    while t < hi:
+        s += f'<line x1="{L}" y1="{ys(t):.1f}" x2="{W-R}" y2="{ys(t):.1f}" stroke="{INK}" opacity=".06"/><text x="{L-4}" y="{ys(t)+3:.1f}" text-anchor="end" font-size="8.5" fill="{INK}" opacity=".45">{t}{unit}</text>'
+        t += step
+    for (gv, gl, gc) in (guide or []):
+        s += f'<line x1="{L}" y1="{ys(gv):.1f}" x2="{W-R}" y2="{ys(gv):.1f}" stroke="{gc}" stroke-width="1.2" stroke-dasharray="5 3" opacity=".8"/>'
+        s += f'<text x="{W-R+4}" y="{ys(gv)+3:.1f}" font-size="9" font-weight="800" fill="{gc}">{gl}</text>'
+    for (vals, colf, style) in series:
+        pts = [(i, v) for i, v in enumerate(vals) if v is not None]
         for (i0, v0), (i1, v1) in zip(pts, pts[1:]):
-            d += f' L{xs(i1):.1f},{ys(v0):.1f} L{xs(i1):.1f},{ys(v1):.1f}'
-        return f'<path d="{d}" fill="none" stroke="{col}" stroke-width="{width}"{dash}/>'
-    s += step(need, SAGE, 3)
-    s += step(allow, SKY, 2.6, ' stroke-dasharray="6 3"')
-    da = " ".join(f'{"M" if i==0 else "L"}{xs(i):.1f},{ys(rost[i]):.1f}' for i in range(ti + 1))
-    s += f'<path d="{da}" fill="none" stroke="{EARTH}" stroke-width="3" stroke-linejoin="round"/>'
-    s += f'<path d="M{xs(ti):.1f},{ys(rost_now):.1f} L{xs(n-1):.1f},{ys(rost_now):.1f}" stroke="{EARTH}" stroke-width="2.4" stroke-dasharray="5 4" opacity=".75"/>'
-    s += f'<circle cx="{xs(ti):.1f}" cy="{ys(rost_now):.1f}" r="5" fill="{EARTH}"/>'
-    s += f'<line x1="{xs(ti):.1f}" y1="{T-6}" x2="{xs(ti):.1f}" y2="{H-B}" stroke="{INK}" stroke-dasharray="2 3" opacity=".5"/>'
-    s += f'<text x="{xs(ti):.1f}" y="{T-6}" text-anchor="middle" font-size="9.5" font-weight="800" fill="{INK}" opacity=".6">today</text>'
-    labs = sorted([(ys(rost_now), "Rostered", rost_now, EARTH), (ys(allow[-1]), "Forecast", allow[-1], SKY), (ys(need[-1]), "Ratios", need[-1], SAGE)])
-    last = -99
-    for y, t, v, cc in labs:
-        y = max(y, last + 24); last = y
-        s += f'<text x="{W-R+6}" y="{y+2:.1f}" font-size="10.5" font-weight="800" fill="{cc}">{t}</text><text x="{W-R+6}" y="{y+14:.1f}" font-size="10.5" font-weight="800" fill="{cc}">{v}</text>'
+            dash = ' stroke-dasharray="4 4"' if style.get("dash_from") is not None and i1 > style["dash_from"] else (' stroke-dasharray="4 4"' if style.get("dash") else "")
+            op = style.get("op", 1) if not (style.get("dash_from") is not None and i1 > style["dash_from"]) else .6
+            s += f'<line x1="{xs(i0):.1f}" y1="{ys(v0):.1f}" x2="{xs(i1):.1f}" y2="{ys(v1):.1f}" stroke="{colf(v1)}" stroke-width="2.5" opacity="{op}"{dash}/>'
+        for i, v in pts:
+            hol = style.get("hollow") == i
+            if hol: s += f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="4.6" fill="#FBF6EE" stroke="{colf(v)}" stroke-width="2.4"/>'
+            else: s += f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="{3.2 if not style.get("small") else 2.6}" fill="{colf(v)}" opacity="{.6 if style.get("dash_from") is not None and i > style["dash_from"] else 1}"/>'
+        if style.get("end"):
+            i, v = pts[-1]; s += f'<text x="{xs(i)+6:.1f}" y="{ys(v)+3:.1f}" font-size="9" font-weight="800" fill="{colf(v)}">{style["end"]}</text>'
+    for i, lab in enumerate(labels):
+        s += f'<text x="{xs(i):.1f}" y="{H-(19 if under else 6)}" text-anchor="middle" font-size="9" fill="{INK}" opacity=".45">{lab}</text>'
+        if under:
+            v, cc, pre = under[i]
+            if v is not None: s += f'<text x="{xs(i):.1f}" y="{H-5}" text-anchor="middle" font-size="8.5" font-weight="800" fill="{cc}">{pre}{v:.0f}</text>'
     return f'<svg class="kp-ch" viewBox="0 0 {W} {H}">{s}</svg>'
 
-def guide_check(c):
-    d = C[c]; k = d["k"]; m, now = kp.latest(d["mult"])
-    rows = [("From the rules", 1.24, SKY), ("Our efficient months", k, SAGE), ("Now", now, EARTH if now > k*1.05 else (AMBER if now > k else SAGE))]
-    W, L = 330, 132; x = lambda v: L + (W - L - 30) * (v - 1.0) / 0.6
+
+DOW = ["", "M", "T", "W", "T", "F", "S", "S"]
+import datetime as _dt
+def month_daily(c):
+    D = DL.SM if c == "South Morang" else DL.CB
+    base = [(h, b) for d, h, b in D if d < "2026-10-26" and b]
+    chk = sum(h for h, b in base) / sum(b for h, b in base)
+    nov = [(d, h, b) for d, h, b in D if d >= "2026-11-01"]
+    done = [(d, h, b) for d, h, b in nov if b]
+    mtd = sum(h for _, h, b in done) / sum(b for _, h, b in done)
+    W, H, L, R, T, B = 340, 150, 30, 58, 14, 30
+    days = [x for x in D if x[0] >= "2026-10-19"]
+    n = len(days); bw = (W - L - R) / n
+    xs = lambda i: L + bw * (i + .5)
+    hi_b = max(b for _, _, b in days if b) * 1.15
+    lo_r, hi_r = chk * 0.75, chk * 1.3
+    yr = lambda v: T + (H - T - B) * (1 - (min(max(v, lo_r), hi_r) - lo_r) / (hi_r - lo_r))
     s = ""
-    for i, (t, v, cc) in enumerate(rows):
-        y = 6 + i * 24
-        s += f'<text x="{L-6}" y="{y+12}" text-anchor="end" font-size="10.5" font-weight="800" fill="{INK}" opacity=".75">{t}</text>'
-        s += f'<rect x="{L}" y="{y+2}" width="{x(v)-L:.1f}" height="14" rx="3" fill="{cc}" opacity=".85"/>'
-        s += f'<text x="{x(v)+4:.1f}" y="{y+13}" font-size="10.5" font-weight="800" fill="{cc}">{v:.2f}×</text>'
-    return f'<svg class="kp-ch" viewBox="0 0 {W} 80">{s}</svg>'
+    for i, (d, h, b) in enumerate(days):
+        if b:
+            bh = (H - T - B) * b / hi_b
+            s += f'<rect x="{xs(i)-bw*.36:.1f}" y="{H-B-bh:.1f}" width="{bw*.72:.1f}" height="{bh:.1f}" rx="2" fill="{INK}" opacity=".07"/>'
+        dt = _dt.date.fromisoformat(d)
+        s += f'<text x="{xs(i):.1f}" y="{H-B+11}" text-anchor="middle" font-size="8" fill="{INK}" opacity=".45">{DOW[dt.isoweekday()]}</text>'
+        if dt.isoweekday() == 1:
+            s += f'<text x="{xs(i)-bw*.4:.1f}" y="{H-B+23}" font-size="8.5" font-weight="700" fill="{INK}" opacity=".55">{dt.day} {"Oct" if dt.month==10 else "Nov"}</text>'
+    s += f'<line x1="{L}" y1="{yr(chk*1.05):.1f}" x2="{W-R}" y2="{yr(chk*1.05):.1f}" stroke="{AMBER}" stroke-width="1.2" stroke-dasharray="5 3"/>'
+    s += f'<text x="{W-R+4}" y="{yr(chk*1.05)+3:.1f}" font-size="9" font-weight="800" fill="{AMBER}">Check {chk*1.05:.2f}</text>'
+    pts = [(i, h / b) for i, (d, h, b) in enumerate(days) if b]
+    colf = lambda v: SAGE if v <= chk * 1.05 else AMBER
+    for (i0, v0), (i1, v1) in zip(pts, pts[1:]):
+        s += f'<line x1="{xs(i0):.1f}" y1="{yr(v0):.1f}" x2="{xs(i1):.1f}" y2="{yr(v1):.1f}" stroke="{colf(v1)}" stroke-width="2.2"/>'
+    for i, v in pts: s += f'<circle cx="{xs(i):.1f}" cy="{yr(v):.1f}" r="2.8" fill="{colf(v)}"/>'
+    ti = next(i for i, (d, h, b) in enumerate(days) if d == "2026-11-11")
+    s += f'<line x1="{xs(ti)+bw*.5:.1f}" y1="{T-8}" x2="{xs(ti)+bw*.5:.1f}" y2="{H-B}" stroke="{INK}" stroke-dasharray="2 3" opacity=".45"/>'
+    s += f'<text x="{xs(ti)+bw*.5:.1f}" y="{T-9}" text-anchor="middle" font-size="9" font-weight="800" fill="{INK}" opacity=".55">today</text>'
+    svg = f'<svg class="kp-ch" viewBox="0 0 {W} {H}">{s}</svg>'
+    ahead = [(d, h) for d, h, b in nov if not b]
+    return chk, mtd, done, ahead, svg, base
+
+
+OPEN_DAYS = 21  # weekdays in November 2026
+def month_dollars(c):
+    D = DL.SM if c == "South Morang" else DL.CB; f = F[c]
+    oct_h = sum(h for d, h, b in D if d.startswith("2026-10"))
+    rate = f["wages"][3] / oct_h
+    done = [(d, h) for d, h, b in D if d >= "2026-11-01" and b]
+    used = sum(h for _, h in done); nd = len(done); left = OPEN_DAYS - nd
+    pace = used / nd
+    fw, fi = f["wages"][4], f["inc"][4]
+    heading = pace * OPEN_DAYS * rate
+    allow_h = fw / rate
+    land = (allow_h - used) / left
+    return dict(rate=rate, oct_h=oct_h, used=used, nd=nd, left=left, pace=pace, fw=fw, fi=fi, heading=heading,
+                over=heading - fw, allow_h=allow_h, land=land, cut=pace - land, w2r_f=100*fw/fi, w2r_h=100*heading/fi)
+
+def tile_line():
+    a = month_dollars("South Morang"); b = month_dollars("Craigieburn")
+    k = lambda x: "on track" if abs(x) < 500 else f"{'+' if x>=0 else '−'}${abs(x)/1000:.0f}k"
+    return f"Nov vs forecast: SM {k(a['over'])} · CB {k(b['over'])}"
+
+def this_month(c):
+    m = month_dollars(c)
+    k = lambda x: f"${x/1000:.0f}k"
+    over_col = EARTH if m["over"] > 5000 else (AMBER if m["over"] > 0 else SAGE)
+    on = m["over"] > 5000
+    bar_w = 300
+    prog = m["nd"] / OPEN_DAYS
+    days = (f'<div class="wg-days"><div class="wg-dbar"><i style="width:{prog*100:.0f}%"></i></div>'
+            f'<span>{m["nd"]} days done · {m["left"]} to go</span></div>')
+    grid = (f'<div class="wg-grid">'
+            f'<div><span>Wages forecast</span><b>{k(m["fw"])}</b></div>'
+            f'<div><span>Heading for</span><b style="color:{over_col}">{k(m["heading"])}</b></div>'
+            f'<div><span>Difference</span><b style="color:{over_col}">{"Nil" if abs(m["over"])<500 else ("+" if m["over"]>=0 else "−")+k(abs(m["over"]))}</b></div>'
+            f'<div><span>Wage to revenue</span><b style="color:{over_col}">{m["w2r_f"]:.0f}% → {m["w2r_h"]:.0f}%</b></div>'
+            f'</div>')
+    land = (f'<div class="wg-land" style="border-color:{over_col}"><span>To land on forecast</span>'
+            f'<b>{m["land"]:.0f} hrs a day</b><i>'
+            + (f'We are rostering {m["pace"]:.0f} staff hours a day so far this month. To finish November on forecast, '
+               f'the {m["left"]} days left need {m["land"]:.0f} hours a day: {m["cut"]:.0f} fewer hours each day, about {m["cut"]/7.6:.0f} fewer educator shifts a day.'
+               if m["cut"] > 2 else
+               f'We are rostering {m["pace"]:.0f} staff hours a day so far this month. Keep to about {m["land"]:.0f} a day for the {m["left"]} days left and November finishes on forecast.')
+            + '</i></div>')
+    body = days + grid + land + flag(
+        f"if we keep rostering like this, November wages finish about {k(m['over'])} over forecast." if on else
+        ("Close to forecast." if m["over"] > 0 else "On or under forecast."), on)
+    return trend("This month: November", ("On track" if abs(m['over'])<500 else f"{'+' if m['over']>=0 else '−'}{k(abs(m['over']))} on forecast"), over_col, body, "",
+                 how([("Cost of an hour", f"October's wages {k(F[c]['wages'][3])} ÷ October's rostered hours {m['oct_h']:,.0f} = <b>${m['rate']:.0f}</b> (all staff, on-costs, fixed roles and accruals in)"),
+                      ("Hours so far", f"{m['used']:,.0f} rostered hrs over {m['nd']} open days = {m['pace']:.0f} a day"),
+                      ("Heading for", f"{m['pace']:.0f} × {OPEN_DAYS} open days × ${m['rate']:.0f} = <b>{k(m['heading'])}</b>"),
+                      ("Forecast", f"cash flow model, November: wages {k(m['fw'])}, income {k(m['fi'])}"),
+                      ("To land on forecast", f"{k(m['fw'])} ÷ ${m['rate']:.0f} = {m['allow_h']:,.0f} hrs for the month; less {m['used']:,.0f} used = {m['allow_h']-m['used']:,.0f} ÷ {m['left']} days = <b>{m['land']:.0f} a day</b>"),
+                      ("Income", "held at the forecast; bookings are tracking October. Becomes booked fees to date once the daily fees feed is in")],
+                     "Heading for is ±5%: the cost of an hour moves with leave and accruals. Days ahead repeat this month's pace until the roster is entered. A flag for checking, not a hard limit."))
+
+def flag(txt, on=True):
+    return f'<div class="wg-flag{"" if on else " off"}">{"⚑ Check: " if on else "✓ "}{txt}</div>'
+
+# room by day: semantic_v2.room_ratio_day, weekday averages 6 Oct–10 Nov 26 (Cup Day out). (room, day, children, ratio needs, rostered)
+ROOMS = {"South Morang": [("Growling Grass Frog","Mon",11.8,1.6,2.8),("Growling Grass Frog","Tue",11.2,1.4,2.6),("Blue Tongue Lizard","Mon",14.0,1.8,2.4),("King Parrot","Mon",15.2,1.8,2.4)],
+         "Craigieburn": [("Meadow Argus Butterfly","Mon",4.0,1.2,2.0),("Meadow Argus Butterfly","Fri",2.8,0.8,1.4),("Fairy Wren","Fri",3.0,0.8,1.6),("King Parrot","Mon",9.0,1.0,1.6),("King Parrot","Fri",9.6,1.0,1.8),("Growling Grass Frog","Mon",3.0,1.0,1.4)]}
+QUIET = {"South Morang": "Friday about 62 children and Monday 72, against 85 midweek", "Craigieburn": "Monday about 42 and Friday 48, against about 60 midweek"}
+
+def rooms(c):
+    rows = "".join(f'<tr><td>{r}</td><td>{d}</td><td>{k:.0f}</td><td>{n:.1f}</td><td>{ro:.1f}</td></tr>' for r, d, k, n, ro in ROOMS[c])
+    return (f'<div class="wg-rooms"><div class="wg-roomsh">Room by day <span class="wg-draft">Being validated</span></div>'
+            f'<div class="wg-qual">We are still learning this. Robyn is the expert on the roster and works to things this data can\'t see: '
+            f'who is qualified for each room, how rooms are set up, arrival and pick-up times, and her own judgement. '
+            f'Treat these as questions to talk through with her, not recommendations.</div>'
+            f'<div class="kp-grey"><div class="wg-l">Quieter days: {QUIET[c]}.</div>'
+            f'<table class="wg-rt"><tr><th>Room</th><th>Day</th><th>Children</th><th>Ratios need</th><th>Rostered</th></tr>{rows}</table>'
+            f'<div class="wg-l">Rooms where more staff are rostered than the ratios need, on average. Staff numbers are averages, so they can show part of a person. '
+            f'Limits: counts every booked child as if all are in at once; uses the typical staff level for the day, not the peak; '
+            f'ratios may be worked across the whole centre rather than room by room (to confirm with Robyn). '
+            f'Source: Owna bookings and roster by room, weekdays 6 Oct–10 Nov.</div></div></div>')
 
 def panel(c):
-    d = C[c]; g = G[c]; f = F[c]; h = HOW[c]; k = d["k"]
-    now = g["rost"][-1]; jan_need = g["need"]["2027-01"]; jan_allow = f["allow"]["2027-01"]
-    nov_allow = f["allow"]["2026-11"]; nov_need = g["need"]["2026-11"]
-    est, tot, allowed_tot = w2r_est(c)
-    over_f = now - nov_allow; col_f = band(round(100 * over_f / nov_allow))
-    r_now = h["u3"]*h["hpc"]/4 + h["o3"]*h["hpc"]/11
+    f = F[c]; h = HOW[c]; e = EW[c]; ag = AGE[c]
+    md = month_dollars(c); est = round(md["w2r_h"], 1)
+    lo, hi = RANGE[c]
+    wcf = lambda v: SAGE if v < 55 else (AMBER if v <= 60 else EARTH)
+    vals = f["w2r"][:4] + [est] + f["w2r"][5:]
     # 1 Wage to revenue
-    wcol = SAGE if est < 55 else (AMBER if est <= 60 else EARTH)
-    b1 = trend("Wage to revenue", f"~{est:.0f}% Nov · forecast {f['w2r'][4]:.0f}%", wcol, w2r_chart(c),
-               f"FY27: Jul–Oct actual · Nov estimate · Dec–Jun forecast · year {100*sum(f['wages'])/sum(f['inc']):.0f}%",
-               how([("Jul–Oct", "Xero: wages net of the grant ÷ income, as in the cash flow model"),
-                    ("Nov estimate", f"forecast {f['w2r'][4]}% × rostered {tot} hrs ÷ hours the forecast allows {allowed_tot} = <b>{est}%</b>"),
-                    ("Dec–Jun", "the cash flow model's wages ÷ income, month by month (Financial Model v2.0, 9 Nov)"),
-                    ("Year", f"model wages ${sum(f['wages'])/1e6:.2f}m ÷ income ${sum(f['inc'])/1e6:.2f}m")],
-                   "Same definition throughout as the model. Xero replaces the estimate when November closes."))
-    # 2 Tracking to forecast on hours
-    b2 = (f'<div class="wg-tr"><div class="wg-trh"><b>On track for the forecast?</b><span style="color:{col_f}">{"+" if over_f>0 else ""}{over_f} hrs this week</span></div>'
-          f'<div class="wg-week" style="border-color:{col_f}"><span>Educator hours a week · week of {d["wk"]}</span>'
-          f'<b style="color:{col_f}">{now}</b><i>rostered · forecast allows {nov_allow} · ratios need {nov_need}</i></div>'
-          + glide3(c)
-          + f'<div class="wg-l">January: forecast allows {jan_allow} · ratios need {jan_need} · to forecast −{now-jan_allow} hrs a week (≈ ${round((now-jan_allow)*RATE*4.33/1000)}k a month)'
-          + (" · <b>forecast is below the ratio need</b>" if jan_allow < jan_need else "") + '</div>'
-          + how([("Forecast allows", f"model wages ÷ (4.33 weeks × ${f['rate']} an hour) − {FIXED} fixed hrs. Nov: ${f['wages'][4]:,} → <b>{nov_allow} hrs</b>; Jan: ${f['wages'][6]:,} → <b>{jan_allow} hrs</b>"),
-                 ("$ an hour", f"October's actual wages ${f['wages'][3]:,} ÷ ({f['oct_hrs']} hrs × 4.33) = ${f['rate']} (all staff, all-in)"),
-                 ("Ratios need", f"({h['u3']}×{h['hpc']}÷4 + {h['o3']}×{h['hpc']}÷11) = {r_now:.0f} ratio hrs × {k:.2f} = <b>{nov_need} hrs</b>"),
-                 ("January need", f"({h['u3j']}×{h['hpc']}÷4 + {h['o3j']}×{h['hpc']}÷11) × {k:.2f} = <b>{jan_need} hrs</b> (leavers out, children aged forward)"),
-                 ("Rostered", f"{h['total']} hrs all staff − {FIXED} fixed = <b>{now} educator hrs</b>, held flat ahead"),
-                 ("Dollars", f"hours × ${RATE} an educator hour × 4.33 weeks")],
-                f"Booked children (absences are the buffer), Victorian ratios by age on the day, {h['hpc']} hrs a child a day from Owna. Pale band in February: extra need if new starters are mostly under 3. Fixed roles {FIXED} hrs a week until coded in Owna.")
-          + '</div>')
-    # 3 Roster ÷ ratios history
-    m, v = kp.latest(d["mult"])
-    mcf = lambda x: SAGE if x <= k else (AMBER if x <= k * 1.05 else EARTH)
-    b3 = trend("Roster ÷ ratios", f"{v:.2f}× · guide {k:.2f}", mcf(v),
-               kp.chart(kp.ser(d["mult"]), mcf, k, f"{k:.2f}", lo=1.0, hi=1.9, ticks=[(1.2, "1.2"), (1.5, "1.5"), (1.8, "1.8")], vfmt=lambda x: f"{x:.2f}", tprefix="Guide"),
-               "Past overruns: " + " ".join(d["lessons"]),
-               how([("This month", f"{now} educator hrs ÷ {r_now:.0f} ratio hrs = <b>{now/r_now:.2f}×</b>"),
-                    ("Colour", f"green ≤ {k:.2f} · amber to {k*1.05:.2f} · brown above")],
-                   "Monthly points use the age mix of the children booked each month (Owna room data, July on)."))
-    # 4 Guide check
-    b4 = trend("Guide check", f"guide {k:.2f}× · bottom-up 1.24×", SKY, guide_check(c),
-               "Validated in full once sign-in times arrive",
-               how([("Breaks", "30-min unpaid meal break per 7.6-hr shift needs cover: × 1.07"),
-                    ("Rest pauses", "two paid 10-min rests per shift: × 1.04"),
-                    ("Programming", "2 hrs a week non-contact (4 for the Educational Leader): × 1.03"),
-                    ("Whole educators", "rooms staffed in whole people by age group: × 1.08 (estimate)"),
-                    ("Bottom-up", "1.07 × 1.04 × 1.03 × 1.08 = <b>1.24×</b>"),
-                    ("Our efficient months", f"South Morang Sep 1.25×, Oct 1.34× (wage to revenue near target) → guide {C['South Morang']['k']:.2f}×"),
-                    ("Craigieburn", "guide 1.45× while rooms are part-full; steps down as they fill")],
-                   "Victoria has no short-break allowance, so breaks need relief cover. The whole-educator factor is the one to firm up: half-hourly sign-ins will show it directly."))
-    # 5 Agency
-    am, agv = kp.latest(d["agency"]); acf = lambda x: SAGE if x <= 1 else (AMBER if x <= 3 else EARTH)
-    b5 = trend("Agency", f"{agv:g}% {kp.mon(am)} · guide 1%", acf(agv),
-               kp.chart(kp.ser(d["agency"]), acf, 1, "1%", lo=0, hi=7, unit="%", ticks=[(3,"3%"),(6,"6%")], vfmt=lambda x: f"{x:g}%", tprefix="Guide"),
-               "% of total wages",
-               how([("October", f"agency ${h['x_ag']:,} ÷ (HR recharge ${h['x_hr']:,} + agency ${h['x_ag']:,}) = <b>{100*h['x_ag']/(h['x_hr']+h['x_ag']):.1f}%</b>"),
-                    ("Guide", "1% · amber to 3% · brown above")]))
-    soon = "".join(f'<div class="wg-soonrow"><b>{a}</b><span>{b}</span></div>' for a, b in (
-        ("Through the day", "children by age against staff signed in, each half hour"),
-        ("Rostered against worked", "roster against staff sign-in hours")))
-    return (f'<li class="kp wg-main">{b1}{b2}{b3}{b4}{b5}</li>'
-            f'<li class="kp wg-main"><div class="wg-soonh">Coming</div>{soon}</li>')
+    b1 = trend("Wage to revenue", f"~{est:.0f}% Nov · forecast {f['w2r'][4]:.0f}%", wcf(est),
+               axis_chart([m[0] for m in FY], [(vals, wcf, dict(dash_from=3, hollow=4))], lo, hi,
+                          guide=[(55, "Target 55%", INK), (60, "Act 60%", EARTH)],
+                          bands=[(lo, 55, SAGE), (55, 60, AMBER), (60, hi, EARTH)], H=165,
+                          under=[(v, wcf(v), "~" if i == 4 else "") for i, v in enumerate(vals)]),
+               f"Jul–Oct actual · Nov estimate · Dec–Jun forecast · year {100*sum(f['wages'])/sum(f['inc']):.0f}%",
+               how([("Jul–Oct", "Xero: wages net of the grant ÷ income, as in the cash flow model; reconciles to the Panel reports within about a point"),
+                    ("Nov estimate (~)", f"heading-for wages ${md['heading']/1e3:.0f}k (from This month above) ÷ forecast income ${f['inc'][4]/1e3:.0f}k = <b>{est}%</b>. Same figure as This month. An estimate only; Xero replaces it at close"),
+                    ("Dec–Jun", "the cash flow model's wages ÷ income (Financial Model v2.0, 9 Nov)"),
+                    ("Year", f"model wages ${sum(f['wages'])/1e6:.2f}m ÷ income ${sum(f['inc'])/1e6:.2f}m")]))
+    # 1b This month, day by day
+    chk, mtd, done, ahead, dsvg, base = month_daily(c)
+    pct = round(100 * (mtd / chk - 1)); on_m = mtd > chk * 1.05
+    tot_h = sum(h for _, h, _ in done); tot_b = sum(b for _, _, b in done)
+    leg = (f'<div class="wg-leg"><span><i class="bx"></i>Children booked that day</span>'
+           f'<span><i class="ln" style="background:{SAGE}"></i>Rostered hours per child</span>'
+           f'<span><i class="ln" style="background:{AMBER}"></i>Above the check line</span>'
+           f'<span><i class="ds"></i>Check: early Oct + 5%</span></div>')
+    b1b = trend("Day by day", f"{mtd:.2f} hrs a child · {'+' if pct>=0 else ''}{pct}% on early Oct", AMBER if on_m else SAGE, dsvg + leg,
+                flag(f"rostered hours per booked child are {pct}% above early October on the same mix of days; about {round((mtd-chk)*tot_b/len(done))} extra hours a day." if on_m else f"In line with early October ({mtd:.2f} against {chk:.2f}).", on_m)
+                + '<div class="wg-l">Rostered ahead: ' + " · ".join(f"{_dt.date.fromisoformat(d).strftime('%a %-d')} {h:.0f} hrs" for d, h in ahead) + '</div>',
+                how([("November so far", f"{tot_h:.0f} rostered hrs ÷ {tot_b:.0f} booked child-days over {len(done)} open days = <b>{mtd:.2f} hrs a child</b>"),
+                     ("Check line", f"1–23 Oct: {sum(h for h,b in base):.0f} hrs ÷ {sum(b for h,b in base)} child-days = {chk:.2f}, plus 5% = {chk*1.05:.2f}"),
+                     ("Bars", "children booked each day (Owna)"),
+                     ("Source", "Owna roster by day (all staff, paid minutes) and bookings, from the dashboard's overnight build; days ahead show the roster already entered"),
+                     ("Limits", "all staff, not educators only; doesn't adjust for age mix (steady within six weeks); a closed day (Melbourne Cup, 3 Nov) still carries its roster")],
+                    "A flag for checking with Robyn, not a hard limit."))
+    # 2 Early warning
+    ecf = lambda v: SAGE if v <= e["guide"] + 1 else AMBER
+    ev = e["vals"][-1]; on = ev > e["guide"] + 1
+    b2 = trend("Early warning: roster cost", f"{ev:.0f}% · check above {e['guide']}%", AMBER if on else SAGE,
+               axis_chart(["J", "A", "S", "O", "N"], [(e["vals"], ecf, dict(dash_from=3, hollow=4))], e["guide"] - 10, e["guide"] + 15,
+                          guide=[(e["guide"], f"Check {e['guide']}%", AMBER)], H=110),
+               flag(f"roster cost is {ev - e['guide']:.0f} points above the check line; Xero has followed about 6 weeks later before." if on else f"at the check line ({ev:.0f}% against {e['guide']}%).", on),
+               how([("What it is", "Owna rostered hours × each person's Owna pay rate ÷ booked fees incl. CCS, each week (dashboard). Leaves out super, payroll tax, leave and unrostered staff, so it reads lower than Xero"),
+                    ("Check line", f"{e['guide']}%: {e['why']}"),
+                    ("Track record", "Feb 26 at South Morang: roster cost jumped 37% → 47% in the first week; Xero showed the step (53% → 58–60%) only after February closed, 6–7 weeks later"),
+                    ("Limits", "direction, not precision: month to month it moves with Xero only loosely (correlation about 0.4–0.5), and it can't tell extra hours from a younger age mix")],
+                   "A flag for checking with Robyn, not a hard limit."))
+    # 3 Age mix
+    acf = lambda v: SAGE if v <= ag["now"][0] else AMBER
+    pk = max(ag["new"]); on3 = pk > ag["now"][0] + 2
+    b3 = trend("Age mix ahead", f"under-3s {ag['now'][0]}% now → {ag['new'][3]}% Feb", AMBER if on3 else SAGE,
+               axis_chart(AM, [(ag["now"], lambda v: SKY, dict(small=True, end="today's")), (ag["new"], acf, dict(dash=True, end="with starters"))],
+                          25, 55, H=120),
+               flag(f"more under-3s from January (1 educator to 4, against 1 to 11 for 3+, same fee): more staff time per place, about +{2 if c=='South Morang' else 4}–{3 if c=='South Morang' else 6} points of wage to revenue not in the forecast." if on3 else "no change in mix ahead.", on3),
+               how([("Today's children", "each child's age in months from Owna, aged forward a month at a time; 2027 school leavers out from January"),
+                    ("New starters", f"at the last six months' mix: {ag['mix']}% under 3 at start (May–Nov 26); forecast spots {ag['starters']}"),
+                    ("Why it matters", "Victorian ratios: under 3s 1:4, 3 and over 1:11 — an under-3 place needs nearly three times the educator time, at the same daily fee"),
+                    ("Effect", f"educator time per booked place vs today: Feb about +{8 if c=='South Morang' else 12}%, Jun about +7%")],
+                   "A flag for checking: the starter mix counts only children still enrolled; ages are whole months."))
+    soon = '<div class="wg-soon">Being validated before they appear: hours against the ratios · rostered against worked · fixed wages</div>'
+    return f'<li class="kp wg-main"><div class="wg-flaghead">Flags are for checking, not hard limits.</div>{this_month(c)}{b1b}{b1}{b2}{b3}{rooms(c)}{soon}</li>'
 
 def section(logo):
     return f'''
 <section id="wages" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Wages</h1><div class="sub">Daily · as at {ASAT}</div></div>
+    <div class="ttl"><h1>Wages <span class="wg-draft">Draft</span></h1><div class="sub">Daily · as at {ASAT}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <nav class="toggle wg" role="tablist" aria-label="Centre">
@@ -311,13 +381,11 @@ def section(logo):
     <div id="wg-cb" class="screen" hidden><div class="centre"><ul class="measures kpl">{panel("Craigieburn")}</ul></div></div>
   </div>
   <details class="foot"><summary>About the numbers</summary>
-    <p><b>Updated daily</b> from the dashboard's overnight build of Owna; wage to revenue and agency take Xero once a month closes.</p>
-    <p><b>Hours needed</b> is a guide for setting the roster, not a compliance test. It starts from the children booked (enrolled plus casuals), not those who came: the roster is set before anyone knows who will be away, and every booked child may arrive, so absences are the buffer. Each child counts by age on the day (Victoria: under 36 months, 1 educator to 4 children; 36 months to preschool age, 1 to 11; school-age, 1 to 15). Ratio hours = children booked × the average hours a child is at the centre (Owna sign-ins: about 7.8 at South Morang, 7.5 at Craigieburn) ÷ the ratio. Educator hours needed = ratio hours × South Morang 1.30, Craigieburn 1.45. The multiplier covers break relief (Victoria has no short-break allowance, so every break is covered), programming time (2 hours a week; 4 for the Educational Leader), whole educators by room and age, and the absence buffer. South Morang's 1.30 is its own September–October roster, when wage to revenue ran near target; Craigieburn's is higher while rooms are part-full and steps down as they fill.</p>
-    <p><b>Educator hours</b> are total rostered hours less {FIXED} a week for fixed roles (management, admin, kitchen) until Robyn codes those roles in Owna.</p>
-    <p><b>The chart</b>: brown is educator hours rostered each week (solid to today, then held flat); green is the educator hours the ratios need for the children booked, by age. It ages each child forward a month at a time (1:4 becomes 1:11 when a child turns 3), takes out the 2027 school leavers from January, and rises as new enrolments are booked. The pale band in February is the extra need if most new starters are under 3. Shading shows the gap: brown over, green under.</p><p><b>The headline</b> is today's roster less January's need, in hours a week, full-time educators (38 hours) and dollars a month.</p>
-    <p><b>Roster against ratio rules</b>: educator hours ÷ ratio hours for the children booked, by month (age mix from Owna's room data, July on; earlier months once the age history is in). Lessons are past periods above the guide, with their cost.</p>
-    <p><b>Wage to revenue</b>: Xero, net of the grant, incl. agency. November is a roster estimate (Owna roster × 1.37, the 12-month relationship to Xero), within about 6 points when tested back; Xero replaces it at month close.</p>
-    <p>Dollar figures use about ${RATE} an educator hour including on-costs. No one is named on this screen.</p>
+    <p>Three views, each with its workings under "How it's worked out". Flags are prompts to check with Robyn, not hard limits.</p>
+    <p><b>Wage to revenue</b> is on the cash flow model's definition throughout (wages net of the Worker Retention Grant ÷ income), so the actual months, the November estimate and the forecast line up.</p>
+    <p><b>Early warning</b> uses the dashboard's weekly roster cost against booked fees from Owna. It moves before Xero does, but only as a direction.</p>
+    <p><b>Age mix ahead</b> uses each child's age in months from Owna; no names or birth dates are held.</p>
+    <p>Measures still being validated (hours against the ratios, rostered against worked, fixed wages) will appear once they explain the June–September results.</p>
   </details>
 </section>'''
 
@@ -328,7 +396,10 @@ wg_js = """
     ['wg-sm','wg-cb'].forEach(function(id){ document.getElementById(id).hidden = (id !== t.dataset.wg); });
   }); });
 """
-wg_css = """
+wg_css = """.wg-rooms{border-top:1px solid rgba(0,0,0,.08);margin-top:14px;padding-top:12px}.wg-roomsh{font-family:"Fredoka","Nunito",sans-serif;font-weight:600;font-size:17px;padding-bottom:6px}.wg-roomsh .wg-draft{font-size:9.5px;top:-2px}.wg-qual{font-size:12px;font-weight:700;line-height:1.4;color:#7a3f17;background:rgba(164,88,35,.08);border-radius:8px;padding:8px 10px;margin-bottom:8px}.wg-rt{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0}.wg-rt th{text-align:left;font-size:10.5px;font-weight:800;color:rgba(0,0,0,.55);padding:3px 4px}.wg-rt td{padding:4px;border-top:1px solid rgba(0,0,0,.06);font-weight:700}
+.wg-draft{display:inline-block;vertical-align:middle;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#7a3f17;border:1.5px solid #7a3f17;border-radius:7px;padding:2px 7px;margin-left:6px;position:relative;top:-3px}
+.wg-leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:rgba(0,0,0,.6);margin:2px 0 8px}.wg-leg span{display:inline-flex;align-items:center;gap:5px}.wg-leg .bx{width:9px;height:11px;border-radius:2px;background:rgba(0,0,0,.12)}.wg-leg .ln{width:14px;height:3px;border-radius:2px}.wg-leg .ds{width:14px;border-top:2px dashed #E2A23B}
+
 .wg-main { border-bottom:none !important; }
 .wg-hero { padding:4px 0 6px; } .wg-hero span { display:block; font-size:12px; font-weight:800; color:var(--ink-70); text-transform:uppercase; letter-spacing:.04em; }
 .wg-hero b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:44px; line-height:1.05; color:#A45823; } .wg-hero b small { font-size:17px; }
@@ -344,6 +415,16 @@ wg_css = """
 .wg-how summary::before { content:"▸ "; } .wg-how[open] summary::before { content:"▾ "; } .wg-how summary::-webkit-details-marker { display:none; }
 .wg-how table { width:100%; border-collapse:collapse; font-size:11.5px; margin:4px 0; } .wg-how td { padding:4px 0; border-bottom:1px solid rgba(43,35,32,.07); vertical-align:top; } .wg-how td:first-child { color:var(--ink-70); font-weight:700; width:38%; padding-right:8px; } .wg-how td:last-child { font-weight:700; }
 .wg-how p { font-size:11px; color:var(--ink-70); font-weight:600; line-height:1.4; margin:6px 0 2px; }
+.wg-flag { font-size:11.5px; font-weight:800; color:#8a5a10; background:rgba(227,155,45,.14); border-radius:8px; padding:6px 9px; margin-top:4px; line-height:1.35; }
+.wg-flag.off { color:#4d6a3a; background:rgba(110,139,87,.14); }
+.wg-days { padding:4px 0 8px; } .wg-dbar { height:8px; background:rgba(43,35,32,.08); border-radius:4px; overflow:hidden; } .wg-dbar i { display:block; height:100%; background:#5E80A0; }
+.wg-days span { font-size:11.5px; font-weight:800; color:var(--ink-70); }
+.wg-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; } .wg-grid div { background:#fff; border-radius:12px; padding:8px 10px; }
+.wg-grid span { display:block; font-size:10.5px; font-weight:800; color:var(--ink-70); } .wg-grid b { font-family:"Fredoka","Nunito",sans-serif; font-size:22px; font-weight:600; }
+.wg-land { margin-top:8px; padding:9px 12px; background:#fff; border-left:4px solid; border-radius:10px; } .wg-land span { display:block; font-size:10.5px; font-weight:800; color:var(--ink-70); text-transform:uppercase; letter-spacing:.04em; }
+.wg-land b { font-family:"Fredoka","Nunito",sans-serif; font-size:26px; font-weight:600; } .wg-land i { display:block; font-style:normal; font-size:12px; font-weight:800; color:var(--ink-70); }
+.wg-flaghead { font-size:11px; font-weight:800; color:var(--ink-50); padding-bottom:2px; }
+.wg-soon { font-size:11px; font-weight:700; color:var(--ink-50); padding:12px 0 0; }
 .wg-soonh { font-size:10.5px; font-weight:800; color:var(--ink-50); text-transform:uppercase; letter-spacing:.04em; padding-bottom:4px; }
 .wg-soonrow { opacity:.5; padding:6px 0; } .wg-soonrow b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:14px; } .wg-soonrow span { font-size:11px; font-weight:700; }
 """

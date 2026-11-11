@@ -120,7 +120,7 @@ def centre(idx, name, places, rows):
 # ============================================================
 # WEEK'S FIGURES — the only part that changes each issue
 # ============================================================
-ISSUE = "2.3"
+ISSUE = "2.4"
 WEEK_LABEL = "6 Nov 26"                 # Friday that closes the week
 SNAPSHOT = "Sat 7 Nov 26, 3:06 am AEDT"  # dashboard build the figures come from
 FORECAST_WINDOW = "weeks of 3 Aug to 26 Oct"

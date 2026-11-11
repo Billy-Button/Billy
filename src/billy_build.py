@@ -11,7 +11,7 @@ css = report_html.split("<style>")[1].split("</style>")[0]
 legend = report_html.split('<div class="legend">')[1].split("</div>")[0]
 foot = report_html.split('<details class="foot">')[1].split("</details>")[0]
 
-ISSUED = "Wed 11 Nov 26"   # when the current issue went live (set by the Saturday run)
+ISSUED = "Thu 12 Nov 26"   # when the current issue went live (set by the Saturday run)
 
 shell_css = """
 .app { max-width:430px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; }
@@ -88,13 +88,13 @@ NEW = {
    ts=("Tours Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
    of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
    pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1")),
-   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster, uplifted","~62%","Nov week 1<br>forecast 55%",(61.8,54.8,58,55,False,"%","58%","55%","55%"))),
+   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster at Oct rate","~58%","Nov to date<br>forecast 55%",(57.9,54.8,58,55,False,"%","58%","55%","55%"))),
  "Craigieburn": dict(
    c10=("Time to first contact","median · enquiry to first human contact","&lt;1<small>min</small>","3 of 6 contacted<br>last week 1.5 days",(2.957,-0.583,0,1,True,"","1 hr","10 min","1.5 days")),
    ts=("Tours Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
    of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
    pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3")),
-   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster, uplifted","~74%","Nov week 1<br>forecast 69%",(73.9,70.8,75,55,False,"%","75%","55%","71%"))),
+   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster at Oct rate","~69%","Nov to date<br>forecast 69%",(68.5,70.8,75,55,False,"%","75%","55%","71%"))),
 }
 RENAME = {"New enquiries":("New Enquiry","families · LineLeader"), "Tours completed":("Tours Completed","families · LineLeader"),
           "Enrolment complete":("Enrolment complete","pulled into Owna · $50 charged"), "Started":("Started","spots a week · first day in Owna"),
@@ -124,7 +124,7 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
-    {tile("wages", "Wages", "Roster against ratio need · daily", ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Draft", live=True)}
+    {tile("wages", "Wages", wg.tile_line(), ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Draft", live=True)}
     {tile("perf", "Pipeline", "Performance this week", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Draft", live=True)}
