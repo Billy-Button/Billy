@@ -8,10 +8,9 @@ SQL (Billy Button dashboard run_sql), FROM = '2026-10-01', TO = today + 7 days:
     from semantic_v2.current_owna_roster_day r
     left join semantic_v2.current_owna_occupancy_day o on o.centre_key=r.centre_key and o.occurred_on=r.shift_date
     where r.shift_date between 'FROM' and 'TO' and extract(isodow from r.shift_date) < 6
-      and r.shift_date <> '2026-11-03'   -- keep Cup Day only if already in daily.py; see note
     order by 1,2
 
-Note: 3 Nov (Cup Day) is in the current daily.py; keep the pull identical to it (drop the Cup Day exclusion line if 3 Nov is present there).
+Closed days (e.g. Cup Day 3 Nov) stay in; the screen notes them.
 
 Steps: save rows as JSON -> python3 src/kpi/refresh_daily.py rows.json "<snapshot_completed_at>" -> cd src && BILLY_OUT=/tmp/out python3 billy_build.py.
 Checks before publishing: page builds; no Python errors; 'as at <today>' on Wages; South Morang and Craigieburn each have booked children for the latest weekday; heading-for wages within ±25% of forecast; Pipeline/Occupancy/Tours HTML sections identical to yesterday's live page (diff the #perf, #report, #tours sections).
