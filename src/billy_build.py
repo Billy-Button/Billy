@@ -2,12 +2,14 @@
 # Reuses the Friday Night Report builder (fnr_build.py) for the report screen.
 import pathlib, re
 from fnr_build import html as report_html, sm, cb, icon, logo, fred, nun, ISSUE, WEEK_LABEL, SNAPSHOT, SAGE, EARTH
+import followups_build as fu
+import tours_build as tr
 
 css = report_html.split("<style>")[1].split("</style>")[0]
 legend = report_html.split('<div class="legend">')[1].split("</div>")[0]
 foot = report_html.split('<details class="foot">')[1].split("</details>")[0]
 
-ISSUED = "Sat 7 Nov 26"   # when the current issue went live (set by the Saturday run)
+ISSUED = "Wed 11 Nov 26"   # when the current issue went live (set by the Saturday run)
 
 shell_css = """
 .app { max-width:430px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; }
@@ -50,6 +52,8 @@ shell_css = """
 """
 
 ICON_REPORT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19h16"/><path d="M7 15v-4"/><path d="M12 15V7"/><path d="M17 15v-7"/></svg>'
+ICON_FU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M9 9l1.8 1.8L14.5 7"/><path d="M9 15h6"/></svg>'
+ICON_TR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9l8-5 8 5v10"/><path d="M9 19v-6h6v6"/></svg>'
 ICON_CASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5h.01M17.5 14.5h.01"/></svg>'
 ICON_KPI = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/><path d="M12 3.5V1.8M20.5 12h1.7"/></svg>'
 ICON_PEOPLE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.3c2.6 0 4.3 1.5 4.9 4.2"/></svg>'
@@ -63,6 +67,8 @@ def tile(target, name, sub, ico, bg, badge=None, live=False, disabled=False):
       <span class="t-body"><span class="t-name">{name}{b}</span><span class="t-sub">{sub}</span></span>{arrow}
     </button>'''
 
+FU_OPEN = fu.OPEN["South Morang"][0] + fu.OPEN["Craigieburn"][0]
+
 home = f'''
 <section id="home" class="scr">
   <div class="hero">
@@ -71,6 +77,8 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Friday Night Report", f"Weekly occupancy · w/e {WEEK_LABEL}", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
+    {tile("followups", "Pipeline Follow Up", f"Did we follow up? · {FU_OPEN} families waiting", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
+    {tile("tours", "Tours", f"Who closes · {tr.TEAM[0]}% tour to enrolment · industry 40%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("cash", "Cash position", "Weekly cash and funding · from the model", ICON_CASH, "rgba(94,128,160,.16); color:#3f5f7d", "Soon", disabled=True)}
     {tile("people", "People & rosters", "Hours, ratios and wage to revenue", ICON_PEOPLE, "rgba(164,88,35,.14); color:#8a4a1e", "Soon", disabled=True)}
     {tile("kpis", "KPIs", "The improvement plan's measures, tracked", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Soon", disabled=True)}
@@ -117,6 +125,8 @@ people = soon("people", "People & rosters", "Who is rostered against who is book
 kpis = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
             ["Operations, Marketing and Finance plan measures side by side", "Each against its target and the date it is due", "Owner and status, plain words", "Trend since the plan started"])
 
+FU_JS = fu.fu_js
+
 page = f'''<!DOCTYPE html>
 <html lang="en-AU">
 <head>
@@ -132,21 +142,25 @@ page = f'''<!DOCTYPE html>
 <title>Billy</title>
 <style>{css}
 {shell_css}
+{fu.fu_css}
+{tr.tr_css}
 </style>
 </head>
 <body>
 <div class="app">
 {home}
 {report}
+{fu.section(logo)}
+{tr.section(logo)}
 {cash}
 {people}
 {kpis}
 </div>
 <script>
 (function(){{
-  var scrs = ['home','report','cash','people','kpis'];
+  var scrs = ['home','report','followups','tours','cash','people','kpis'];
   var screens = {{'south-morang': document.getElementById('south-morang'), 'craigieburn': document.getElementById('craigieburn')}};
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle button'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu) button'));
   function showCentre(id, push){{
     if(!screens[id]) id = 'south-morang';
     Object.keys(screens).forEach(function(k){{ screens[k].hidden = (k !== id); }});
@@ -177,6 +191,7 @@ page = f'''<!DOCTYPE html>
     route();
   }});
   tabs.forEach(function(t){{ t.addEventListener('click', function(){{ showCentre(t.dataset.target, true); }}); }});
+{FU_JS}
   window.addEventListener('hashchange', route);
   window.addEventListener('popstate', route);
   route();
