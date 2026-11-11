@@ -19,6 +19,8 @@ shell_css = """
 .hero .logo { width:150px; height:auto; display:block; flex:0 0 auto; }
 .hero .txt { min-width:0; flex:1 1 auto; }
 .hello { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:27px; line-height:1.05; margin:0 0 5px; white-space:nowrap; }
+#perf .num, #report .num { flex:0 0 100px; min-width:0; }
+.big small { font-size:17px; font-weight:600; margin-left:4px; letter-spacing:0; }
 .hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--earth); white-space:nowrap; }
 .tiles { padding:18px 18px 8px; display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
 .tile { min-width:0; display:flex; align-items:center; gap:14px; width:100%; text-align:left; font:inherit; color:var(--ink); background:#fff; border:1px solid var(--ink-12); border-radius:20px; padding:16px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 1px 0 rgba(43,35,32,.04); }
@@ -78,12 +80,12 @@ def _simple(label, unit, big, sub, soon=False):
 # New lines: forecast tick = 13-week weekly average (8 Aug–6 Nov); target as noted in About the numbers.
 NEW = {
  "South Morang": dict(
-   c10=("Time to first contact","median · enquiry to first human contact","2.8 days","2 of 4 contacted · last week 9.7 h",(3.599,2.764,3.414,1.0,False,"","1.8 days","10 min","9.7 h")),
+   c10=("Time to first contact","median · enquiry to first human contact","2.8<small>days</small>","2 of 4 contacted<br>last week 9.7 h",(-0.683,-0.37,0,1,True,"","1 hr","10 min","9.7 h")),
    ts=("Tours Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
    of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
    pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1"))),
  "Craigieburn": dict(
-   c10=("Time to first contact","median · enquiry to first human contact","&lt;1 min","3 of 6 contacted · last week 1.5 days",(-0.523,3.332,3.518,1.0,False,"","2.3 days","10 min","1.5 days")),
+   c10=("Time to first contact","median · enquiry to first human contact","&lt;1<small>min</small>","3 of 6 contacted<br>last week 1.5 days",(2.957,-0.583,0,1,True,"","1 hr","10 min","1.5 days")),
    ts=("Tours Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
    of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
    pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3"))),
@@ -161,7 +163,7 @@ perf = f'''
     <div id="pf-sm" class="screen">{sm_pf}</div>
     <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
   </div>
-  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. For this line the forecast tick is the 13-week median, and the bar runs on a log scale so minutes, hours and days each get fair space. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
+  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):
