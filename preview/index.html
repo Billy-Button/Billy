@@ -125,6 +125,7 @@ h2 { margin:0; font-size:20px; line-height:1; }
 .home-foot { margin-top:auto; padding:18px 22px max(22px, env(safe-area-inset-bottom)); font-size:11.5px; color:var(--ink-50); display:flex; justify-content:space-between; align-items:center; }
 .home-foot b { color:var(--ink-70); }
 /* report screen top bar */
+.scr > .toggle { top:var(--tb,64px); z-index:5; box-shadow:0 6px 8px -8px rgba(43,35,32,.25); }
 .topbar { position:sticky; top:0; z-index:6; background:var(--yellow); display:flex; align-items:center; gap:8px; padding:max(10px, env(safe-area-inset-top)) 12px 10px; }
 .back { font:inherit; font-weight:800; color:var(--ink); background:transparent; border:0; padding:8px 8px 8px 4px; display:inline-flex; align-items:center; gap:4px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .topbar .ttl { min-width:0; }
@@ -601,7 +602,6 @@ h2 { margin:0; font-size:20px; line-height:1; }
     tabs.forEach(function(t){ t.setAttribute('aria-selected', t.dataset.target === id ? 'true' : 'false'); });
     try { localStorage.setItem('bbw-centre', id); } catch(e) {}
     if(push) setHash('report/' + id);
-    window.scrollTo(0, 0);
   }
   function setHash(h){ if(location.hash !== '#' + h){ try { history.pushState(null, '', '#' + h); } catch(e) { location.hash = h; } } }
   function route(){
@@ -638,6 +638,8 @@ h2 { margin:0; font-size:20px; line-height:1; }
     ['kp-sm','kp-cb'].forEach(function(id){ document.getElementById(id).hidden = (id !== t.dataset.kp); });
   }); });
 
+  function setTb(){ var t = document.querySelector('.scr:not([hidden]) .topbar'); if(t) document.documentElement.style.setProperty('--tb', t.offsetHeight + 'px'); }
+  window.addEventListener('resize', setTb); window.addEventListener('hashchange', function(){ setTimeout(setTb, 0); }); setTimeout(setTb, 0);
   var pfTabs = Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button'));
   pfTabs.forEach(function(t){ t.addEventListener('click', function(){
     pfTabs.forEach(function(x){ x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
