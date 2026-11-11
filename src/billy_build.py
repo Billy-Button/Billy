@@ -122,10 +122,10 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
-    {tile("wages", "Wages", wg.tile_line(), ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Draft", live=True)}
+    {tile("wages", "Wages", wg.tile_line(), ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Live", live=True)}
     {tile("perf", "Pipeline", "Performance this week", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
-    {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Draft", live=True)}
+    {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Live", live=True)}
   </div>
   <div class="home-foot"><span id="who">Billy · Billy Button reporting</span><span>v{ISSUE}</span></div>
 </section>'''
