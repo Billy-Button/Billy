@@ -25,6 +25,8 @@ def team_bar(v, tick=80, ind=40, maxv=100):
             f'<line x1="{x(tick):.1f}" y1="0" x2="{x(tick):.1f}" y2="14" stroke="{INK}" stroke-width="2"/>'
             f'<text x="{x(ind):.1f}" y="29" text-anchor="middle" font-size="10.5" fill="{INK}" opacity=".7">ind. ave. {ind}%</text>'
             f'<text x="{x(tick):.1f}" y="29" text-anchor="middle" font-size="10.5" fill="{INK}" opacity=".7">top performers {tick}%</text></svg>')
+NAMES={"A":"Pallavi","B":"Robyn","C":"Fiona","D":"Ebony","E":"Angelique"}  # staff_names released 11 Nov 26
+def nm(l): return NAMES.get(l, f"Name {l}")
 def arrow(now, then, higher_better=True):
     if then is None: return '<div class="tr-arr na">—</div>'
     d=now-then
@@ -32,13 +34,13 @@ def arrow(now, then, higher_better=True):
     good=(d>0)==higher_better
     return f'<div class="tr-arr {"up" if good else "dn"}">{"↑" if d>0 else "↓"}</div>'
 def line(l, big, small, arr, b=""):
-    return f'<li class="tr-ln"><div class="tr-lt">Name {l}</div><div class="tr-mid"><div class="tr-n"><b>{big}</b><span>{small}</span></div>{b}</div>{arr}</li>'
+    return f'<li class="tr-ln"><div class="tr-lt">{nm(l)}</div><div class="tr-mid"><div class="tr-n"><b>{big}</b><span>{small}</span></div>{b}</div>{arr}</li>'
 
 def section(logo):
     conv="".join(line(l,f"{v}%",s,arrow(v,p),bar(v)) for l,v,s,p in CONV)
     speed="".join(line(l,f"{v} days","",arrow(v,p,False)) for l,v,s,p in SPEED)
     offer="".join(line(l,f"{v}%",s,arrow(v,p)) for l,v,s,p in OFFER)
-    wb="".join(f'<li class="tr-wb"><div class="tr-lt">Name {l}</div><div class="todo"><b>{n}</b></div><div><b>0</b></div><div><b>0</b></div><div><b>0</b></div><div><b>0</b></div></li>' for l,n in WINBACK)
+    wb="".join(f'<li class="tr-wb"><div class="tr-lt">{nm(l)}</div><div class="todo"><b>{n}</b></div><div><b>0</b></div><div><b>0</b></div><div><b>0</b></div><div><b>0</b></div></li>' for l,n in WINBACK)
     t_pct, t_det, t_prior = TEAM
     return f'''
 <section id="tours" class="scr" hidden>
@@ -56,7 +58,7 @@ def section(logo):
     <li class="tr-wb tr-wbh"><div></div><span>to call</span><span>called</span><span>reached</span><span>re-toured</span><span>enrolled</span></li>{wb}
   </ul></div>
   <details class="foot"><summary>About the numbers</summary>
-    <p><b>Name A, Name B…</b> are tour givers, from the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). Names will be matched to staff shortly; until then the key is held by Cameron. A line shows only after five tours in the window.</p>
+    <p><b>Tour giver</b> is the staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names only, from the dashboard's released staff list. A line shows only after five tours in the window.</p>
     <p><b>Window</b> is the 13 weeks to the Friday of the issue; arrows compare with the 13 weeks before. Green up, red down, orange within 10%. On Speed, fewer days is green.</p>
     <p><b>Conversion</b>: families toured who moved to <i>Enrolled</i> in LineLeader on or after the tour, credited to the family's last tour (dashboard view tour_giver). Bulk status edits that look like tours ("status runs") are left out. Two marks on each bar: the industry average, 40%, and top performers, 80%.</p>
     <p><b>Where 40% and 80% come from</b>: LineLeader, <i>2026 ECE Benchmark Report</i> (data from about 5,700 childcare operators on LineLeader). On the industry rate it says post-tour conversion is "trending toward 40%". On the top tier it defines the best-performing centres as those converting 79% or more of completed tours; we round that to 80% and set it as the mark for every tour giver. Below 40% shows earth, 40 to 80% amber, 80% and above sage.</p>
