@@ -25,6 +25,41 @@ MISSING={
   ("Tour logged at the time","of Tour Completed",(49,67),(58,72),(176,261)),
   ("Tour outcome recorded","of booked tours now past",(59,63),(62,67),(234,286))],
 }
+RK={
+ "South Morang":{
+  "Tour giver recorded":("of tours",[(1,1),(7,10),(8,37),(6,25),(6,10),(10,14),(4,4),(17,17),(10,10),(10,10),(4,4)]),
+  "Tour logged at the time":("of Tour Completed",[(1,1),(10,11),(37,41),(24,29),(10,12),(12,15),(4,5),(15,22),(10,15),(10,16),(4,4)]),
+  "Tour outcome recorded":("of booked tours now past",[(1,1),(11,12),(39,42),(29,31),(9,10),(17,17),(10,12),(17,18),(16,16),(16,19),(4,5)])},
+ "Craigieburn":{
+  "Tour giver recorded":("of tours",[(0,0),(5,28),(11,14),(13,21),(0,6),(12,24),(15,16),(18,18),(25,25),(16,19),(5,5)]),
+  "Tour logged at the time":("of Tour Completed",[(0,0),(25,51),(14,36),(20,25),(5,11),(21,26),(14,16),(16,23),(21,28),(18,29),(5,5)]),
+  "Tour outcome recorded":("of booked tours now past",[(0,0),(49,74),(31,41),(23,26),(10,15),(21,23),(14,16),(27,28),(26,28),(27,29),(6,6)])},
+}
+RK_TARGET=90
+def rkcol(v): return SAGE if v>=RK_TARGET else (AMBER if v>=70 else EARTH)
+def spark(series):
+    pts=[]
+    for i in range(1,len(series)):
+        n=sum(x[0] for x in series[max(0,i-2):i+1]); o=sum(x[1] for x in series[max(0,i-2):i+1])
+        pts.append((MONTHS[i], pct(n,o) if o else None))
+    W,H,L,R,T,B=330,74,30,10,8,18
+    xs=lambda i: L+(W-L-R)*i/(len(pts)-1); ys=lambda v: T+(H-T-B)*(1-v/100)
+    g=f'<line x1="{L}" y1="{ys(RK_TARGET)}" x2="{W-R}" y2="{ys(RK_TARGET)}" stroke="{INK}" stroke-width="1" stroke-dasharray="3 3" opacity=".5"/>'
+    g+=f'<text x="{L-4}" y="{ys(RK_TARGET)+3.5}" text-anchor="end" font-size="9.5" fill="{INK}" opacity=".7">{RK_TARGET}%</text>'
+    g+=f'<text x="{L-4}" y="{ys(50)+3.5}" text-anchor="end" font-size="9.5" fill="{INK}" opacity=".7">50%</text>'
+    prev=None
+    for i,(lab,v) in enumerate(pts):
+        if v is not None and prev is not None:
+            g+=f'<line x1="{xs(i-1):.1f}" y1="{ys(prev):.1f}" x2="{xs(i):.1f}" y2="{ys(v):.1f}" stroke="{rkcol(v)}" stroke-width="2.5" stroke-linecap="round"/>'
+        if v is not None:
+            g+=f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="3.5" fill="{rkcol(v)}"/>'
+        g+=f'<text x="{xs(i):.1f}" y="{H-4}" text-anchor="middle" font-size="9.5" fill="{INK}" opacity=".6">{lab[0]}</text>'
+        prev=v
+    return f'<svg class="tr-spark" viewBox="0 0 {W} {H}">{g}</svg>'
+def rk_line(label, sub, series):
+    n=sum(x[0] for x in series[-3:]); o=sum(x[1] for x in series[-3:]); v=pct(n,o)
+    return (f'<li class="tr-rk"><div class="tr-rkh"><div class="tr-mt"><b>{label}</b><span>{sub}</span></div>'
+            f'<div class="tr-n"><b style="color:{rkcol(v)}">{v}%</b><span>{n} of {o}</span></div></div>{spark(series)}</li>')
 SR_ENR={"South Morang":23,"Craigieburn":69}
 # givers: (code, fams, enrolled, closed, fams_recent, enr_recent, fams_prior, enr_prior, med_days, last_tour)
 GIVERS={
@@ -99,7 +134,7 @@ def giver_line(code, fams, enr, closed, fr, er, fp, ep, med, last):
 
 def panel(centre):
     f,e=HEAD[centre]; v=pct(e,f)
-    miss="".join(f'<li class="tr-ms"><div class="tr-mt"><b>{lab}</b><span>{sub}</span></div>{cell(q1)}{cell(q0)}{cell(y)}</li>' for lab,sub,q1,q0,y in MISSING[centre])
+    miss="".join(rk_line(lab,sub,ser) for lab,(sub,ser) in RK[centre].items())
     gv=sorted(GIVERS[centre], key=lambda g:(g[0] is None, -(g[2]/g[1])))
     conv="".join(giver_line(*g) for g in gv)
     closed="".join(f'<li class="tr-ln"><div class="tr-lt">{nm(g[0])}</div><div class="tr-mid"><div class="tr-n"><b>{pct(g[3],g[1])}%</b><span>{g[3]} of {g[1]}</span></div></div><div></div></li>' for g in gv if g[0])
@@ -110,8 +145,7 @@ def panel(centre):
   <div class="tr-team"><div class="k">{centre} · tour to Enrolled · 12 months</div><div class="n"><b>{v}%</b><span>{e} of {f} families</span></div>{bar(v)}
     <div class="tr-tl">Trend · rolling three months <span>· open dot still maturing</span></div>{trend(centre)}</div>
   <div class="centre"><ul class="measures tr">
-    <li class="sec"><span class="sec-t">Record keeping</span><span class="sec-s">what we can and can't measure</span></li>
-    <li class="tr-ms tr-msh"><div></div><span>Sep–Nov</span><span>Jun–Aug</span><span>Year</span></li>{miss}
+    <li class="sec"><span class="sec-t">Record keeping</span><span class="sec-s">last three months · trend by month</span></li>{miss}
     <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">Tour Completed → Enrolled · 12 months</span></li>{conv}
     <li class="sec"><span class="sec-t">Closed on the day</span><span class="sec-s">moved to Offered or further on the tour day</span></li>{closed}
     <li class="sec"><span class="sec-t">Speed</span><span class="sec-s">median days from the tour to Enrolled</span></li>{speed}
@@ -137,7 +171,7 @@ def section(logo):
     <p><b>Window</b> is the 12 months to the issue date. The trend is a rolling three months, month by month; the open dot is the latest, which always reads low because enrolment runs 10 to 50 days behind the tour. Line and dots are earth below 40%, amber 40 to 80%, sage at 80% and above.</p>
     <p><b>Where 40% and 80% come from</b>: LineLeader, <i>2026 ECE Benchmark Report</i> (data from about 5,700 childcare operators on LineLeader). On the industry rate it says post-tour conversion is "trending toward 40%". On the top tier it defines the best-performing centres as those converting 79% or more of completed tours; we round that to 80% and set it as the mark for every tour giver.</p>
     <p><b>Tour to Enrolled</b>: families toured who moved to <i>Enrolled</i> in LineLeader on or after the tour, credited to the family's last tour (dashboard view tour_giver, metric tour_givers_12_months). Each family counts once.</p>
-    <p><b>Record keeping</b>. <i>Tour giver recorded</i>: tours where a LineLeader record names the person; the rest count in the centre rate but can't be credited to anyone. <i>Tour logged at the time</i>: of every family marked Tour Completed, the share with a real tour record. The rest were back-filled — a Tour Completed status set within ten minutes of a later status, with nobody named and no tour entry, the record catching up as the family moved on (the dashboard calls these status runs). Back-filled tours are left out of every rate on this screen; most of them enrolled, so the rates are a floor, not a ceiling. <i>Tour outcome recorded</i>: of families whose booked tour has passed, the share with an outcome in LineLeader — a tour run or a tour not completed. The rest are records to check with the centre, not no-shows (metric tour_no_show_families: 13 South Morang, 48 Craigieburn today).</p>
+    <p><b>Record keeping</b>: each line is the last three months, with the trend as a rolling three months by month; the dashed line is 90%, which is where a kept record should sit. Sage at 90% and above, amber 70 to 90, earth below 70. <i>Tour giver recorded</i>: tours where a LineLeader record names the person; the rest count in the centre rate but can't be credited to anyone. <i>Tour logged at the time</i>: of every family marked Tour Completed, the share with a real tour record. The rest were back-filled — a Tour Completed status set within ten minutes of a later status, with nobody named and no tour entry, the record catching up as the family moved on (the dashboard calls these status runs). Back-filled tours are left out of every rate on this screen; most of them enrolled, so the rates are a floor, not a ceiling. <i>Tour outcome recorded</i>: of families whose booked tour has passed, the share with an outcome in LineLeader — a tour run or a tour not completed. The rest are records to check with the centre, not no-shows (metric tour_no_show_families: 13 South Morang, 48 Craigieburn today).</p>
     <p><b>Tour givers</b>: the staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
     <p><b>Closed on the day</b>: moved to <i>Offered</i> or further in LineLeader on the day of the tour. <b>Speed</b>: median days from the tour to <i>Enrolled</i>.</p>
   </details>
@@ -164,6 +198,7 @@ tr_css = """
 .tr-arr { font-size:26px; font-weight:800; text-align:center; line-height:1; } .tr-arr.up { color:var(--sage); } .tr-arr.dn { color:#B3261E; } .tr-arr.fl { color:#E39B2D; } .tr-arr.na { color:#c9c3ba; }
 .tr-ms { display:grid; grid-template-columns:1fr 64px 64px 64px; align-items:center; gap:6px; padding:9px 0; } .tr-msh span { font-size:9.5px; color:var(--ink-50); font-weight:700; text-transform:uppercase; letter-spacing:.04em; text-align:center; }
 .tr-mt b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:15px; line-height:1.15; } .tr-mt span { font-size:11px; color:var(--ink-70); font-weight:700; }
+.tr-rk { padding:10px 0 4px; } .tr-rkh { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; } .tr-rkh .tr-n { flex-direction:column; align-items:flex-end; gap:2px; } .tr-spark { width:100%; height:auto; display:block; margin-top:2px; font-family:"Nunito",sans-serif; }
 .tr-c { text-align:center; } .tr-c b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:20px; line-height:1; display:block; } .tr-c span { font-size:9.5px; color:var(--ink-50); font-weight:700; }
 .tr-wb { display:grid; grid-template-columns:84px repeat(5,1fr); align-items:center; gap:4px; padding:8px 0; text-align:center; } .tr-wb .tr-lt { text-align:left; }
 .tr-wb b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:18px; display:block; } .tr-wb span { font-size:9.5px; color:var(--ink-50); font-weight:700; text-transform:uppercase; letter-spacing:.04em; } .tr-wb .todo b { color:var(--earth); }
