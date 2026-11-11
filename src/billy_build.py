@@ -4,6 +4,8 @@ import pathlib, re
 from fnr_build import html as report_html, sm, cb, icon, logo, fred, nun, ISSUE, WEEK_LABEL, SNAPSHOT, SAGE, EARTH, DATA, build_rows, centre, row
 import followups_build as fu
 import tours_build as tr
+import kpis_build as kp
+import wages_build as wg
 
 css = report_html.split("<style>")[1].split("</style>")[0]
 legend = report_html.split('<div class="legend">')[1].split("</div>")[0]
@@ -19,6 +21,7 @@ shell_css = """
 .hero .logo { width:150px; height:auto; display:block; flex:0 0 auto; }
 .hero .txt { min-width:0; flex:1 1 auto; }
 .hello { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:27px; line-height:1.05; margin:0 0 5px; white-space:nowrap; }
+#perf .prov.proxy { background:rgba(227,155,45,.22); color:#8a5a10; border-radius:6px; padding:1px 6px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; margin-left:6px; vertical-align:middle; }
 #perf .num, #report .num { flex:0 0 100px; min-width:0; }
 .big small { font-size:17px; font-weight:600; margin-left:4px; letter-spacing:0; }
 .hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--earth); white-space:nowrap; }
@@ -39,6 +42,7 @@ shell_css = """
 .home-foot { margin-top:auto; padding:18px 22px max(22px, env(safe-area-inset-bottom)); font-size:11.5px; color:var(--ink-50); display:flex; justify-content:space-between; align-items:center; }
 .home-foot b { color:var(--ink-70); }
 /* report screen top bar */
+.scr > .toggle { top:var(--tb,64px); z-index:5; box-shadow:0 6px 8px -8px rgba(43,35,32,.25); }
 .topbar { position:sticky; top:0; z-index:6; background:var(--yellow); display:flex; align-items:center; gap:8px; padding:max(10px, env(safe-area-inset-top)) 12px 10px; }
 .back { font:inherit; font-weight:800; color:var(--ink); background:transparent; border:0; padding:8px 8px 8px 4px; display:inline-flex; align-items:center; gap:4px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
 .topbar .ttl { min-width:0; }
@@ -83,12 +87,14 @@ NEW = {
    c10=("Time to first contact","median · enquiry to first human contact","2.8<small>days</small>","2 of 4 contacted<br>last week 9.7 h",(-0.683,-0.37,0,1,True,"","1 hr","10 min","9.7 h")),
    ts=("Tours Scheduled","families · LineLeader","4","last week 3",(4,3,3.8,5.5,True,"","3.8","5–6","3")),
    of=("Offered","families · LineLeader","0","last week 3",(0,3,3.2,5.5,True,"","3.2","5–6","3")),
-   pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1"))),
+   pe=("Pending","Owna form in","1","last week 1",(1,1,1.3,2.5,True,"","1.3","2–3","1")),
+   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster, uplifted","~62%","Nov week 1<br>forecast 55%",(61.8,54.8,58,55,False,"%","58%","55%","55%"))),
  "Craigieburn": dict(
    c10=("Time to first contact","median · enquiry to first human contact","&lt;1<small>min</small>","3 of 6 contacted<br>last week 1.5 days",(2.957,-0.583,0,1,True,"","1 hr","10 min","1.5 days")),
    ts=("Tours Scheduled","families · LineLeader","5","last week 6",(5,6,6.1,23,True,"","6.1","23","6")),
    of=("Offered","families · LineLeader","1","last week 5",(1,5,5.1,23,True,"","5.1","23","5")),
-   pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3"))),
+   pe=("Pending","Owna form in","2","last week 3",(2,3,2.5,11,True,"","2.5","11","3")),
+   w2r=('Wage to revenue<span class="prov proxy">proxy</span>',"month to date · Owna roster, uplifted","~74%","Nov week 1<br>forecast 69%",(73.9,70.8,75,55,False,"%","75%","55%","71%"))),
 }
 RENAME = {"New enquiries":("New Enquiry","families · LineLeader"), "Tours completed":("Tours Completed","families · LineLeader"),
           "Enrolment complete":("Enrolment complete","pulled into Owna · $50 charged"), "Started":("Started","spots a week · first day in Owna"),
@@ -103,7 +109,7 @@ def perf_rows(c):
     by = {r[1]: r for r in perf}
     n = NEW[c]
     rows = [_rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
-            _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"])]
+            _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"]), _nb(n["w2r"])]
     return build_rows(rows)
 sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows(_split(DATA["South Morang"]["rows"])[0]))
 cb_occ = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], build_rows(_split(DATA["Craigieburn"]["rows"])[0]))
@@ -118,9 +124,10 @@ home = f'''
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
+    {tile("wages", "Wages", "Roster against ratio need · daily", ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Draft", live=True)}
     {tile("perf", "Pipeline", "Performance this week", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
-    {tile("kpis", "KPIs", "The improvement plan's measures, tracked", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Soon", disabled=True)}
+    {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Draft", live=True)}
   </div>
   <div class="home-foot"><span id="who">Billy · Billy Button reporting</span><span>v{ISSUE}</span></div>
 </section>'''
@@ -160,7 +167,8 @@ perf = f'''
     <div id="pf-sm" class="screen">{sm_pf}</div>
     <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
   </div>
-  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p></details>
+  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p>
+<p class="proxy-note"><b>⚠ Wage to revenue is a proxy, for working within the month.</b> Xero only has a month's wages and fees once the month is closed, which is too late to act. Until then this line estimates it from Owna: rostered paid hours × each person's Owna pay rate, over booked fees including CCS, for the roster weeks starting in the month so far (week 1, then weeks 1+2, and so on; a week crossing month-end counts in the month it starts). Owna's roster misses super, payroll tax, WorkCover, leave accruals, the month-end wage accrual and anyone not rostered, so the raw figure reads far too low (about 39% at South Morang and 45% at Craigieburn in October, against Xero's 55% and 71%). So the estimate is anchored on the cash flow forecast instead: the forecast's wage to revenue for the month × rostered hours ÷ the hours the forecast's wages allow. If the roster runs over the forecast's hours, the estimate rises above the forecast by the same proportion. Read it as an early warning; Xero replaces it when the month closes. Forecast tick = Xero, last three months; target 55%, act line 60% (decision D-17).</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):
@@ -180,10 +188,12 @@ cash = soon("cash", "Cash position", "The week's cash across the group, against 
 people = soon("people", "People & rosters", "Who is rostered against who is booked, and what it costs.",
               ["Rostered hours against booked children, by room", "Wage to revenue, week by week", "Leave, vacancies and agency use", "Ratios flagged before the day, not after"])
 
-kpis = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
+kpis_old = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
             ["Operations, Marketing and Finance plan measures side by side", "Each against its target and the date it is due", "Owner and status, plain words", "Trend since the plan started"])
 
-FU_JS = tr.tr_js + """
+FU_JS = tr.tr_js + kp.kp_js + wg.wg_js + """
+  function setTb(){ var t = document.querySelector('.scr:not([hidden]) .topbar'); if(t) document.documentElement.style.setProperty('--tb', t.offsetHeight + 'px'); }
+  window.addEventListener('resize', setTb); window.addEventListener('hashchange', function(){ setTimeout(setTb, 0); }); setTimeout(setTb, 0);
   var pfTabs = Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button'));
   pfTabs.forEach(function(t){ t.addEventListener('click', function(){
     pfTabs.forEach(function(x){ x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
@@ -207,6 +217,8 @@ page = f'''<!DOCTYPE html>
 <style>{css}
 {shell_css}
 {tr.tr_css}
+{kp.kp_css}
+{wg.wg_css}
 </style>
 </head>
 <body>
@@ -217,20 +229,20 @@ page = f'''<!DOCTYPE html>
 {tr.section(logo)}
 {cash}
 {people}
-{kpis}
+{kp.section(logo)}
+{wg.section(logo)}
 </div>
 <script>
 (function(){{
-  var scrs = ['home','report','perf','tours','cash','people','kpis'];
+  var scrs = ['home','report','perf','tours','cash','people','kpis','wages'];
   var screens = {{'south-morang': document.getElementById('south-morang'), 'craigieburn': document.getElementById('craigieburn')}};
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu):not(.tr):not(.pf) button'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu):not(.tr):not(.pf):not(.kp):not(.wg) button'));
   function showCentre(id, push){{
     if(!screens[id]) id = 'south-morang';
     Object.keys(screens).forEach(function(k){{ screens[k].hidden = (k !== id); }});
     tabs.forEach(function(t){{ t.setAttribute('aria-selected', t.dataset.target === id ? 'true' : 'false'); }});
     try {{ localStorage.setItem('bbw-centre', id); }} catch(e) {{}}
     if(push) setHash('report/' + id);
-    window.scrollTo(0, 0);
   }}
   function setHash(h){{ if(location.hash !== '#' + h){{ try {{ history.pushState(null, '', '#' + h); }} catch(e) {{ location.hash = h; }} }} }}
   function route(){{
