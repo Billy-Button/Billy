@@ -250,7 +250,7 @@ def section(logo):
 <section id="tours" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Tours</h1><div class="sub">{ASOF}</div></div>
+    <div class="ttl"><h1>Tours report</h1><div class="sub">{ASOF}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <nav class="toggle tr" role="tablist" aria-label="Centre">
