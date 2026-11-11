@@ -78,7 +78,7 @@ home = f'''
   <div class="tiles">
     {tile("report", "Friday Night Report", f"Weekly occupancy · w/e {WEEK_LABEL}", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
     {tile("followups", "Pipeline Follow Up", f"Did we follow up? · {FU_OPEN} families waiting", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
-    {tile("tours", "Tours", f"Who closes · {tr.TEAM[0]}% tour to enrolment · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
+    {tile("tours", "Tours", f"Who closes · SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("cash", "Cash position", "Weekly cash and funding · from the model", ICON_CASH, "rgba(94,128,160,.16); color:#3f5f7d", "Soon", disabled=True)}
     {tile("people", "People & rosters", "Hours, ratios and wage to revenue", ICON_PEOPLE, "rgba(164,88,35,.14); color:#8a4a1e", "Soon", disabled=True)}
     {tile("kpis", "KPIs", "The improvement plan's measures, tracked", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Soon", disabled=True)}
@@ -125,7 +125,7 @@ people = soon("people", "People & rosters", "Who is rostered against who is book
 kpis = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
             ["Operations, Marketing and Finance plan measures side by side", "Each against its target and the date it is due", "Owner and status, plain words", "Trend since the plan started"])
 
-FU_JS = fu.fu_js
+FU_JS = fu.fu_js + tr.tr_js
 
 page = f'''<!DOCTYPE html>
 <html lang="en-AU">
@@ -160,7 +160,7 @@ page = f'''<!DOCTYPE html>
 (function(){{
   var scrs = ['home','report','followups','tours','cash','people','kpis'];
   var screens = {{'south-morang': document.getElementById('south-morang'), 'craigieburn': document.getElementById('craigieburn')}};
-  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu) button'));
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu):not(.tr) button'));
   function showCentre(id, push){{
     if(!screens[id]) id = 'south-morang';
     Object.keys(screens).forEach(function(k){{ screens[k].hidden = (k !== id); }});
