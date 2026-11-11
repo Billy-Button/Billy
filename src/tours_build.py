@@ -70,6 +70,48 @@ def chart_oa(m):
         g+=f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="5" fill="{oacol(v)}"/>'
         g+=f'<text x="{xs(i):.1f}" y="{H-8}" text-anchor="middle" font-size="10" fill="{INK}" opacity=".7">{lab[0]}</text>'
     return f'<svg class="tr-trend" viewBox="0 0 {W} {H}">{g}</svg>'
+# per tour giver, by month Jan..Nov: (families toured, enrolled since) — metric tour_givers_month, status runs excluded
+def _m(d):
+    out=[(0,0)]*11
+    for mm,v in d.items(): out[mm-1]=v
+    return out
+GM={
+ "South Morang":{
+  "S-HBWH":_m({2:(5,0),3:(8,2),4:(5,0)}),
+  "S-RPV4":_m({1:(1,0),2:(1,0),5:(1,0),6:(1,0),8:(1,1),9:(7,0),10:(3,0)}),
+  "S-VGYF":_m({2:(1,1),5:(1,1),6:(4,2),7:(3,0),8:(3,1),9:(1,0)}),
+  "S-IOVK":_m({9:(2,1),10:(7,1),11:(2,0)}),
+  "S-RN6J":_m({6:(1,0),8:(11,1)}),
+  "S-L2B7":_m({5:(4,2),6:(4,3),7:(1,0)}),
+  None:_m({2:(3,1),3:(29,3),4:(19,3),5:(4,0),6:(4,1)})},
+ "Craigieburn":{
+  "S-GWZO":_m({2:(11,8),3:(2,2),4:(7,1),5:(1,0),6:(3,1),7:(9,3)}),
+  "S-HBWH":_m({5:(1,0),6:(1,1),7:(4,1),8:(9,2),9:(7,2),10:(4,1),11:(3,0)}),
+  "S-RK2L":_m({8:(3,0),9:(10,5),10:(10,3)}),
+  "S-RPV4":_m({2:(4,2),6:(1,0),8:(4,1),9:(5,3),10:(1,0),11:(2,0)}),
+  "S-P2CN":_m({2:(5,3),3:(1,0),5:(3,1),6:(5,1)}),
+  None:_m({2:(5,4),3:(11,7),4:(13,4),6:(11,5),7:(1,1),10:(3,0)})},
+}
+def giver_spark(series, minf=3):
+    pts=[]
+    for i in range(1,len(series)):
+        f=sum(x[0] for x in series[max(0,i-2):i+1]); e=sum(x[1] for x in series[max(0,i-2):i+1])
+        pts.append(pct(e,f) if f>=minf else None)
+    W,H,L,R,T,B=300,40,12,12,4,4
+    xs=lambda i: L+(W-L-R)*i/(len(pts)-1); ys=lambda v: T+(H-T-B)*(1-v/100)
+    g=''
+    for v in (IND,TOP):
+        g+=f'<line x1="{L}" y1="{ys(v):.1f}" x2="{W-R}" y2="{ys(v):.1f}" stroke="{INK}" stroke-width="1" stroke-dasharray="3 3" opacity=".35"/>'
+    g+=f'<line x1="{L}" y1="{ys(0):.1f}" x2="{W-R}" y2="{ys(0):.1f}" stroke="{INK}" stroke-width="1" opacity=".08"/>'
+    last=max([i for i,v in enumerate(pts) if v is not None], default=None)
+    for i in range(1,len(pts)):
+        if pts[i] is not None and pts[i-1] is not None:
+            g+=f'<line x1="{xs(i-1):.1f}" y1="{ys(pts[i-1]):.1f}" x2="{xs(i):.1f}" y2="{ys(pts[i]):.1f}" stroke="{col(pts[i])}" stroke-width="2.5" stroke-linecap="round"/>'
+    for i,v in enumerate(pts):
+        if v is None: continue
+        op=(i==len(pts)-1)
+        g+=f'<circle cx="{xs(i):.1f}" cy="{ys(v):.1f}" r="3.2" fill="{"#fff" if op else col(v)}" stroke="{col(v)}" stroke-width="2"/>'
+    return f'<svg class="tr-gs" viewBox="0 0 {W} {H}">{g}</svg>'
 RK_TARGET=90
 def rkcol(v): return SAGE if v>=RK_TARGET else (AMBER if v>=70 else EARTH)
 def spark(series):
@@ -177,7 +219,7 @@ def giver_line(code, fams, enr, closed, fr, er, fp, ep, med, last):
     if code is None: now=then=None
     od='' if code is None else f'<div class="tr-od">offered at the tour {pct(AT_TOUR.get((CENTRE_OF[0],code),0),fams)}%</div>'
     stale=f' <em>last tour {last}</em>' if code and last in ("Apr","May","Jun","Jul","Aug") else ""
-    return (f'<li class="tr-ln"><div class="tr-lt">{nm(code)}{stale}</div><div class="tr-mid"><div class="tr-n"><b>{v}%</b><span>{enr} of {fams}</span></div>{bar(v)}{od}</div>{arrow(now,then)}</li>')
+    return (f'<li class="tr-ln"><div class="tr-lt">{nm(code)}{stale}</div><div class="tr-mid"><div class="tr-n"><b style="color:{col(v)}">{v}%</b><span>{enr} of {fams}</span></div>{giver_spark(GM[CENTRE_OF[0]][code])}{od}</div></li>')
 
 def panel(centre):
     f,e=HEAD[centre]; v=pct(e,f)
@@ -197,7 +239,7 @@ def panel(centre):
     <div class="tr-tl">Trend · rolling three months</div>{chart_oa(OFFER_AT[centre])}
     <div class="tr-next"><b>Accepted at the tour</b><span>$50 and key details · once LineLeader records it</span></div></div>
   <div class="centre"><ul class="measures tr">
-    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">Tour Completed → Enrolled · 12 months</span></li>{conv}
+    <li class="sec"><span class="sec-t">Tour givers</span><span class="sec-s">12 months · trend Feb–Nov</span></li>{conv}
   </ul></div>'''
 
 def section(logo):
@@ -222,7 +264,7 @@ def section(logo):
     <p><b>Tour to Enrolled</b> (lead card and trend): of every family marked <i>Tour Completed</i> in LineLeader, the share that moved to <i>Enrolled</i> on or after it. Every family tours before enrolling, so every <i>Tour Completed</i> counts, including those recorded later rather than on the day. A family who toured, was never recorded and didn't enrol can't be counted; outcomes are recorded for 90% or more of booked tours, so that gap is small. Each family counts once (dashboard view tour_giver, status runs included).</p>
     <p><b>Accepted at the tour</b>: the family accepts the offer at the tour, pays $50 and gives the key details; admin then takes it to <i>Pending</i> and <i>Enrolment complete</i>. It shows here once LineLeader records the step.</p>
     <p><b>Tours recorded later</b>: some families are marked <i>Tour Completed</i> after the fact, usually in a run of clicks at enrolment, with no tour entry or Tour task and nobody named (the dashboard calls these status runs). They count in the centre rate but can't be credited to a tour giver.</p>
-    <p><b>Tour givers</b>: tours recorded on the day only, because only those name a person. The staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. The arrow compares the last six months with the six before, where each has five or more families. "Last tour" shows when a giver hasn't toured in the last two months.</p>
+    <p><b>Tour givers</b>: tours recorded on the day only, because only those name a person. The staff member on the tour's own LineLeader record (the tour entry, else who completed the Tour task, else its assignee). First names from the dashboard's released staff list; a line needs five families in the window. Under each name, the big figure is their 12-month Tour Completed → Enrolled; the line is their trend, a rolling three months from February to November, on the same 40% and 80% dashed lines. A month shows only where they toured three or more families in its three months, so gaps mean too few tours to judge. The open dot is the latest month, still maturing. "Last tour" shows when a giver hasn't toured in the last two months.</p>
     <p><b>Offered at the tour</b>: of tours recorded on the day, the share where the family moved to <i>Offered</i> (or straight to <i>Orientation</i> or <i>Enrolled</i>) within an hour of <i>Tour Completed</i> — the closest the record gets to "before they walk out the door". From 11 Nov 26 every tour ends with an offer, so the target is 100%: sage at 90% and above, amber 70 to 90, earth below 70. LineLeader's status history starts 28 Jan 26, so the trend begins in February. Under each tour giver, <b>offered at the tour</b> is the same measure over 12 months.</p>
   </details>
 </section>'''
@@ -242,7 +284,7 @@ tr_css = """
 .tr-trend { width:100%; height:auto; display:block; margin-top:4px; font-family:"Nunito",sans-serif; }
 .tr-b { width:100%; height:14px; display:block; margin-top:4px; }
 .measures.tr .sec { padding:22px 0 6px; }
-.tr-ln { display:grid; grid-template-columns:84px 1fr 34px; align-items:center; gap:8px; padding:9px 0; }
+.tr-ln { display:grid; grid-template-columns:84px 1fr; align-items:center; gap:8px; padding:9px 0; }
 .tr-lt { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:16px; line-height:1.1; } .tr-lt em { display:block; font:700 10px/1.2 "Nunito",sans-serif; color:var(--ink-50); margin-top:2px; }
 .tr-mid { min-width:0; } .tr-n { display:flex; align-items:baseline; gap:8px; } .tr-n b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:24px; line-height:1; } .tr-n span { font-size:11.5px; color:var(--ink-70); font-weight:700; }
 .tr-arr { font-size:26px; font-weight:800; text-align:center; line-height:1; } .tr-arr.up { color:var(--sage); } .tr-arr.dn { color:#B3261E; } .tr-arr.fl { color:#E39B2D; } .tr-arr.na { color:#c9c3ba; }
@@ -250,6 +292,7 @@ tr_css = """
 .tr-mt b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:15px; line-height:1.15; } .tr-mt span { font-size:11px; color:var(--ink-70); font-weight:700; }
 .tr-rk { padding:10px 0 4px; } .tr-rkh { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; } .tr-rkh .tr-n { flex-direction:column; align-items:flex-end; gap:2px; } .tr-spark { width:100%; height:auto; display:block; margin-top:2px; font-family:"Nunito",sans-serif; }
 .tr-next { margin-top:12px; padding-top:10px; border-top:1px dashed rgba(43,35,32,.18); } .tr-next b { display:block; font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:15px; color:var(--ink-50); } .tr-next span { font-size:11.5px; color:var(--ink-50); font-weight:700; }
+.tr-gs { width:100%; height:40px; display:block; margin-top:4px; }
 .tr-od { font-size:11px; font-weight:700; color:var(--ink-70); margin-top:3px; }
 .tr-c { text-align:center; } .tr-c b { font-family:"Fredoka","Nunito",sans-serif; font-weight:600; font-size:20px; line-height:1; display:block; } .tr-c span { font-size:9.5px; color:var(--ink-50); font-weight:700; }
 .tr-wb { display:grid; grid-template-columns:84px repeat(5,1fr); align-items:center; gap:4px; padding:8px 0; text-align:center; } .tr-wb .tr-lt { text-align:left; }
