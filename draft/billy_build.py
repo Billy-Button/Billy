@@ -178,7 +178,7 @@ perf = f'''
   </div>
   <details class="foot"><summary>About the numbers</summary>
   <p>Figures from the Billy Button dashboard, built overnight. <b>Yesterday</b> is the last working day. <b>Week</b> and <b>Month</b> are pegged to the last complete week and month. The forecast on every chart is the three-month average; the target is the Target case in the forecast model.</p>
-  <p><i>Time to first contact</i> is the time from a new enquiry to its first contact by a person (a call, email, SMS or task, never LineLeader's automatic reply), counted in work hours. <i>Tours Scheduled</i>, <i>Offered</i>: families moved to that LineLeader status. <i>Pending</i>: Owna enrolment forms received. <i>Enrolment complete</i>: children pulled into Owna, where the $50 is charged. <i>Started</i>: booked days a week of children whose first day fell in the period. <i>Lost spots</i>: booked days a week of children who left, school leavers apart.</p>
+  <p><i>First contact in 1 hour</i> is the share of new enquiries contacted by a person (a call, email, SMS or task, never LineLeader's automatic reply) within one work hour. Target 80%. <i>Tours Scheduled</i>, <i>Offered</i>: families moved to that LineLeader status. <i>Pending</i>: Owna enrolment forms received. <i>Enrolment complete</i>: children pulled into Owna, where the $50 is charged. <i>Started</i>: booked days a week of children whose first day fell in the period. <i>Lost spots</i>: booked days a week of children who left, school leavers apart.</p>
   <p class="proxy-note">Wage to revenue is on the Wages screen, which updates each weekday morning.</p></details>
 </section>'''
 

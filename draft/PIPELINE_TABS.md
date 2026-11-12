@@ -16,7 +16,7 @@ Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum t
 - Week = 13 complete Mon–Fri weeks built from the daily events; dashed line = their average = the forecast; green line = target (TGT_W / TGT_M in pipeline_build.py).
 - Month = complete months only; dashed line = average of the last three.
 - Charts: a bar above max(3 x median, median + 4) runs off the top with its number; the average still counts it. Week x-axis = Friday date under each bar, month beneath.
-- First contact in work hours: 8:30am–5:30pm Mon–Fri (assumption, to review); constants OPEN/CLOSE/CLOSED in pipeline_build.py.
+- First contact in 1 hour = share of the period's enquiries contacted by a person within 60 work minutes (FAST), uncontacted count as misses; target 80%; forecast = pooled share over the window. Work hours 8:30am–5:30pm Mon–Fri (assumption, to review); constants OPEN/CLOSE/CLOSED/FAST in pipeline_build.py.
 - Waiting for first contact = no human contact yet AND still at New Enquiry, enquiries of the last 30 days.
 
 ## SQL A — events (daily from 1 Apr 26 to yesterday, monthly from Mar 26)

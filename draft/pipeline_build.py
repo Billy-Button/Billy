@@ -55,7 +55,7 @@ def waiting(c):
     out = sum(1 for r in w if not in_hours(r[1]))
     return len(w), out, len(w) - out
 # ---- Yesterday ----
-ROWS = [("enq", "New Enquiry", "families · LineLeader", True), ("fc", "Time to first contact", "enquiry to first human contact", False),
+ROWS = [("enq", "New Enquiry", "families · LineLeader", True), ("fc", "First contact in 1 hour", "share of enquiries · work hours", False),
         ("ts", "Tours Scheduled", "families · LineLeader", True), ("tc", "Tours Completed", "families · LineLeader", True),
         ("of", "Offered", "families · LineLeader", True), ("pe", "Pending", "Owna form in", True),
         ("ec", "Enrolment complete", "pulled into Owna · $50 charged", False), ("st", "Started", "spots a week · first day in Owna", False),
@@ -69,9 +69,9 @@ def y_row(c, k, label, unit, arr):
     if k == "fc":
         s = fc_set(c, days); got = [r for r in s if r[2]]
         big = f"{len(got)}<small>of {len(s)}</small>" if s else "–"
-        sub = ("contacted so far · median " + plain(st.median(r[5] for r in got)) + " in work hours") if got else ("no new enquiries" if not s else "none contacted yet")
+        sub = (f"contacted so far · {sum(1 for r in got if r[5] <= FAST)} within 1 work hour") if got else ("no new enquiries" if not s else "none contacted yet")
         lw = fc_set(c, LW); lg = [r for r in lw if r[2]]
-        note = f"Last week {len(lg)} of {len(lw)} contacted" + (f" · median {plain(st.median(r[5] for r in lg))}" if lg else "")
+        note = f"Last week {sum(1 for r in lg if r[5] <= FAST)} of {len(lw)} within 1 work hour"
         return f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit}</span></div><div class="pd-b"><div class="pd-n">{big}</div><div class="pd-s">{sub}<br><i>{note}</i></div></div></li>'
     y = ev(c, days, k); wk = ev(c, WK + EXTRA, k); lw = ev(c, LW, k); avg = lw / LW_OPEN
     kids = ev(c, days, k, 1)
@@ -95,20 +95,27 @@ LASTM = (TODAY.replace(day=1) - dt.timedelta(days=1)); LM = LASTM.strftime("%Y-%
 MONTHS = sorted({p for (c, p, k) in MS if "2026-03" <= p <= LM})
 MLAB = f"{LASTM.day} {LASTM:%b %y}"
 GREEN = "#4d6a3a"
-TGT_W = {"South Morang": dict(enq=(7,"7"), fc=(10/60,"10 min"), ts=(5.5,"5–6"), tc=(5.5,"5–6"), of=(5.5,"5–6"), pe=(2.5,"2–3"), ec=(2.5,"2–3"), st=(7,"7"), lo=(2.1,"2.1")),
-         "Craigieburn":  dict(enq=(35,"35"), fc=(10/60,"10 min"), ts=(23,"23"), tc=(23,"23"), of=(23,"23"), pe=(11,"11"), ec=(11,"11"), st=(33,"33"), lo=(2.1,"2.1"))}
-TGT_M = {"South Morang": dict(enq=(31,"31"), fc=(10/60,"10 min"), ts=(24,"24"), tc=(24,"24"), of=(24,"24"), pe=(11,"11"), ec=(11,"11"), st=(30,"30"), lo=(9,"9")),
-         "Craigieburn":  dict(enq=(150,"150"), fc=(10/60,"10 min"), ts=(100,"100"), tc=(100,"100"), of=(100,"100"), pe=(48,"48"), ec=(48,"48"), st=(143,"143"), lo=(9,"9"))}
-LOWER = {"fc", "lo"}
-def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), groups=None, avgname="3-mth average"):
+TGT_W = {"South Morang": dict(enq=(7,"7"), fc=(80,"80%"), ts=(5.5,"5–6"), tc=(5.5,"5–6"), of=(5.5,"5–6"), pe=(2.5,"2–3"), ec=(2.5,"2–3"), st=(7,"7"), lo=(2.1,"2.1")),
+         "Craigieburn":  dict(enq=(35,"35"), fc=(80,"80%"), ts=(23,"23"), tc=(23,"23"), of=(23,"23"), pe=(11,"11"), ec=(11,"11"), st=(33,"33"), lo=(2.1,"2.1"))}
+TGT_M = {"South Morang": dict(enq=(31,"31"), fc=(80,"80%"), ts=(24,"24"), tc=(24,"24"), of=(24,"24"), pe=(11,"11"), ec=(11,"11"), st=(30,"30"), lo=(9,"9")),
+         "Craigieburn":  dict(enq=(150,"150"), fc=(80,"80%"), ts=(100,"100"), tc=(100,"100"), of=(100,"100"), pe=(48,"48"), ec=(48,"48"), st=(143,"143"), lo=(9,"9"))}
+LOWER = {"lo"}
+FAST = 60   # work minutes: the cut-off for a fast first contact (Cameron, 13 Nov 26); target 80%
+def fc_stats(s):
+    n = len(s); got = [r for r in s if r[2]]
+    if not n: return None, ""
+    w60 = sum(1 for r in got if r[5] <= FAST); w10 = sum(1 for r in got if r[5] <= 10)
+    med = f" · median {plain(st.median(r[5] for r in got))}" if got else ""
+    return 100 * w60 / n, f"{w60} of {n} enquiries · within 10 min {100*w10/n:.0f}%{med}"
+def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), groups=None, avgname="3-mth average", pct=False):
     W, H, L, R, T, B = 340, (124 if groups else 112), 4, 84, 22, (28 if groups else 16)
     vv = sorted(v for v in vals if v is not None)
     med = vv[len(vv) // 2] if vv else 0
     cap = max(3 * med, med + 4) if not lower else max(3 * med, med + 4, 3 * tgt)   # a bar above this is unusual: it runs off the top
-    spike = lambda v: v is not None and len(vv) >= 5 and v > cap
+    spike = lambda v: (not pct) and v is not None and len(vv) >= 5 and v > cap
     top = max([v for v in vv if not spike(v)] + [avg or 0, 0.0001])
-    pinned = (not lower) and tgt > 2.2 * top
-    hi = max(top, 0 if pinned else tgt) * 1.12; n = len(vals); bw = (W - L - R) / n
+    pinned = (not lower) and (not pct) and tgt > 2.2 * top
+    hi = 104 if pct else max(top, 0 if pinned else tgt) * 1.12; n = len(vals); bw = (W - L - R) / n
     ys = lambda v: T + (H - T - B) * (1 - min(v, hi) / hi); g = ""
     SOFT, SOFTG = "#8a8178", "#7d8f70"
     yt = T - 12 if pinned else ys(tgt); ya = ys(avg) if avg is not None else None
@@ -144,16 +151,16 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
     return f'<svg class="pm-ch" viewBox="0 0 {W} {H}">{g}</svg>'
 def fmt1(v): return f"{v:.1f}".rstrip("0").rstrip(".")
 def fhrs(v): return f"{v*60:.0f}m" if v < 1 else f"{v:.0f}h"
-def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), groups=None, n_avg=None, note=""):
+def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), groups=None, n_avg=None, note="", avg_over=None):
     tv, tl = tg[c][k]; use = [v for v in (vals[-n_avg:] if n_avg else vals) if v is not None]
-    avg = sum(use) / len(use) if use else None; v = vals[-1]
+    avg = avg_over if avg_over is not None else (sum(use) / len(use) if use else None); v = vals[-1]
     if k == "fc":
-        big = fmt_min(v * 60) if v is not None else "–"; f = fhrs; fc_txt = ("–" if avg is None else f"{avg*60:.0f} min" if avg < 1 else f"{avg:.0f} hrs")
+        f = lambda x: f"{x:.0f}%"; big = f"{v:.0f}<small>%</small>" if v is not None else "–"; fc_txt = f(avg) if avg is not None else "–"
     else:
         big = n0(v) if v is not None else "–"; f = fmt1; fc_txt = fmt1(avg) if avg is not None else "–"
     extra = f"{kids:g} {'child' if kids == 1 else 'children'} · " if kids else ""
     sub = f"{extra}Forecast {fc_txt} · Target {tl}" + (f"<br><i>{note}</i>" if note else "")
-    ch = bars(labels, vals, avg, tv, tl, f, k in LOWER, marks, groups, "3-mth average")
+    ch = bars(labels, vals, avg, tv, tl, f, k in LOWER, marks, groups, "3-mth average", pct=(k == "fc"))
     return (f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
             f'<div class="pd-b"><div class="pd-n">{big}</div><div class="pd-s">{sub}</div></div>{ch}</li>')
 # ---- Week: 13 complete Mon-Fri weeks ----
@@ -166,37 +173,35 @@ def week(c):
     rows = ""
     for k, label, unit, _ in ROWS:
         note = ""
+        avg_over = None
         if k == "fc":
-            vals, cn = [], []
-            for w in WEEKS:
-                s = fc_set(c, w); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
-            note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"; kids = None
+            vals = [fc_stats(fc_set(c, w))[0] for w in WEEKS]; note = fc_stats(fc_set(c, WEEKS[-1]))[1] or "no new enquiries this week"; kids = None
+            avg_over = fc_stats(fc_set(c, [d for w in WEEKS for d in w]))[0]
         else:
             vals = [ev(c, w, k) for w in WEEKS]; kids = ev(c, WEEKS[-1], k, 1) if k in ("st", "lo") else None
-        rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, groups, note=note)
+        rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, groups, note=note, avg_over=avg_over)
     note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. The number under each bar is the Friday the week ended, with the month beneath. Dark bar = the week just closed. '
             f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual week, kept off the scale so the other weeks stay readable. '
-            f'* = a week with a closed day. Lost spots and Time to first contact are better when lower; amber bars are above target. '
-            f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review). '
+            f'* = a week with a closed day. Lost spots is the one chart that is better when lower; amber bars are above target. '
+            f'First contact in 1 hour = the share of the period\'s new enquiries a person contacted within one work hour (8:30am to 5:30pm, Monday to Friday: an assumption, to review); enquiries nobody has contacted count as misses. Its forecast is the share over the whole 13 weeks. '
             f'Enquiries arriving on a weekend are not yet in any week: a question to settle.</p>')
     return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 def month(c):
     labels = [f"{dt.date.fromisoformat(m+'-01'):%b}" for m in MONTHS]; rows = ""
     for k, label, unit, _ in ROWS:
         note = ""; kids = None
+        avg_over = None
         if k == "fc":
-            vals, cn = [], []
-            for m in MONTHS:
-                s = fc_set(c, month=m); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
-            note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"
+            vals = [fc_stats(fc_set(c, month=m))[0] for m in MONTHS]; note = fc_stats(fc_set(c, month=LM))[1]
+            avg_over = fc_stats([r for m in MONTHS[-3:] for r in fc_set(c, month=m)])[0]
         else:
             vals = [MS[(c, m, k)][0] if (c, m, k) in MS else (sum(v[0] for (cc, d, kk), v in EV.items() if cc == c and kk == k and d.strftime("%Y-%m") == m) if k == "ec" and m >= "2026-04" else (None if k == "ec" else 0)) for m in MONTHS]
             kids = MS.get((c, LM, k), (0, 0))[1] if k in ("st", "lo") else None
-        rows += chart_row(c, k, label, unit.replace("spots a week", "spots"), labels, vals, TGT_M, kids, n_avg=3, note=note)
+        rows += chart_row(c, k, label, unit.replace("spots a week", "spots"), labels, vals, TGT_M, kids, n_avg=3, note=note, avg_over=avg_over)
     note = (f'<p class="pd-note">Complete months only, {dt.date.fromisoformat(MONTHS[0]+"-01"):%B} to {LASTM:%B %Y}; LineLeader history starts after the February import. '
             f'Dark bar = the month just closed. Dashed line = the average of the last three months, the three-month rule: this is the forecast. '
             f'Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual month, kept off the scale. Lost spots here are children who left (school leavers apart). '
-            f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review).</p>')
+            f'First contact in 1 hour = the share of the month\'s new enquiries a person contacted within one work hour (8:30am to 5:30pm, Monday to Friday: an assumption, to review); its forecast is the share over the last three months.</p>')
     return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 css = """
 .pfbar{position:sticky;top:var(--tb,64px);z-index:5;background:var(--cream);box-shadow:0 6px 8px -8px rgba(43,35,32,.25)}
