@@ -1,6 +1,7 @@
 import base64, pathlib, html as H
 import os as _os, pathlib as _pl
-_A = _pl.Path("/home/claude/wp") if _pl.Path("/home/claude/wp/icon_b64.txt").exists() else _pl.Path(__file__).resolve().parent / "assets"
+_H = _pl.Path(__file__).resolve().parent
+_A = next(p for p in (_pl.Path("/home/claude/wp"), _H / "assets", _H.parent / "src" / "assets") if (p / "icon_b64.txt").exists())
 icon = open(_A / "icon_b64.txt").read()
 logo = open(_A / "logo_b64.txt").read()
 

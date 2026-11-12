@@ -6,6 +6,7 @@ import followups_build as fu
 import tours_build as tr
 import kpis_build as kp
 import wages_build as wg
+import pipeline_build as pl
 
 css = report_html.split("<style>")[1].split("</style>")[0]
 legend = report_html.split('<div class="legend">')[1].split("</div>")[0]
@@ -24,7 +25,7 @@ shell_css = """
 #perf .prov.proxy { background:rgba(227,155,45,.22); color:#8a5a10; border-radius:6px; padding:1px 6px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; margin-left:6px; vertical-align:middle; }
 #perf .num, #report .num { flex:0 0 100px; min-width:0; }
 .big small { font-size:17px; font-weight:600; margin-left:4px; letter-spacing:0; }
-.hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--earth); white-space:nowrap; }
+.hello-sub { font-family:"Fredoka","Nunito",sans-serif; font-size:19px; font-weight:600; color:var(--earth); white-space:normal; line-height:1.15; max-width:200px; }
 .tiles { padding:18px 18px 8px; display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
 .tile { min-width:0; display:flex; align-items:center; gap:14px; width:100%; text-align:left; font:inherit; color:var(--ink); background:#fff; border:1px solid var(--ink-12); border-radius:20px; padding:16px 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; box-shadow:0 1px 0 rgba(43,35,32,.04); }
 .tile:active { transform:scale(.99); }
@@ -117,13 +118,13 @@ cb_pf = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], perf_rows("Craig
 home = f'''
 <section id="home" class="scr">
   <div class="hero">
-    <div class="txt"><div class="hello" id="hello">Hello</div><div class="hello-sub" id="hello-sub">Status as at {WEEK_LABEL}</div></div>
+    <div class="txt"><div class="hello" id="hello">Hello</div><div class="hello-sub" id="hello-sub">Where wonder leads learning</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="Billy Button Early Learning">
   </div>
   <div class="tiles">
     {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
     {tile("wages", "Wages", wg.tile_line(), ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Live", live=True)}
-    {tile("perf", "Pipeline", "Performance this week", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
+    {tile("perf", "Pipeline", "Yesterday · Week · Month", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
     {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Live", live=True)}
   </div>
@@ -153,20 +154,32 @@ perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Pipeline</h1><div class="sub">Performance this week · w/e {WEEK_LABEL}</div></div>
+    <div class="ttl"><h1>Pipeline</h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}">Week ending {pl.WLAB}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
+  <div class="pfbar">
   <nav class="toggle pf" role="tablist" aria-label="Centre">
     <button type="button" role="tab" aria-selected="true" data-pf="pf-sm">South Morang</button>
     <button type="button" role="tab" aria-selected="false" data-pf="pf-cb">Craigieburn</button>
   </nav>
-  <div class="legend">{legend}</div>
-  <div class="screens">
-    <div id="pf-sm" class="screen">{sm_pf}</div>
-    <div id="pf-cb" class="screen" hidden>{cb_pf}</div>
+  <nav class="pdtabs" role="tablist" aria-label="Period">
+    <button type="button" role="tab" aria-selected="false" data-pd="d">Yesterday</button>
+    <button type="button" role="tab" aria-selected="true" data-pd="w">Week</button>
+    <button type="button" role="tab" aria-selected="false" data-pd="m">Month</button>
+  </nav>
   </div>
-  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p>
-<p class="proxy-note">Wage to revenue has moved to the Wages screen, which updates each weekday morning.</p>
+  <div class="screens">
+    <div id="pf-sm-d" class="screen" hidden>{pl.yesterday("South Morang")}</div>
+    <div id="pf-sm-w" class="screen">{pl.week("South Morang")}</div>
+    <div id="pf-sm-m" class="screen" hidden>{pl.month("South Morang")}</div>
+    <div id="pf-cb-d" class="screen" hidden>{pl.yesterday("Craigieburn")}</div>
+    <div id="pf-cb-w" class="screen" hidden>{pl.week("Craigieburn")}</div>
+    <div id="pf-cb-m" class="screen" hidden>{pl.month("Craigieburn")}</div>
+  </div>
+  <details class="foot"><summary>About the numbers</summary>
+  <p>Figures from the Billy Button dashboard, built overnight. <b>Yesterday</b> is the last working day. <b>Week</b> and <b>Month</b> are pegged to the last complete week and month. The forecast on every chart is the three-month average; the target is the Target case in the forecast model.</p>
+  <p><i>First contact in 1 hour</i> is the share of new enquiries contacted by a person (a call, email, SMS or task, never LineLeader's automatic reply) within one work hour. Target 80%. <i>Tours Scheduled</i>, <i>Offered</i>: families moved to that LineLeader status. <i>Pending</i>: Owna enrolment forms received. <i>Enrolment complete</i>: children pulled into Owna, where the $50 is charged. <i>Started</i>: booked days a week of children whose first day fell in the period. <i>Lost spots</i>: booked days a week of children who left, school leavers apart.</p>
+  <p class="proxy-note">Wage to revenue is on the Wages screen, which updates each weekday morning.</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):
@@ -189,14 +202,11 @@ people = soon("people", "People & rosters", "Who is rostered against who is book
 kpis_old = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
             ["Operations, Marketing and Finance plan measures side by side", "Each against its target and the date it is due", "Owner and status, plain words", "Trend since the plan started"])
 
-FU_JS = tr.tr_js + kp.kp_js + wg.wg_js + """
+FU_JS = tr.tr_js + kp.kp_js + wg.wg_js + pl.js + """
   function setTb(){ var t = document.querySelector('.scr:not([hidden]) .topbar'); if(t) document.documentElement.style.setProperty('--tb', t.offsetHeight + 'px'); }
   window.addEventListener('resize', setTb); window.addEventListener('hashchange', function(){ setTimeout(setTb, 0); }); setTimeout(setTb, 0);
   var pfTabs = Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button'));
-  pfTabs.forEach(function(t){ t.addEventListener('click', function(){
-    pfTabs.forEach(function(x){ x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
-    ['pf-sm','pf-cb'].forEach(function(id){ document.getElementById(id).hidden = (id !== t.dataset.pf); });
-  }); });
+  pfTabs.forEach(function(t){ t.addEventListener('click', function(){ pfTabs.forEach(function(x){ x.setAttribute('aria-selected', x === t ? 'true' : 'false'); }); }); });
 """
 
 page = f'''<!DOCTYPE html>
@@ -217,6 +227,7 @@ page = f'''<!DOCTYPE html>
 {tr.tr_css}
 {kp.kp_css}
 {wg.wg_css}
+{pl.css}
 </style>
 </head>
 <body>

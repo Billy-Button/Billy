@@ -1,14 +1,11 @@
-# Draft build (preview/ only) — Pipeline tabs: Yesterday · Week · Month
+# Pipeline tabs: Yesterday · Week · Month (live from 13 Nov 26)
 
-This folder is Cameron's DRAFT of Billy. It builds to preview/index.html only and never to the live index.html.
-It differs from src/ by: Pipeline tabs (pipeline_build.py), Wages "So what" lines, Home vision line.
-
-Each weekday morning, after the live Wages refresh:
-1. cp src/kpi/daily.py draft/kpi/daily.py (same Wages data as live).
-2. Run SQL A and SQL B below on the Billy Button dashboard (run_sql). Save each result as JSON (the bare result, or the saved tool-result file).
-3. python3 draft/kpi/pipe_refresh.py events.json first_contact.json "<snapshot_completed_at>"
-4. cd draft && BILLY_OUT=/tmp/outd python3 billy_build.py ; python3 pipeline_build.py (prints the day's figures)
-5. sed 's/href="icon/href="..\/icon/g' "/tmp/outd/261106 - Billy app - v2.4.html" > preview/index.html ; commit draft/kpi/pipe.py, draft/kpi/daily.py, preview/index.html ; push.
+The Pipeline screen is built from two dashboard pulls. Run this every time Billy is built (weekday mornings and the Saturday issue):
+1. Run SQL A and SQL B below on the Billy Button dashboard (run_sql). Save each result as JSON (the bare result, or the saved tool-result file).
+2. python3 src/kpi/pipe_refresh.py events.json first_contact.json "<snapshot_completed_at>"
+3. cd src && python3 pipeline_build.py   (prints the day's figures; must run without error)
+Then build as usual: cd src && BILLY_OUT=/tmp/out python3 billy_build.py  -> /tmp/out/"261106 - Billy app - v<ISSUE>.html"
+Checks: both centres have 13 weeks and the complete months; the Pipeline header reads "Week ending Fri <last Friday before the snapshot>"; screenshot #perf on each tab at 390px.
 
 Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum to the live weekly Pipeline figures for all nine rows at both centres):
 - Yesterday = the last working day before the snapshot (weekend and closed days after it are added in and labelled).
