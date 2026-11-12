@@ -11,6 +11,7 @@ Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum t
 - Yesterday = the last working day before the snapshot (weekend and closed days after it are added in and labelled).
 - Direction = the day against last week's (Sat–Fri) total ÷ open days; level when within 0.5. No arrow on Enrolment complete, Started, Lost spots.
 - A week runs Saturday to Friday (weekend enquiries count in the week that follows them). Week = 13 complete Sat–Fri weeks built from the daily events; dashed line = their average = the forecast; green line = target (TGT_W / TGT_M in pipeline_build.py).
+- Tours follow the dashboard's Tours card rule: Tours Scheduled = families booking a tour, Tours Completed = families whose tour ran (view tour_giver); a family counts once in a Saturday-to-Friday week; tours ticked off after the fact (status runs) are left out of both.
 - Month = complete months only; dashed line = average of the last three.
 - Charts: a bar above max(3 x median, median + 4) runs off the top with its number; the average still counts it. Week x-axis = Friday date under each bar, month beneath.
 - First contact in 1 hour = share of the period's enquiries contacted by a person within 60 work minutes (FAST), uncontacted count as misses; target 80%; forecast = pooled share over the window. Work hours 8:30am–5:30pm Mon–Fri (assumption, to review); constants OPEN/CLOSE/CLOSED/FAST in pipeline_build.py.
@@ -21,8 +22,13 @@ Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum t
 with enq as (select f.centre_key, (f.enquired_at at time zone 'Australia/Melbourne')::date d, 'enq' k, count(*)::numeric n, 0::numeric x
   from semantic_v2.first_contact f left join semantic_v2.family_stage s on s.family_key=f.family_key left join semantic_v2.family_record_flags r on r.family_key=f.family_key
   where coalesce(s.effective_status,'')<>'rejected' and not coalesce(r.recorded_after_care,false) group by 1,2),
-j as (select centre_key, (event_time at time zone 'Australia/Melbourne')::date d, case journey_stage when 'tour_scheduled' then 'ts' when 'tour_completed' then 'tc' when 'offered' then 'of' end k, count(distinct family_key)::numeric n, 0::numeric x
-  from semantic_v2.current_journey_event where journey_stage in ('tour_scheduled','tour_completed','offered') group by 1,2,3),
+runs as (select family_key, tour_day from semantic_v2.tour_giver where status_run),
+tsr as (select e.centre_key, e.family_key, (e.event_time at time zone 'Australia/Melbourne')::date d from semantic_v2.current_journey_event e where e.journey_stage='tour_scheduled'),
+ts1 as (select t.centre_key, t.family_key, min(t.d) d from tsr t left join runs r on r.family_key=t.family_key and r.tour_day=t.d where r.family_key is null group by t.centre_key, t.family_key, date_trunc('week', t.d + 2)),
+tc1 as (select centre_key, family_key, min(tour_day) d from semantic_v2.tour_giver where not status_run group by centre_key, family_key, date_trunc('week', tour_day + 2)),
+j as (select centre_key, d, 'ts' k, count(*)::numeric n, 0::numeric x from ts1 group by 1,2
+  union all select centre_key, d, 'tc', count(*)::numeric, 0::numeric from tc1 group by 1,2
+  union all select centre_key, (event_time at time zone 'Australia/Melbourne')::date, 'of', count(distinct family_key)::numeric, 0::numeric from semantic_v2.current_journey_event where journey_stage='offered' group by 1,2),
 pe as (select centre_key, submitted_on d, 'pe' k, count(*)::numeric n, coalesce(sum(requested_days),0)::numeric x from semantic_v2.owna_enrolment_submission group by 1,2),
 ec as (select centre_key, added_on d, 'ec' k, count(*)::numeric n, 0::numeric x from semantic_v2.owna_child_pull where added_on is not null group by 1,2),
 st as (select centre_key, active_from d, 'st' k, sum(booked_days_per_week)::numeric n, count(*)::numeric x from semantic_v2.owna_child_place where not finish_before_start group by 1,2),

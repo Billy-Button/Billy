@@ -7,6 +7,7 @@ import tours_build as tr
 import kpis_build as kp
 import wages_build as wg
 import pipeline_build as pl
+import ow_build as ow
 
 css = report_html.split("<style>")[1].split("</style>")[0]
 legend = report_html.split('<div class="legend">')[1].split("</div>")[0]
@@ -131,30 +132,14 @@ home = f'''
   <div class="home-foot"><span id="who">Billy · Billy Button reporting</span><span>v{ISSUE}</span></div>
 </section>'''
 
-report = f'''
-<section id="report" class="scr" hidden>
-  <header class="topbar">
-    <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Occupancy</h1><div class="sub">Status as at {WEEK_LABEL}</div></div>
-    <img class="logo" src="data:image/png;base64,{logo}" alt="">
-  </header>
-  <nav class="toggle" role="tablist" aria-label="Centre">
-    <button type="button" role="tab" id="tab-sm" aria-controls="south-morang" aria-selected="true" data-target="south-morang">South Morang</button>
-    <button type="button" role="tab" id="tab-cb" aria-controls="craigieburn" aria-selected="false" data-target="craigieburn">Craigieburn</button>
-  </nav>
-  <div class="legend">{legend}</div>
-  <div class="screens">
-    <div id="south-morang" class="screen" role="tabpanel" aria-labelledby="tab-sm">{sm_occ}</div>
-    <div id="craigieburn" class="screen" role="tabpanel" aria-labelledby="tab-cb" hidden>{cb_occ}</div>
-  </div>
-  <details class="foot">{foot}</details>
-</section>'''
+BACK = '<button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>'
+report = ow.occ_section(logo, BACK, sm_occ, cb_occ, legend, foot, WEEK_LABEL)
 
 perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Pipeline</h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}">Week ending {pl.WLAB}</div></div>
+    <div class="ttl"><h1>Pipeline</h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}" data-f="Forecast · {pl.FLAB} · draft">Week ending {pl.WLAB}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <div class="pfbar">
@@ -166,17 +151,20 @@ perf = f'''
     <button type="button" role="tab" aria-selected="false" data-pd="d">Yesterday</button>
     <button type="button" role="tab" aria-selected="true" data-pd="w">Week</button>
     <button type="button" role="tab" aria-selected="false" data-pd="m">Month</button>
+    <button type="button" role="tab" aria-selected="false" data-pd="f">Forecast</button>
   </nav>
   </div>
   <div class="screens">
     <div id="pf-sm-d" class="screen" hidden>{pl.yesterday("South Morang")}</div>
     <div id="pf-sm-w" class="screen">{pl.week("South Morang")}</div>
     <div id="pf-sm-m" class="screen" hidden>{pl.month("South Morang")}</div>
+    <div id="pf-sm-f" class="screen" hidden>{pl.forecast("South Morang")}</div>
     <div id="pf-cb-d" class="screen" hidden>{pl.yesterday("Craigieburn")}</div>
     <div id="pf-cb-w" class="screen" hidden>{pl.week("Craigieburn")}</div>
     <div id="pf-cb-m" class="screen" hidden>{pl.month("Craigieburn")}</div>
+    <div id="pf-cb-f" class="screen" hidden>{pl.forecast("Craigieburn")}</div>
   </div>
-  <details class="foot"><summary>About the numbers</summary>
+  <details class="foot"><summary>About this screen</summary>
   <p>Figures from the Billy Button dashboard, built overnight. <b>Yesterday</b> is the last working day. <b>Week</b> and <b>Month</b> are pegged to the last complete week and month. The forecast on every chart is the three-month average; the target is the Target case in the forecast model.</p>
   <p><i>First contact in 1 hour</i> is the share of new enquiries contacted by a person (a call, email, SMS or task, never LineLeader's automatic reply) within one work hour. Target 80%. <i>Tours Scheduled</i>, <i>Offered</i>: families moved to that LineLeader status. <i>Pending</i>: Owna enrolment forms received. <i>Enrolment complete</i>: children pulled into Owna, where the $50 is charged. <i>Started</i>: booked days a week of children whose first day fell in the period. <i>Lost spots</i>: booked days a week of children who left, school leavers apart.</p>
   <p class="proxy-note">Wage to revenue is on the Wages screen, which updates each weekday morning.</p></details>
@@ -202,7 +190,7 @@ people = soon("people", "People & rosters", "Who is rostered against who is book
 kpis_old = soon("kpis", "KPIs", "The Turnaround Plan's key measures, one screen, updated as each plan reports.",
             ["Operations, Marketing and Finance plan measures side by side", "Each against its target and the date it is due", "Owner and status, plain words", "Trend since the plan started"])
 
-FU_JS = tr.tr_js + kp.kp_js + wg.wg_js + pl.js + """
+FU_JS = tr.tr_js + kp.kp_js + wg.wg_js + pl.js + ow.js + """
   function setTb(){ var t = document.querySelector('.scr:not([hidden]) .topbar'); if(t) document.documentElement.style.setProperty('--tb', t.offsetHeight + 'px'); }
   window.addEventListener('resize', setTb); window.addEventListener('hashchange', function(){ setTimeout(setTb, 0); }); setTimeout(setTb, 0);
   var pfTabs = Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button'));
@@ -228,6 +216,8 @@ page = f'''<!DOCTYPE html>
 {kp.kp_css}
 {wg.wg_css}
 {pl.css}
+{ow.css}
+.kp-coming summary{{font-size:13px;font-weight:800;color:rgba(43,35,32,.55);cursor:pointer;padding:6px 0}}
 </style>
 </head>
 <body>
@@ -239,7 +229,7 @@ page = f'''<!DOCTYPE html>
 {cash}
 {people}
 {kp.section(logo)}
-{wg.section(logo)}
+{ow.wages_section(logo, BACK)}
 </div>
 <script>
 (function(){{

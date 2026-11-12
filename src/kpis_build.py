@@ -117,9 +117,11 @@ def latest(d):
 def mon(m):
     return ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][int(m[5:])]
 
+SUBS = []
 def row(label, sub, big, small, ch, col=INK, grey=False):
     cls=' kp-grey' if grey else ''
-    return (f'<li class="kp{cls}"><div class="kp-h"><div class="kp-l"><b>{label}</b><span>{sub}</span></div>'
+    if not grey and (label, sub) not in SUBS: SUBS.append((label, sub))
+    return (f'<li class="kp{cls}"><div class="kp-h"><div class="kp-l"><b>{label}</b>{f"<span>{sub}</span>" if grey else ""}</div>'
             f'<div class="kp-v"><b style="color:{col}">{big}</b><span>{small}</span></div></div>{ch}</li>')
 
 def panel(c):
@@ -171,11 +173,13 @@ def panel(c):
     m,v=latest(d["lwop"])
     out.append(row("Leave without pay","% of rostered days", f"{v:g}%", PL(m),
                    chart(ser(d["lwop"]), neutral, hi=max(d["lwop"].values())*1.25, unit="%")))
+    coming=[]
     for lab,sub,txt in (("Opening checklist","% of open days completed in Owna","Dima to bring the Owna checklist into the dashboard"),
                         ("Closing checklist","% of open days completed in Owna","Dima to bring the Owna checklist into the dashboard"),
                         ("Signed in and out","% of child attendances and staff shifts missing a sign-in or sign-out","Waiting on sign-in records from Owna; repeat cases flagged by code"),
                         ("Fixed wages","management, admin and kitchen · $ a month","Waiting on fixed roles coded in Owna and Xero")):
-        out.append(row(lab,sub,"—","not yet in the dashboard",f'<div class="kp-none">{txt}</div>', grey=True))
+        coming.append(row(lab,sub,"—","not yet in the dashboard",f'<div class="kp-none">{txt}</div>', grey=True))
+    out.append(f'<li class="kp"><details class="kp-coming"><summary>Coming next ({len(coming)})</summary><ul class="measures kpl">{"".join(coming)}</ul></details></li>')
     return "".join(out)
 
 def section(logo):
@@ -194,7 +198,8 @@ def section(logo):
     <div id="kp-sm" class="screen"><div class="centre"><ul class="measures kpl">{panel("South Morang")}</ul></div></div>
     <div id="kp-cb" class="screen" hidden><div class="centre"><ul class="measures kpl">{panel("Craigieburn")}</ul></div></div>
   </div>
-  <details class="foot"><summary>About the numbers</summary>
+  <details class="foot"><summary>About this screen</summary>
+    <p><b>What each row counts.</b> {" · ".join(f"{a}: {b}" for a, b in SUBS)}.</p>
     <p>Each dot is a month. The hollow dot at the end is November so far (dashboard build of 11 Nov 26, so to 10 Nov); it moves with each overnight build. For counts (enquiries, lost spots) its colour is judged on pace: enquiries against the target for 10 of 30 days, lost spots for 8 of 21 open days. The big figure is November so far, except wage to revenue (average of the period shown, as November isn't closed in Xero yet). Two reference lines: <b>Target</b>, dark dashes, is where we are aiming; <b>Forecast</b>, brown dots, is where the current run rate takes us. Colours: sage at or better than target, amber between forecast and target (or close to target where there is no forecast), earth worse. Blue where no target is set yet. Time measures have targets only, no forecast yet.</p>
     <p><b>New enquiries</b>: LineLeader enquiries by month on the dashboard's rules (metric enquiries_month). February is the LineLeader import and is left out. Target is the model's Target chain (South Morang 31 a month, Craigieburn 150); forecast is the 13-week average run rate (4.3 and 7.7 a week) × 4.33.</p>
     <p><b>Time to first contact</b>: median minutes from the enquiry to the first human contact — never LineLeader's automatic reply (view first_contact). Log scale from minutes to two weeks; target 10 minutes. Only contacted families are in the median; the line under the figure says how many of the month's enquiries were contacted.</p>
