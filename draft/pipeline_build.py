@@ -6,7 +6,8 @@ INK, EARTH, SAGE, AMBER = "#2b2622", "#A45823", "#6E8B57", "#E2A23B"
 CENTRES = ["South Morang", "Craigieburn"]
 # Hours the administration team answers enquiries. An assumption, to review (Cameron, 13 Nov 26).
 OPEN, CLOSE = dt.time(8, 30), dt.time(17, 30)
-CLOSED = {dt.date(2026, 11, 3)}          # centre closed days (Cup Day)
+# weekdays the centres were closed (no attendance in Owna) + known ones ahead; the dashboard's closure list is empty until the centres confirm it
+CLOSED = {dt.date(*d) for d in [(2026,4,3),(2026,4,6),(2026,6,8),(2026,9,25),(2026,11,3),(2026,12,25),(2026,12,28),(2027,1,1),(2027,1,26)]}
 SNAP = dt.datetime.fromisoformat(P.SNAP); TODAY = SNAP.date()
 def workday(d): return d.weekday() < 5 and d not in CLOSED
 Y = TODAY - dt.timedelta(days=1)
@@ -93,50 +94,99 @@ for c, p, k, n, x in P.M: MS[(c, p, k)] = (n, x)
 LASTM = (TODAY.replace(day=1) - dt.timedelta(days=1)); LM = LASTM.strftime("%Y-%m")
 MONTHS = sorted({p for (c, p, k) in MS if "2026-03" <= p <= LM})
 MLAB = f"{LASTM.day} {LASTM:%b %y}"
-def bars(vals, fmtv=lambda v: f"{v:g}", col=EARTH):
-    W, H, L, R, T, B = 340, 96, 6, 62, 14, 16
-    hi = max([v for v in vals if v is not None] + [1]) * 1.12; n = len(vals); bw = (W - L - R) / n
-    ys = lambda v: T + (H - T - B) * (1 - v / hi); g = ""
+GREEN = "#4d6a3a"
+TGT_W = {"South Morang": dict(enq=(7,"7"), fc=(10/60,"10 min"), ts=(5.5,"5–6"), tc=(5.5,"5–6"), of=(5.5,"5–6"), pe=(2.5,"2–3"), ec=(2.5,"2–3"), st=(7,"7"), lo=(2.1,"2.1")),
+         "Craigieburn":  dict(enq=(35,"35"), fc=(10/60,"10 min"), ts=(23,"23"), tc=(23,"23"), of=(23,"23"), pe=(11,"11"), ec=(11,"11"), st=(33,"33"), lo=(2.1,"2.1"))}
+TGT_M = {"South Morang": dict(enq=(31,"31"), fc=(10/60,"10 min"), ts=(24,"24"), tc=(24,"24"), of=(24,"24"), pe=(11,"11"), ec=(11,"11"), st=(30,"30"), lo=(9,"9")),
+         "Craigieburn":  dict(enq=(150,"150"), fc=(10/60,"10 min"), ts=(100,"100"), tc=(100,"100"), of=(100,"100"), pe=(48,"48"), ec=(48,"48"), st=(143,"143"), lo=(9,"9"))}
+LOWER = {"fc", "lo"}
+def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), every=1, avgname="3-mth average"):
+    W, H, L, R, T, B = 340, 112, 4, 84, 22, 16
+    vv = [v for v in vals if v is not None]; top = max(vv + [avg or 0, 0.0001])
+    pinned = (not lower) and tgt > 2.2 * top
+    hi = max(top, 0 if pinned else tgt) * 1.12; n = len(vals); bw = (W - L - R) / n
+    ys = lambda v: T + (H - T - B) * (1 - min(v, hi) / hi); g = ""
     for i, v in enumerate(vals):
         x = L + i * bw; last = i == n - 1
-        g += f'<text x="{x+bw/2:.1f}" y="{H-4}" text-anchor="middle" font-size="9" fill="{INK}" opacity=".5">{dt.date.fromisoformat(MONTHS[i]+"-01"):%b}</text>'
+        if labels[i] and (i % every == (n - 1) % every):
+            g += f'<text x="{x+bw/2:.1f}" y="{H-4}" text-anchor="middle" font-size="8" fill="{INK}" opacity=".55">{labels[i]}</text>'
         if v is None: continue
-        g += f'<rect x="{x+3:.1f}" y="{ys(v):.1f}" width="{bw-6:.1f}" height="{max(H-B-ys(v),1):.1f}" rx="3" fill="{col}" opacity="{1 if last else .32}"/>'
-        g += f'<text x="{x+bw/2:.1f}" y="{ys(v)-3:.1f}" text-anchor="middle" font-size="9" font-weight="800" fill="{INK}" opacity="{1 if last else .6}" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}</text>'
-    last3 = [v for v in vals[-3:] if v is not None]
-    if last3:
-        a = sum(last3) / len(last3); x0 = L + (n - 3) * bw
-        g += f'<line x1="{x0:.1f}" y1="{ys(a):.1f}" x2="{W-R+2}" y2="{ys(a):.1f}" stroke="{INK}" stroke-width="1.4" stroke-dasharray="5 3"/>'
-        g += f'<text x="{W-R+5}" y="{ys(a)+3:.1f}" font-size="9" font-weight="800" fill="{INK}">3-mth avg {fmtv(a)}</text>'
+        col = AMBER if (lower and v > tgt) else EARTH
+        g += f'<rect x="{x+1.5:.1f}" y="{ys(v):.1f}" width="{bw-3:.1f}" height="{max(H-B-ys(v),1):.1f}" rx="2.5" fill="{col}" opacity="{1 if last else .34}"/>'
+        g += f'<text x="{x+bw/2:.1f}" y="{ys(v)-3:.1f}" text-anchor="middle" font-size="8" font-weight="800" fill="{INK}" opacity="{1 if last else .6}" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
+    ya = ys(avg) if avg is not None else None; yt = T - 12 if pinned else ys(tgt)
+    la, lt = ya, yt
+    if ya is not None and abs(la - lt) < 21:
+        if la <= lt: la, lt = min(la, lt - 21 + (lt - la)) , lt
+        mid = (ya + yt) / 2; up_a = ya <= yt
+        la = mid - 10.5 if up_a else mid + 10.5; lt = mid + 10.5 if up_a else mid - 10.5
+    g += f'<line x1="{L}" y1="{yt:.1f}" x2="{W-R+2}" y2="{yt:.1f}" stroke="{GREEN}" stroke-width="1.6"/>'
+    g += f'<text x="{W-R+5}" y="{lt+3:.1f}" font-size="9" font-weight="800" fill="{GREEN}">{"▲ " if pinned else ""}Target {tlab}</text>'
+    if ya is not None:
+        g += f'<line x1="{L}" y1="{ya:.1f}" x2="{W-R+2}" y2="{ya:.1f}" stroke="{INK}" stroke-width="1.4" stroke-dasharray="5 3"/>'
+        g += f'<text x="{W-R+5}" y="{la+1:.1f}" font-size="9" font-weight="800" fill="{INK}">Forecast {fmtv(avg)}</text>'
+        g += f'<text x="{W-R+5}" y="{la+9.5:.1f}" font-size="6.8" font-weight="700" fill="{INK}" opacity=".6">= {avgname}</text>'
     return f'<svg class="pm-ch" viewBox="0 0 {W} {H}">{g}</svg>'
-def m_row(c, k, label, unit, _):
-    if k == "ec":
-        return (f'<li class="pd-r" style="opacity:.45"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
-                f'<div class="pd-s">Monthly history starts November 26, when Owna began sending the date each child was pulled in.</div></li>')
+def fmt1(v): return f"{v:.1f}".rstrip("0").rstrip(".")
+def fhrs(v): return f"{v*60:.0f}m" if v < 1 else f"{v:.0f}h"
+def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), every=1, n_avg=None, note=""):
+    tv, tl = tg[c][k]; use = [v for v in (vals[-n_avg:] if n_avg else vals) if v is not None]
+    avg = sum(use) / len(use) if use else None; v = vals[-1]
     if k == "fc":
-        vals, cnt = [], []
-        for m in MONTHS:
-            s = fc_set(c, month=m); got = [r[5] for r in s if r[2]]
-            vals.append(st.median(got) / 60 if got else None); cnt.append((len(got), len(s)))
-        v = vals[-1]; g, s = cnt[-1]
-        raw = [r[4] for r in fc_set(c, month=LM) if r[2]]
-        big = fmt_min(v * 60) if v is not None else "–"
-        sub = f"median in work hours · {g} of {s} contacted" + (f"<br><i>By the clock: {raw_plain(st.median(raw))}</i>" if raw else "")
-        ch = bars(vals, lambda x: f"{x:.0f}h", col=SAGE)
+        big = fmt_min(v * 60) if v is not None else "–"; f = fhrs; fc_txt = ("–" if avg is None else f"{avg*60:.0f} min" if avg < 1 else f"{avg:.0f} hrs")
     else:
-        vals = [MS.get((c, m, k), (0, 0))[0] for m in MONTHS]; v = vals[-1]; pv = vals[-2]
-        kids = MS.get((c, LM, k), (0, 0))[1]
-        big = n0(v); extra = f"{kids:g} children · " if k in ("st", "lo") else ""
-        sub = f"{extra}{dt.date.fromisoformat(MONTHS[-2]+'-01'):%B} was {n0(pv)}"
-        ch = bars(vals, col=(AMBER if k == "lo" else EARTH))
-    return (f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit.replace("spots a week", "spots")}</span></div>'
+        big = n0(v) if v is not None else "–"; f = fmt1; fc_txt = fmt1(avg) if avg is not None else "–"
+    extra = f"{kids:g} {'child' if kids == 1 else 'children'} · " if kids else ""
+    sub = f"{extra}Forecast {fc_txt} · Target {tl}" + (f"<br><i>{note}</i>" if note else "")
+    ch = bars(labels, vals, avg, tv, tl, f, k in LOWER, marks, every, "3-mth average" if not (k == "ec" and len(use) < len(vals)) else "average so far")
+    return (f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
             f'<div class="pd-b"><div class="pd-n">{big}</div><div class="pd-s">{sub}</div></div>{ch}</li>')
+# ---- Week: 13 complete Mon-Fri weeks ----
+WE = TODAY - dt.timedelta(days=1)
+while WE.weekday() != 4: WE -= dt.timedelta(days=1)
+WEEKS = [[WE - dt.timedelta(days=7 * (12 - i) + 4 - j) for j in range(5)] for i in range(13)]
+WLAB = f"Fri {fd(WE)}"
+def week(c):
+    labels = [f"{w[-1].day} {w[-1]:%b}" for w in WEEKS]; marks = {i for i, w in enumerate(WEEKS) if any(d in CLOSED for d in w)}
+    rows = ""
+    for k, label, unit, _ in ROWS:
+        note = ""
+        if k == "fc":
+            vals, cn = [], []
+            for w in WEEKS:
+                s = fc_set(c, w); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
+            note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"; kids = None
+        elif k == "ec":
+            vals = [ev(c, w, k) if w[0] >= dt.date(2026, 11, 2) else None for w in WEEKS]; kids = None; note = "Owna has sent this date since 2 Nov 26"
+        else:
+            vals = [ev(c, w, k) for w in WEEKS]; kids = ev(c, WEEKS[-1], k, 1) if k in ("st", "lo") else None
+        rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, every=3, note=note)
+    note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. Dark bar = the week just closed. '
+            f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Green line = the target; ▲ means the target is above the top of the chart. '
+            f'* = a week with a closed day. Lost spots and Time to first contact are better when lower; amber bars are above target. '
+            f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review). '
+            f'Enquiries arriving on a weekend are not yet in any week: a question to settle.</p>')
+    return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 def month(c):
-    rows = "".join(m_row(c, *r) for r in ROWS)
+    labels = [f"{dt.date.fromisoformat(m+'-01'):%b}" for m in MONTHS]; rows = ""
+    for k, label, unit, _ in ROWS:
+        if k == "ec":
+            rows += (f'<li class="pd-r" style="opacity:.45"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
+                     f'<div class="pd-s">Monthly history starts November 26, when Owna began sending the date each child was pulled in. Target {TGT_M[c][k][1]} a month.</div></li>'); continue
+        note = ""; kids = None
+        if k == "fc":
+            vals, cn = [], []
+            for m in MONTHS:
+                s = fc_set(c, month=m); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
+            note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"
+        else:
+            vals = [MS.get((c, m, k), (0, 0))[0] for m in MONTHS]; kids = MS.get((c, LM, k), (0, 0))[1] if k in ("st", "lo") else None
+        rows += chart_row(c, k, label, unit.replace("spots a week", "spots"), labels, vals, TGT_M, kids, n_avg=3, note=note)
     note = (f'<p class="pd-note">Complete months only, {dt.date.fromisoformat(MONTHS[0]+"-01"):%B} to {LASTM:%B %Y}; LineLeader history starts after the February import. '
-            f'Dark bar = the month just closed. Dashed line = average of the last three months, the three-month rule. '
-            f'Lost spots here are children who left (school leavers apart). Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review).</p>')
-    return f'<div class="pd">{"".join(["<ul class=\"pd-l\">", rows, "</ul>"])}{note}</div>'
+            f'Dark bar = the month just closed. Dashed line = the average of the last three months, the three-month rule: this is the forecast. '
+            f'Green line = the target; ▲ means the target is above the top of the chart. Lost spots here are children who left (school leavers apart). '
+            f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review).</p>')
+    return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 css = """
 .pfbar{position:sticky;top:var(--tb,64px);z-index:5;background:var(--cream);box-shadow:0 6px 8px -8px rgba(43,35,32,.25)}
 .pfbar .toggle{position:static;box-shadow:none}
@@ -161,7 +211,7 @@ js = """
   (function(){ var c='sm', p='w';
     function show(){ ['sm','cb'].forEach(function(a){ ['d','w','m'].forEach(function(b){ var e=document.getElementById('pf-'+a+'-'+b); if(e) e.hidden=!(a===c&&b===p); }); });
       var s=document.getElementById('pf-sub'); if(s) s.textContent=s.getAttribute('data-'+p);
-      var l=document.getElementById('pf-legend'); if(l) l.style.display=(p==='w'?'':'none'); window.scrollTo(0,0); }
+      window.scrollTo(0,0); }
     Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button')).forEach(function(t){ t.addEventListener('click', function(){ c=t.dataset.pf==='pf-cb'?'cb':'sm'; show(); }); });
     var pt=Array.prototype.slice.call(document.querySelectorAll('.pdtabs button'));
     pt.forEach(function(t){ t.addEventListener('click', function(){ pt.forEach(function(x){ x.setAttribute('aria-selected', x===t?'true':'false'); }); p=t.dataset.pd; show(); }); });

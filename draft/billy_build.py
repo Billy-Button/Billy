@@ -154,7 +154,7 @@ perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Pipeline <span class="wg-draft">Draft</span></h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending Fri {WEEK_LABEL}" data-m="Month ending {pl.MLAB}">Week ending Fri {WEEK_LABEL}</div></div>
+    <div class="ttl"><h1>Pipeline <span class="wg-draft">Draft</span></h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}">Week ending {pl.WLAB}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <div class="pfbar">
@@ -168,17 +168,18 @@ perf = f'''
     <button type="button" role="tab" aria-selected="false" data-pd="m">Month</button>
   </nav>
   </div>
-  <div class="legend" id="pf-legend">{legend}</div>
   <div class="screens">
     <div id="pf-sm-d" class="screen" hidden>{pl.yesterday("South Morang")}</div>
-    <div id="pf-sm-w" class="screen">{sm_pf}</div>
+    <div id="pf-sm-w" class="screen">{pl.week("South Morang")}</div>
     <div id="pf-sm-m" class="screen" hidden>{pl.month("South Morang")}</div>
     <div id="pf-cb-d" class="screen" hidden>{pl.yesterday("Craigieburn")}</div>
-    <div id="pf-cb-w" class="screen" hidden>{cb_pf}</div>
+    <div id="pf-cb-w" class="screen" hidden>{pl.week("Craigieburn")}</div>
     <div id="pf-cb-m" class="screen" hidden>{pl.month("Craigieburn")}</div>
   </div>
-  <details class="foot">{foot}<p><b>New lines on this screen.</b> <i>Time to first contact</i>: the median time from a new enquiry to its first human contact — a call, email, SMS or task by a person, never LineLeader's automatic reply (dashboard view first_contact). Target 10 minutes; lower is better. The median is of the families contacted so far; the line under the figure says how many of the week's enquiries have been contacted. This line's bar has a fixed scale: the left end is one day (anything slower sits there), the middle tick is one hour, the right tick the 10-minute target, on a log scale so minutes and hours get fair space. The 13-week median was 1.8 days at South Morang and 2.3 days at Craigieburn. <i>Tours Scheduled</i> and <i>Offered</i>: families moved to LineLeader's Tour Scheduled or Offered status in the week. <i>Pending</i>: Owna enrolment forms received in the week. For Tours Scheduled, Offered and Pending the forecast tick is the 13-week weekly average (8 Aug to 6 Nov) until the model forecasts them. Targets: Tours Scheduled and Offered match the Tours Completed target (every booked tour kept, every tour offered); Pending matches the Enrolment complete target.</p>
-<p class="proxy-note">Wage to revenue has moved to the Wages screen, which updates each weekday morning.</p>
+  <details class="foot"><summary>About the numbers</summary>
+  <p>Figures from the Billy Button dashboard, built overnight. <b>Yesterday</b> is the last working day. <b>Week</b> and <b>Month</b> are pegged to the last complete week and month. The forecast on every chart is the three-month average; the target is the Target case in the forecast model.</p>
+  <p><i>Time to first contact</i> is the time from a new enquiry to its first contact by a person (a call, email, SMS or task, never LineLeader's automatic reply), counted in work hours. <i>Tours Scheduled</i>, <i>Offered</i>: families moved to that LineLeader status. <i>Pending</i>: Owna enrolment forms received. <i>Enrolment complete</i>: children pulled into Owna, where the $50 is charged. <i>Started</i>: booked days a week of children whose first day fell in the period. <i>Lost spots</i>: booked days a week of children who left, school leavers apart.</p>
+  <p class="proxy-note">Wage to revenue is on the Wages screen, which updates each weekday morning.</p></details>
 </section>'''
 
 def soon(id_, title, blurb, items):
