@@ -13,10 +13,12 @@ def workday(d): return d.weekday() < 5 and d not in CLOSED
 Y = TODAY - dt.timedelta(days=1)
 while not workday(Y): Y -= dt.timedelta(days=1)
 EXTRA = [Y + dt.timedelta(days=i) for i in range(1, (TODAY - Y).days)]      # weekend / closed days after Y
-MON = Y - dt.timedelta(days=Y.weekday())
-LW0 = MON - dt.timedelta(days=7); LW = [LW0 + dt.timedelta(days=i) for i in range(5)]
+# A week runs Saturday to Friday, so every day belongs to exactly one week (Cameron, 13 Nov 26).
+LASTD = TODAY - dt.timedelta(days=1)                                   # the latest day in the data
+CUR_FRI = LASTD + dt.timedelta(days=(4 - LASTD.weekday()) % 7)         # the Friday that closes the week LASTD is in
+WK = [CUR_FRI - dt.timedelta(days=6 - i) for i in range(7) if CUR_FRI - dt.timedelta(days=6 - i) <= LASTD]
+LW = [CUR_FRI - dt.timedelta(days=13 - i) for i in range(7)]            # the week before it, Sat..Fri
 LW_OPEN = sum(workday(d) for d in LW)
-WK = [MON + dt.timedelta(days=i) for i in range((Y - MON).days + 1)]
 fd = lambda d: f"{d.day} {d:%b %y}"
 YLAB = f"{Y:%a} {fd(Y)}" + (" + weekend" if EXTRA else "")
 EV = {}
@@ -73,7 +75,7 @@ def y_row(c, k, label, unit, arr):
         lw = fc_set(c, LW); lg = [r for r in lw if r[2]]
         note = f"Last week {sum(1 for r in lg if r[5] <= FAST)} of {len(lw)} within 1 work hour"
         return f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit}</span></div><div class="pd-b"><div class="pd-n">{big}</div><div class="pd-s">{sub}<br><i>{note}</i></div></div></li>'
-    y = ev(c, days, k); wk = ev(c, WK + EXTRA, k); lw = ev(c, LW, k); avg = lw / LW_OPEN
+    y = ev(c, days, k); wk = ev(c, WK, k); lw = ev(c, LW, k); avg = lw / LW_OPEN
     kids = ev(c, days, k, 1)
     extra = f" · {kids:g} {'child' if kids == 1 else 'children'}" if k in ("st", "lo") and y else ""
     sub = f"{n0(wk)} so far this week{extra}<br><i>Last week {n0(lw)} · {avg:.1f} a day</i>"
@@ -85,7 +87,7 @@ def yesterday(c):
           + (f'<span>{out} came in overnight or on a weekend · {inh} in work hours</span>' if w else '<span>Every new enquiry has been contacted or moved on.</span>') + '</div>')
     rows = "".join(y_row(c, *r) for r in ROWS)
     note = (f'<p class="pd-note">What happened on {YLAB}, as recorded by this morning. ▲ ▼ ● compares the day with last week\'s average a day '
-            f'(week ending {fd(LW[-1])}, {LW_OPEN} open days). No arrow on the rows that are too small to read day by day. '
+            f'(week ending {fd(LW[-1])}, its total over {LW_OPEN} open days). No arrow on the rows that are too small to read day by day. '
             f'Work hours for answering enquiries are taken as 8:30am to 5:30pm, Monday to Friday: an assumption, to review.</p>')
     return f'<div class="pd">{wl}<ul class="pd-l">{rows}</ul>{note}</div>'
 # ---- Month ----
@@ -166,7 +168,7 @@ def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), groups=N
 # ---- Week: 13 complete Mon-Fri weeks ----
 WE = TODAY - dt.timedelta(days=1)
 while WE.weekday() != 4: WE -= dt.timedelta(days=1)
-WEEKS = [[WE - dt.timedelta(days=7 * (12 - i) + 4 - j) for j in range(5)] for i in range(13)]
+WEEKS = [[WE - dt.timedelta(days=7 * (12 - i) + 6 - j) for j in range(7)] for i in range(13)]   # Sat..Fri
 WLAB = f"Fri {fd(WE)}"
 def week(c):
     labels = [str(w[-1].day) for w in WEEKS]; groups = [f"{w[-1]:%b}" for w in WEEKS]; marks = {i for i, w in enumerate(WEEKS) if any(d in CLOSED for d in w)}
@@ -180,11 +182,11 @@ def week(c):
         else:
             vals = [ev(c, w, k) for w in WEEKS]; kids = ev(c, WEEKS[-1], k, 1) if k in ("st", "lo") else None
         rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, groups, note=note, avg_over=avg_over)
-    note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. The number under each bar is the Friday the week ended, with the month beneath. Dark bar = the week just closed. '
+    note = (f'<p class="pd-note">The 13 complete weeks to {WLAB}. A week runs Saturday to Friday, so weekend enquiries count in the week the team deals with them. The number under each bar is the Friday the week ended, with the month beneath. Dark bar = the week just closed. '
             f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual week, kept off the scale so the other weeks stay readable. '
             f'* = a week with a closed day. Lost spots is the one chart that is better when lower; amber bars are above target. '
             f'First contact in 1 hour = the share of the period\'s new enquiries a person contacted within one work hour (8:30am to 5:30pm, Monday to Friday: an assumption, to review); enquiries nobody has contacted count as misses. Its forecast is the share over the whole 13 weeks. '
-            f'Enquiries arriving on a weekend are not yet in any week: a question to settle.</p>')
+            f'</p>')
     return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 def month(c):
     labels = [f"{dt.date.fromisoformat(m+'-01'):%b}" for m in MONTHS]; rows = ""
@@ -234,7 +236,7 @@ js = """
   })();
 """
 if __name__ == "__main__":
-    print("Y", Y, "extra", EXTRA, "wk", WK[0], "lw", LW[0], LW_OPEN, "months", MONTHS)
+    print("Y", Y, "extra", EXTRA, "wk", WK[0], WK[-1], "lw", LW[0], LW[-1], LW_OPEN, "weeks", WEEKS[0][0], WEEKS[-1][-1], "months", MONTHS)
     for c in CENTRES:
         print(c, "waiting", waiting(c))
         for k, lab, u, a in ROWS:

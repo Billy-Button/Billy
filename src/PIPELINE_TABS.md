@@ -9,8 +9,8 @@ Checks: both centres have 13 weeks and the complete months; the Pipeline header 
 
 Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum to the live weekly Pipeline figures for all nine rows at both centres):
 - Yesterday = the last working day before the snapshot (weekend and closed days after it are added in and labelled).
-- Direction = the day against last week's Mon–Fri total ÷ open days; level when within 0.5. No arrow on Enrolment complete, Started, Lost spots.
-- Week = 13 complete Mon–Fri weeks built from the daily events; dashed line = their average = the forecast; green line = target (TGT_W / TGT_M in pipeline_build.py).
+- Direction = the day against last week's (Sat–Fri) total ÷ open days; level when within 0.5. No arrow on Enrolment complete, Started, Lost spots.
+- A week runs Saturday to Friday (weekend enquiries count in the week that follows them). Week = 13 complete Sat–Fri weeks built from the daily events; dashed line = their average = the forecast; green line = target (TGT_W / TGT_M in pipeline_build.py).
 - Month = complete months only; dashed line = average of the last three.
 - Charts: a bar above max(3 x median, median + 4) runs off the top with its number; the average still counts it. Week x-axis = Friday date under each bar, month beneath.
 - First contact in 1 hour = share of the period's enquiries contacted by a person within 60 work minutes (FAST), uncontacted count as misses; target 80%; forecast = pooled share over the window. Work hours 8:30am–5:30pm Mon–Fri (assumption, to review); constants OPEN/CLOSE/CLOSED/FAST in pipeline_build.py.
