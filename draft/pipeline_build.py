@@ -102,30 +102,38 @@ TGT_M = {"South Morang": dict(enq=(31,"31"), fc=(10/60,"10 min"), ts=(24,"24"), 
 LOWER = {"fc", "lo"}
 def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), every=1, avgname="3-mth average"):
     W, H, L, R, T, B = 340, 112, 4, 84, 22, 16
-    vv = [v for v in vals if v is not None]; top = max(vv + [avg or 0, 0.0001])
+    vv = sorted(v for v in vals if v is not None)
+    ref = vv[-3] if len(vv) >= 5 else (vv[-1] if vv else 0)
+    cap = max(ref * 1.6, (avg or 0) * 1.3, 0.0001)                      # bars well above this run off the top
+    spike = lambda v: v is not None and len(vv) >= 5 and v > cap * 1.25
+    top = max([v for v in vv if not spike(v)] + [avg or 0, 0.0001])
     pinned = (not lower) and tgt > 2.2 * top
     hi = max(top, 0 if pinned else tgt) * 1.12; n = len(vals); bw = (W - L - R) / n
     ys = lambda v: T + (H - T - B) * (1 - min(v, hi) / hi); g = ""
+    SOFT, SOFTG = "#8a8178", "#7d8f70"
+    yt = T - 12 if pinned else ys(tgt); ya = ys(avg) if avg is not None else None
+    g += f'<line x1="{L}" y1="{yt:.1f}" x2="{W-R+2}" y2="{yt:.1f}" stroke="{SOFTG}" stroke-width="1.2" opacity=".8"/>'
+    if ya is not None: g += f'<line x1="{L}" y1="{ya:.1f}" x2="{W-R+2}" y2="{ya:.1f}" stroke="{SOFT}" stroke-width="1.2" stroke-dasharray="5 3" opacity=".9"/>'
     for i, v in enumerate(vals):
         x = L + i * bw; last = i == n - 1
         if labels[i] and (i % every == (n - 1) % every):
             g += f'<text x="{x+bw/2:.1f}" y="{H-4}" text-anchor="middle" font-size="8" fill="{INK}" opacity=".55">{labels[i]}</text>'
         if v is None: continue
-        col = AMBER if (lower and v > tgt) else EARTH
-        g += f'<rect x="{x+1.5:.1f}" y="{ys(v):.1f}" width="{bw-3:.1f}" height="{max(H-B-ys(v),1):.1f}" rx="2.5" fill="{col}" opacity="{1 if last else .34}"/>'
-        g += f'<text x="{x+bw/2:.1f}" y="{ys(v)-3:.1f}" text-anchor="middle" font-size="8" font-weight="800" fill="{INK}" opacity="{1 if last else .6}" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
-    ya = ys(avg) if avg is not None else None; yt = T - 12 if pinned else ys(tgt)
+        col = AMBER if (lower and v > tgt) else EARTH; sp = spike(v); y0 = T - 6 if sp else ys(v)
+        g += f'<rect x="{x+1.5:.1f}" y="{y0:.1f}" width="{bw-3:.1f}" height="{max(H-B-y0,1):.1f}" rx="2.5" fill="{col}" opacity="{1 if last else .34}"/>'
+        if sp:
+            g += f'<path d="M{x+bw/2-4:.1f},{y0-1:.1f} L{x+bw/2:.1f},{y0-6:.1f} L{x+bw/2+4:.1f},{y0-1:.1f} z" fill="{col}" opacity="{1 if last else .55}"/>'
+            g += f'<text x="{x+bw/2+6:.1f}" y="{y0-1:.1f}" font-size="8.5" font-weight="800" fill="{INK}" opacity=".8" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
+        else:
+            g += f'<text x="{x+bw/2:.1f}" y="{ys(v)-3:.1f}" text-anchor="middle" font-size="8" font-weight="800" fill="{INK}" opacity="{1 if last else .6}" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
     la, lt = ya, yt
     if ya is not None and abs(la - lt) < 21:
-        if la <= lt: la, lt = min(la, lt - 21 + (lt - la)) , lt
         mid = (ya + yt) / 2; up_a = ya <= yt
         la = mid - 10.5 if up_a else mid + 10.5; lt = mid + 10.5 if up_a else mid - 10.5
-    g += f'<line x1="{L}" y1="{yt:.1f}" x2="{W-R+2}" y2="{yt:.1f}" stroke="{GREEN}" stroke-width="1.6"/>'
-    g += f'<text x="{W-R+5}" y="{lt+3:.1f}" font-size="9" font-weight="800" fill="{GREEN}">{"▲ " if pinned else ""}Target {tlab}</text>'
+    g += f'<text x="{W-R+5}" y="{lt+3:.1f}" font-size="8.5" font-weight="700" fill="{SOFTG}">{"▲ " if pinned else ""}Target {tlab}</text>'
     if ya is not None:
-        g += f'<line x1="{L}" y1="{ya:.1f}" x2="{W-R+2}" y2="{ya:.1f}" stroke="{INK}" stroke-width="1.4" stroke-dasharray="5 3"/>'
-        g += f'<text x="{W-R+5}" y="{la+1:.1f}" font-size="9" font-weight="800" fill="{INK}">Forecast {fmtv(avg)}</text>'
-        g += f'<text x="{W-R+5}" y="{la+9.5:.1f}" font-size="6.8" font-weight="700" fill="{INK}" opacity=".6">= {avgname}</text>'
+        g += f'<text x="{W-R+5}" y="{la+1:.1f}" font-size="8.5" font-weight="700" fill="{SOFT}">Forecast {fmtv(avg)}</text>'
+        g += f'<text x="{W-R+5}" y="{la+9.5:.1f}" font-size="6.8" font-weight="600" fill="{SOFT}">= {avgname}</text>'
     return f'<svg class="pm-ch" viewBox="0 0 {W} {H}">{g}</svg>'
 def fmt1(v): return f"{v:.1f}".rstrip("0").rstrip(".")
 def fhrs(v): return f"{v*60:.0f}m" if v < 1 else f"{v:.0f}h"
@@ -162,7 +170,7 @@ def week(c):
             vals = [ev(c, w, k) for w in WEEKS]; kids = ev(c, WEEKS[-1], k, 1) if k in ("st", "lo") else None
         rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, every=3, note=note)
     note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. Dark bar = the week just closed. '
-            f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Green line = the target; ▲ means the target is above the top of the chart. '
+            f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual week, kept off the scale so the other weeks stay readable. '
             f'* = a week with a closed day. Lost spots and Time to first contact are better when lower; amber bars are above target. '
             f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review). '
             f'Enquiries arriving on a weekend are not yet in any week: a question to settle.</p>')
@@ -184,7 +192,7 @@ def month(c):
         rows += chart_row(c, k, label, unit.replace("spots a week", "spots"), labels, vals, TGT_M, kids, n_avg=3, note=note)
     note = (f'<p class="pd-note">Complete months only, {dt.date.fromisoformat(MONTHS[0]+"-01"):%B} to {LASTM:%B %Y}; LineLeader history starts after the February import. '
             f'Dark bar = the month just closed. Dashed line = the average of the last three months, the three-month rule: this is the forecast. '
-            f'Green line = the target; ▲ means the target is above the top of the chart. Lost spots here are children who left (school leavers apart). '
+            f'Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual month, kept off the scale. Lost spots here are children who left (school leavers apart). '
             f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review).</p>')
     return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
 css = """
