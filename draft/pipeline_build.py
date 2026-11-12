@@ -100,12 +100,12 @@ TGT_W = {"South Morang": dict(enq=(7,"7"), fc=(10/60,"10 min"), ts=(5.5,"5–6")
 TGT_M = {"South Morang": dict(enq=(31,"31"), fc=(10/60,"10 min"), ts=(24,"24"), tc=(24,"24"), of=(24,"24"), pe=(11,"11"), ec=(11,"11"), st=(30,"30"), lo=(9,"9")),
          "Craigieburn":  dict(enq=(150,"150"), fc=(10/60,"10 min"), ts=(100,"100"), tc=(100,"100"), of=(100,"100"), pe=(48,"48"), ec=(48,"48"), st=(143,"143"), lo=(9,"9"))}
 LOWER = {"fc", "lo"}
-def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), every=1, avgname="3-mth average"):
-    W, H, L, R, T, B = 340, 112, 4, 84, 22, 16
+def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), groups=None, avgname="3-mth average"):
+    W, H, L, R, T, B = 340, (124 if groups else 112), 4, 84, 22, (28 if groups else 16)
     vv = sorted(v for v in vals if v is not None)
-    ref = vv[-3] if len(vv) >= 5 else (vv[-1] if vv else 0)
-    cap = max(ref * 1.6, (avg or 0) * 1.3, 0.0001)                      # bars well above this run off the top
-    spike = lambda v: v is not None and len(vv) >= 5 and v > cap * 1.25
+    med = vv[len(vv) // 2] if vv else 0
+    cap = max(3 * med, med + 4) if not lower else max(3 * med, med + 4, 3 * tgt)   # a bar above this is unusual: it runs off the top
+    spike = lambda v: v is not None and len(vv) >= 5 and v > cap
     top = max([v for v in vv if not spike(v)] + [avg or 0, 0.0001])
     pinned = (not lower) and tgt > 2.2 * top
     hi = max(top, 0 if pinned else tgt) * 1.12; n = len(vals); bw = (W - L - R) / n
@@ -116,8 +116,7 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
     if ya is not None: g += f'<line x1="{L}" y1="{ya:.1f}" x2="{W-R+2}" y2="{ya:.1f}" stroke="{SOFT}" stroke-width="1.2" stroke-dasharray="5 3" opacity=".9"/>'
     for i, v in enumerate(vals):
         x = L + i * bw; last = i == n - 1
-        if labels[i] and (i % every == (n - 1) % every):
-            g += f'<text x="{x+bw/2:.1f}" y="{H-4}" text-anchor="middle" font-size="8" fill="{INK}" opacity=".55">{labels[i]}</text>'
+        g += f'<text x="{x+bw/2:.1f}" y="{H-B+10}" text-anchor="middle" font-size="8" font-weight="{800 if last else 600}" fill="{INK}" opacity="{.9 if last else .55}">{labels[i]}</text>'
         if v is None: continue
         col = AMBER if (lower and v > tgt) else EARTH; sp = spike(v); y0 = T - 6 if sp else ys(v)
         g += f'<rect x="{x+1.5:.1f}" y="{y0:.1f}" width="{bw-3:.1f}" height="{max(H-B-y0,1):.1f}" rx="2.5" fill="{col}" opacity="{1 if last else .34}"/>'
@@ -126,6 +125,14 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
             g += f'<text x="{x+bw/2+6:.1f}" y="{y0-1:.1f}" font-size="8.5" font-weight="800" fill="{INK}" opacity=".8" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
         else:
             g += f'<text x="{x+bw/2:.1f}" y="{ys(v)-3:.1f}" text-anchor="middle" font-size="8" font-weight="800" fill="{INK}" opacity="{1 if last else .6}" stroke="#FBF6EE" stroke-width="2.5" paint-order="stroke">{fmtv(v)}{"*" if i in marks else ""}</text>'
+    if groups:
+        i0 = 0
+        for j in range(1, n + 1):
+            if j == n or groups[j] != groups[i0]:
+                xa, xb = L + i0 * bw + 2, L + j * bw - 2
+                g += f'<line x1="{xa:.1f}" y1="{H-13}" x2="{xb:.1f}" y2="{H-13}" stroke="{INK}" opacity=".25"/>'
+                g += f'<text x="{(xa+xb)/2:.1f}" y="{H-3}" text-anchor="middle" font-size="8.5" font-weight="700" fill="{INK}" opacity=".6">{groups[i0]}</text>'
+                i0 = j
     la, lt = ya, yt
     if ya is not None and abs(la - lt) < 21:
         mid = (ya + yt) / 2; up_a = ya <= yt
@@ -137,7 +144,7 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
     return f'<svg class="pm-ch" viewBox="0 0 {W} {H}">{g}</svg>'
 def fmt1(v): return f"{v:.1f}".rstrip("0").rstrip(".")
 def fhrs(v): return f"{v*60:.0f}m" if v < 1 else f"{v:.0f}h"
-def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), every=1, n_avg=None, note=""):
+def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), groups=None, n_avg=None, note=""):
     tv, tl = tg[c][k]; use = [v for v in (vals[-n_avg:] if n_avg else vals) if v is not None]
     avg = sum(use) / len(use) if use else None; v = vals[-1]
     if k == "fc":
@@ -146,7 +153,7 @@ def chart_row(c, k, label, unit, labels, vals, tg, kids=None, marks=(), every=1,
         big = n0(v) if v is not None else "–"; f = fmt1; fc_txt = fmt1(avg) if avg is not None else "–"
     extra = f"{kids:g} {'child' if kids == 1 else 'children'} · " if kids else ""
     sub = f"{extra}Forecast {fc_txt} · Target {tl}" + (f"<br><i>{note}</i>" if note else "")
-    ch = bars(labels, vals, avg, tv, tl, f, k in LOWER, marks, every, "3-mth average" if not (k == "ec" and len(use) < len(vals)) else "average so far")
+    ch = bars(labels, vals, avg, tv, tl, f, k in LOWER, marks, groups, "3-mth average")
     return (f'<li class="pd-r"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
             f'<div class="pd-b"><div class="pd-n">{big}</div><div class="pd-s">{sub}</div></div>{ch}</li>')
 # ---- Week: 13 complete Mon-Fri weeks ----
@@ -155,7 +162,7 @@ while WE.weekday() != 4: WE -= dt.timedelta(days=1)
 WEEKS = [[WE - dt.timedelta(days=7 * (12 - i) + 4 - j) for j in range(5)] for i in range(13)]
 WLAB = f"Fri {fd(WE)}"
 def week(c):
-    labels = [f"{w[-1].day} {w[-1]:%b}" for w in WEEKS]; marks = {i for i, w in enumerate(WEEKS) if any(d in CLOSED for d in w)}
+    labels = [str(w[-1].day) for w in WEEKS]; groups = [f"{w[-1]:%b}" for w in WEEKS]; marks = {i for i, w in enumerate(WEEKS) if any(d in CLOSED for d in w)}
     rows = ""
     for k, label, unit, _ in ROWS:
         note = ""
@@ -164,12 +171,10 @@ def week(c):
             for w in WEEKS:
                 s = fc_set(c, w); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
             note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"; kids = None
-        elif k == "ec":
-            vals = [ev(c, w, k) if w[0] >= dt.date(2026, 11, 2) else None for w in WEEKS]; kids = None; note = "Owna has sent this date since 2 Nov 26"
         else:
             vals = [ev(c, w, k) for w in WEEKS]; kids = ev(c, WEEKS[-1], k, 1) if k in ("st", "lo") else None
-        rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, every=3, note=note)
-    note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. Dark bar = the week just closed. '
+        rows += chart_row(c, k, label, unit, labels, vals, TGT_W, kids, marks, groups, note=note)
+    note = (f'<p class="pd-note">The 13 complete Monday-to-Friday weeks to {WLAB}. The number under each bar is the Friday the week ended, with the month beneath. Dark bar = the week just closed. '
             f'Dashed line = the average of the 13 weeks, the three-month rule: this is the forecast. Grey-green line = the target; ▲ beside it means the target is above the top of the chart. A bar that runs off the top with ▲ and its number is an unusual week, kept off the scale so the other weeks stay readable. '
             f'* = a week with a closed day. Lost spots and Time to first contact are better when lower; amber bars are above target. '
             f'Time to first contact counts work hours only (8:30am to 5:30pm, Monday to Friday: an assumption, to review). '
@@ -178,9 +183,6 @@ def week(c):
 def month(c):
     labels = [f"{dt.date.fromisoformat(m+'-01'):%b}" for m in MONTHS]; rows = ""
     for k, label, unit, _ in ROWS:
-        if k == "ec":
-            rows += (f'<li class="pd-r" style="opacity:.45"><div class="pd-t"><b>{label}</b><span>{unit}</span></div>'
-                     f'<div class="pd-s">Monthly history starts November 26, when Owna began sending the date each child was pulled in. Target {TGT_M[c][k][1]} a month.</div></li>'); continue
         note = ""; kids = None
         if k == "fc":
             vals, cn = [], []
@@ -188,7 +190,8 @@ def month(c):
                 s = fc_set(c, month=m); got = [r[5] for r in s if r[2]]; vals.append(st.median(got) / 60 if got else None); cn.append((len(got), len(s)))
             note = f"median in work hours · {cn[-1][0]} of {cn[-1][1]} contacted"
         else:
-            vals = [MS.get((c, m, k), (0, 0))[0] for m in MONTHS]; kids = MS.get((c, LM, k), (0, 0))[1] if k in ("st", "lo") else None
+            vals = [MS[(c, m, k)][0] if (c, m, k) in MS else (sum(v[0] for (cc, d, kk), v in EV.items() if cc == c and kk == k and d.strftime("%Y-%m") == m) if k == "ec" and m >= "2026-04" else (None if k == "ec" else 0)) for m in MONTHS]
+            kids = MS.get((c, LM, k), (0, 0))[1] if k in ("st", "lo") else None
         rows += chart_row(c, k, label, unit.replace("spots a week", "spots"), labels, vals, TGT_M, kids, n_avg=3, note=note)
     note = (f'<p class="pd-note">Complete months only, {dt.date.fromisoformat(MONTHS[0]+"-01"):%B} to {LASTM:%B %Y}; LineLeader history starts after the February import. '
             f'Dark bar = the month just closed. Dashed line = the average of the last three months, the three-month rule: this is the forecast. '

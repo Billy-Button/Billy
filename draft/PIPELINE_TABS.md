@@ -15,6 +15,7 @@ Definitions (back-tested 13 Nov 26: the five days of the week ending 6 Nov sum t
 - Direction = the day against last week's Mon–Fri total ÷ open days; level when within 0.5. No arrow on Enrolment complete, Started, Lost spots.
 - Week = 13 complete Mon–Fri weeks built from the daily events; dashed line = their average = the forecast; green line = target (TGT_W / TGT_M in pipeline_build.py).
 - Month = complete months only; dashed line = average of the last three.
+- Charts: a bar above max(3 x median, median + 4) runs off the top with its number; the average still counts it. Week x-axis = Friday date under each bar, month beneath.
 - First contact in work hours: 8:30am–5:30pm Mon–Fri (assumption, to review); constants OPEN/CLOSE/CLOSED in pipeline_build.py.
 - Waiting for first contact = no human contact yet AND still at New Enquiry, enquiries of the last 30 days.
 
@@ -35,6 +36,7 @@ union all select 'ts', centre_key, month, families_tour_booked::numeric, 0 from 
 union all select 'tc', centre_key, month, tours_completed::numeric, 0 from semantic_v2.tour_month where month>='2026-03'
 union all select 'of', centre_key, to_char(event_time at time zone 'Australia/Melbourne','YYYY-MM'), count(distinct family_key)::numeric, 0 from semantic_v2.current_journey_event where journey_stage='offered' and event_time>=timestamptz '2026-03-01 00:00+11' group by 2,3
 union all select 'pe', centre_key, to_char(submitted_on,'YYYY-MM'), count(*)::numeric, 0 from semantic_v2.owna_enrolment_submission where submitted_on>=date '2026-03-01' group by 2,3
+union all select 'ec', centre_key, to_char(added_on,'YYYY-MM'), count(*)::numeric, 0 from semantic_v2.owna_child_pull where added_on>=date '2026-03-01' group by 2,3
 union all select 'st', centre_key, month, new_children_spots::numeric, new_children::numeric from semantic_v2.owna_spot_movement where month>='2026-03'
 union all select 'lo', centre_key, month, left_spots::numeric, left_children::numeric from semantic_v2.owna_spot_movement where month>='2026-03')
 select 'D' g, u.centre_key c, u.d::text p, u.k, u.n, u.x from u where u.d between date '2026-04-01' and (now() at time zone 'Australia/Melbourne')::date - 1 and u.centre_key is not null
