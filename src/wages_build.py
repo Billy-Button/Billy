@@ -151,6 +151,16 @@ F = {
    inc=[242753,217650,242719,242718,236163,207278,190152,243182,259186,300717,276801,281119],
    allow={"2026-11":482,"2026-12":418,"2027-01":373,"2027-02":566}),
 }
+
+# Forecast wages, income and wage to revenue (Nov to Jun) come from the Financial Model feed (kpi/model_feed.json), not typed here. Jul to Oct stay as Xero actuals.
+import json as _json, pathlib as _pl
+_FEED = _json.load(open(_pl.Path(__file__).resolve().parent / "kpi" / "model_feed.json"))
+MODEL_TAG = f'Financial Model {_FEED["version"]} · working draft · wages conditional on the roster review'
+for _c in F:
+    _f = _FEED["centres"][_c]
+    F[_c]["wages"] = F[_c]["wages"][:4] + list(_f["wage_plan_forecast"]["total_wages"])
+    F[_c]["inc"] = F[_c]["inc"][:4] + list(_f["income_total_forecast"])
+    F[_c]["w2r"] = F[_c]["w2r"][:4] + list(_f["wage_plan_forecast"]["wage_to_revenue_pct"])
 def w2r_est(c):
     f = F[c]; tot = G[c]["rost"][-1] + FIXED; allowed_tot = f["allow"]["2026-11"] + FIXED
     return round(f["w2r"][4] * tot / allowed_tot, 1), tot, allowed_tot
@@ -289,7 +299,7 @@ def this_month(c):
                  how([("Cost of an hour", f"October's wages {k(F[c]['wages'][3])} ÷ October's rostered hours {m['oct_h']:,.0f} = <b>${m['rate']:.0f}</b> (all staff, on-costs, fixed roles and accruals in)"),
                       ("Hours so far", f"{m['used']:,.0f} rostered hrs over {m['nd']} open days = {m['pace']:.0f} a day"),
                       ("Heading for", f"{m['pace']:.0f} × {OPEN_DAYS} open days × ${m['rate']:.0f} = <b>{k(m['heading'])}</b>"),
-                      ("Forecast", f"cash flow model, November: wages {k(m['fw'])}, income {k(m['fi'])}"),
+                      ("Forecast", f"November wages {k(m['fw'])}, income {k(m['fi'])}, from the " + MODEL_TAG),
                       ("To land on forecast", f"{k(m['fw'])} ÷ ${m['rate']:.0f} = {m['allow_h']:,.0f} hrs for the month; less {m['used']:,.0f} used = {m['allow_h']-m['used']:,.0f} ÷ {m['left']} days = <b>{m['land']:.0f} a day</b>"),
                       ("Income", "held at the forecast; bookings are tracking October. Becomes booked fees to date once the daily fees feed is in")],
                      "Heading for is ±5%: the cost of an hour moves with leave and accruals. Days ahead repeat this month's pace until the roster is entered. A flag for checking, not a hard limit."))
@@ -354,7 +364,7 @@ def panel(c, parts=False):
                f"Jul–Oct actual · Nov estimate · Dec–Jun forecast · year {100*sum(f['wages'])/sum(f['inc']):.0f}%" + w2r_so(c, f),
                how([("Jul–Oct", "Xero: wages net of the grant ÷ income, as in the cash flow model; reconciles to the Panel reports within about a point"),
                     ("Nov estimate (~)", f"heading-for wages ${md['heading']/1e3:.0f}k (from This month above) ÷ forecast income ${f['inc'][4]/1e3:.0f}k = <b>{est}%</b>. Same figure as This month. An estimate only; Xero replaces it at close"),
-                    ("Dec–Jun", "the cash flow model's wages ÷ income (Financial Model v2.0, 9 Nov)"),
+                    ("Dec–Jun", "wage to revenue as given by the " + MODEL_TAG),
                     ("Year", f"model wages ${sum(f['wages'])/1e6:.2f}m ÷ income ${sum(f['inc'])/1e6:.2f}m")]))
     # 1b This month, day by day
     chk, mtd, done, ahead, dsvg, base = month_daily(c)

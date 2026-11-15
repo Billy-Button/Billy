@@ -126,9 +126,9 @@ def fc_stats(s):
     w60 = sum(1 for r in got if r[5] <= FAST); w10 = sum(1 for r in got if r[5] <= 10)
     med = f" · median {plain(st.median(r[5] for r in got))}" if got else ""
     return 100 * w60 / n, f"{w60} of {n} enquiries · within 10 min {100*w10/n:.0f}%{med}"
-def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), groups=None, avgname="3-mth average", pct=False, fname="Forecast", zoom=False, ghost=0, fill=None, refs=None):
+def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, marks=(), groups=None, avgname="3-mth average", pct=False, fname="Forecast", zoom=False, ghost=0, fill=None, refs=None, compact=False, tall=False, line=None, linename=""):
     fill = fill or {}; refs = refs or {}
-    W, H, L, R, T, B = 340, (124 if groups else 112), 4, 84, 22, (28 if groups else 16)
+    W, H, L, R, T, B = 340, (170 if tall else (96 if groups else 84) if compact else (124 if groups else 112)), 4, 84, (14 if compact else 22), (28 if groups else 16)
     vv = sorted(v for v in vals if v is not None)
     med = vv[len(vv) // 2] if vv else 0
     cap = max(3 * med, med + 4) if not (lower and tgt is not None) else max(3 * med, med + 4, 3 * tgt)   # a bar above this is unusual: it runs off the top
@@ -172,6 +172,18 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
                 g += f'<line x1="{xa:.1f}" y1="{H-13}" x2="{xb:.1f}" y2="{H-13}" stroke="{INK}" opacity=".25"/>'
                 g += f'<text x="{(xa+xb)/2:.1f}" y="{H-3}" text-anchor="middle" font-size="8.5" font-weight="700" fill="{INK}" opacity=".6">{groups[i0]}</text>'
                 i0 = j
+    yl_end = None
+    if line:
+        lv = [v for v in line if v is not None]; lo_, hi_ = min(lv), max(lv); pad = max((hi_ - lo_) * .25, 1)
+        yl = lambda v: T + 4 + (H - T - B - 8) * (1 - (v - (lo_ - pad)) / ((hi_ + pad) - (lo_ - pad)))
+        pts = [(L + i * bw + bw / 2, yl(v)) for i, v in enumerate(line) if v is not None]
+        g += f'<polyline points="{" ".join(f"{x:.1f},{y:.1f}" for x, y in pts)}" fill="none" stroke="#5E80A0" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+        for x, y in pts: g += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.2" fill="#5E80A0" stroke="#FBF6EE" stroke-width="1"/>'
+        yl_end = pts[-1][1]
+        idx = [i for i, v in enumerate(line) if v is not None]; ilo = min(idx, key=lambda i: line[i]); ihi = max(idx, key=lambda i: line[i])
+        for i, dy in ((ilo, 11), (ihi, -6)):
+            if i == idx[-1]: continue
+            g += f'<text x="{L + i * bw + bw / 2:.1f}" y="{yl(line[i]) + dy:.1f}" text-anchor="middle" font-size="8.5" font-weight="800" fill="#3f5f7d" stroke="#FBF6EE" stroke-width="2.8" paint-order="stroke">{line[i]:.0f}%</text>'
     la, lt = ya, yt
     if ya is not None and yt is not None and abs(la - lt) < 21:
         mid = (ya + yt) / 2; up_a = ya <= yt
@@ -180,6 +192,11 @@ def bars(labels, vals, avg, tgt, tlab, fmtv=lambda v: f"{v:g}", lower=False, mar
     if ya is not None:
         g += f'<text x="{W-R+5}" y="{la+1:.1f}" font-size="8.5" font-weight="700" fill="{SOFT}">{fname} {fmtv(avg)}</text>'
         g += f'<text x="{W-R+5}" y="{la+9.5:.1f}" font-size="6.8" font-weight="600" fill="{SOFT}">= {avgname}</text>'
+    if yl_end is not None:
+        ly = yl_end
+        if la is not None and abs(ly - la) < 20: ly = la - 20 if yl_end <= la else la + 22
+        g += f'<text x="{W-R+5}" y="{ly+1:.1f}" font-size="8.5" font-weight="700" fill="#5E80A0">{linename} {line[-1]:.0f}%</text>'
+        g += f'<text x="{W-R+5}" y="{ly+9.5:.1f}" font-size="6.8" font-weight="600" fill="#5E80A0">low {min(lv):.0f}% · high {max(lv):.0f}%</text>'
     return f'<svg class="pm-ch" viewBox="0 0 {W} {H}">{g}</svg>'
 def fmt1(v): return f"{v:.1f}".rstrip("0").rstrip(".")
 def fhrs(v): return f"{v*60:.0f}m" if v < 1 else f"{v:.0f}h"
@@ -280,9 +297,32 @@ def forecast(c):
                         f'The forecast model starts families who enquire in October, November and December in February, so these enquiries show up in February occupancy, not before. '
                         f'December and January are usually quieter; the rule does not allow for that.')
     return f'<div class="pd"><ul class="pd-l">{rows}</ul>{note}</div>'
+
+# ---- Summary: last week against the 13-week average. Actuals only; the Financial Model holds no enquiry or tour figures. ----
+def summary(c):
+    rows = ""
+    for k, label, unit, _ in ROWS:
+        if k not in ("enq", "ts", "tc", "ec", "st"): continue
+        vals = [ev(c, w, k) for w in WEEKS]; v = vals[-1]; avg = sum(vals) / len(vals)
+        ar = '<span class="pd-ar lvl">● level</span>' if abs(v - avg) < 0.5 else ('<span class="pd-ar up">▲ above</span>' if v > avg else '<span class="pd-ar dn">▼ below</span>')
+        rows += (f'<li class="pd-r"><div class="pd-t"><b>{label}</b></div><div class="pd-b"><div class="pd-n">{v:g}</div><div class="pd-s">13-week average {fmt1(avg)} a week</div>{ar}</div>'
+                 + det([("Last week:", f"{v:g} in the week ending {fd(WEEKS[-1][-1])}."), ("Average:", f"{fmt1(avg)} a week over the 13 weeks shown on the Week tab."), ("Measure:", f"{unit}. {DEF[k]}")]) + '</li>')
+    w, out, inh = waiting(c)
+    rows += (f'<li class="pd-r"><div class="pd-t"><b>Waiting for first contact</b></div><div class="pd-b"><div class="pd-n">{w}</div><div class="pd-s">as at this morning</div></div>'
+             + det([("Measure:", "enquiries with no first contact logged yet. The detail is on the Yesterday tab.")]) + '</li>')
+    from kpi.pending_followup import PF, SNAP as PSNAP
+    pf = PF[c]; nrec = sum(v[0] for v in pf.values())
+    why = " · ".join(f"{v[0]} {k}" for k, v in (("past start", pf["past"]), ("no start date", pf["no date"]), ("no days", pf["no days"])) if v[0])
+    rows += (f'<li class="pd-r pf-flag"><div class="pd-t"><b>Pending records to update in Owna</b></div><div class="pd-b"><div class="pd-n">{nrec}</div><div class="pd-s">{why or "none"}</div></div>'
+             + det([("Why it matters:", "these families have a form in but no usable start date or days, so the Base Case counts them as nil. Updating them in Owna puts them back in."),
+                    ("Past start date:", "the start date has passed and the child has not started."), ("No start date:", "no start date recorded."), ("No days:", "no days a week requested."),
+                    ("Source:", f"Owna via the Billy Button dashboard, as at {PSNAP}. The dashboard gives counts only; the list by record number is to come from Dima.")]) + '</li>')
+    return (f'<div class="pd"><ul class="pd-l">{rows}</ul>'
+            + about("Last week against the 13-week average, from LineLeader and Owna. There is no forward view here: the Financial Model does not yet hold enquiry or tour figures.") + '</div>')
 css = """
 .pfbar{position:sticky;top:var(--tb,64px);z-index:5;background:var(--cream);box-shadow:0 6px 8px -8px rgba(43,35,32,.25)}
 .pfbar .toggle{position:static;box-shadow:none}
+.pf-flag .pd-n{color:#A45823}
 .pdtabs{display:flex;gap:0;margin:0 18px 8px;border:1.5px solid var(--earth);border-radius:10px;overflow:hidden}
 .pdtabs button{flex:1 1 0;font:inherit;font-weight:800;font-size:13px;padding:7px 4px;border:0;background:transparent;color:var(--earth);cursor:pointer}
 .pdtabs button+button{border-left:1.5px solid var(--earth)}
@@ -310,12 +350,12 @@ css = """
 .pm-ch{display:block;width:100%;height:auto;margin-top:6px}
 """
 js = """
-  (function(){ var c='sm', p='w';
-    function show(){ ['sm','cb'].forEach(function(a){ ['d','w','m','f'].forEach(function(b){ var e=document.getElementById('pf-'+a+'-'+b); if(e) e.hidden=!(a===c&&b===p); }); });
+  (function(){ var c='sm', p='s';
+    function show(){ ['sm','cb'].forEach(function(a){ ['s','d','w','m'].forEach(function(b){ var e=document.getElementById('pf-'+a+'-'+b); if(e) e.hidden=!(a===c&&b===p); }); });
       var s=document.getElementById('pf-sub'); if(s) s.textContent=s.getAttribute('data-'+p);
       window.scrollTo(0,0); }
     Array.prototype.slice.call(document.querySelectorAll('.toggle.pf button')).forEach(function(t){ t.addEventListener('click', function(){ c=t.dataset.pf==='pf-cb'?'cb':'sm'; show(); }); });
-    var pt=Array.prototype.slice.call(document.querySelectorAll('.pdtabs button'));
+    var pt=Array.prototype.slice.call(document.querySelectorAll('#perf .pdtabs button'));
     pt.forEach(function(t){ t.addEventListener('click', function(){ pt.forEach(function(x){ x.setAttribute('aria-selected', x===t?'true':'false'); }); p=t.dataset.pd; show(); }); });
   })();
 """

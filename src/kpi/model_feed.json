@@ -1,0 +1,184 @@
+{
+ "_copied_from": "project doc claude/model/billy-feed.json as read 15 Nov 26 pm; values copied, none calculated",
+ "model": "Billy Button Financial Model",
+ "version": "v3.2",
+ "status": "Working reference: draft, not yet validated by SW",
+ "qualifier": "Wages follow the roster step rule (the likely case), conditional on the roster review with the Managing Director.",
+ "issued": "2026-11-15 (reissued 15 Nov 26 pm: five-year view and budget added)",
+ "position_at": "bank and bookings at 15 Nov 26; Xero actuals to 31 Oct 26",
+ "source_file": "261115 - Billy Button - Financial Model - position at 31 Oct 26 - v3.2 DRAFT.xlsx",
+ "definitions": {
+  "spot": "one child booked for one day a week",
+  "occupancy": "long day care spots a week, casual included, divided by capacity (licensed places x 5)",
+  "base_case": "this week's permanent spots, less leavers and fewer days at the last 12 weeks' rate, plus extra days, less school leavers, plus casual spots, plus pending families on their Owna start date (pulled through in full; form in at the last 12 weeks' pull rate). No new enrolments from enquiries.",
+  "forecast": "the last 12 weeks projected forward, with nothing assumed to improve: the base case plus new enrolments from enquiries at the last 12 weeks' rate (October to January enquiries start in the first two weeks of February), plus sessional kinder from February",
+  "target": "forecast plus the extra spots to reach South Morang 85% and Craigieburn 70% (including sessional kinder) by 30 Jun 27: nothing before February, 66% of the gap in February, the balance evenly March to June",
+  "occupancy_incl_sessional": "long day care spots plus sessional kinder children x 2 days, divided by capacity. The 85% and 70% targets are on this basis.",
+  "week": "Monday to Sunday; a week belongs to the month it ends in",
+  "forecast_plain": "If we keep performing as we have for the last three months, this is where we land.",
+  "budget": "the FY27 budget signed 30 Apr 26; FY27 only, no approved budget beyond"
+ },
+ "months": ["Nov","Dec","Jan","Feb","Mar","Apr","May","Jun"],
+ "centres": {
+  "South Morang": {
+   "capacity_spots_a_week": 540,
+   "monthly_closing": {
+    "spots": {
+     "base_case": [420.9,375.8,329.1,314.1,308.0,304.9,297.3,291.2],
+     "forecast": [420.9,375.8,329.1,358.0,362.9,370.8,374.2,379.1],
+     "target": [420.9,375.8,329.1,381.7,389.7,400.6,407.1,415]
+    },
+    "occupancy_pct": {
+     "base_case": [77.9,69.6,60.9,58.2,57.0,56.5,55.1,53.9],
+     "forecast": [77.9,69.6,61.0,66.3,67.2,68.7,69.3,70.2],
+     "target": [77.9,69.6,60.9,70.7,72.2,74.2,75.4,76.9]
+    },
+    "increments_spots": {
+     "forecast_over_base": [0.0,0.0,0.0,43.9,54.9,65.9,76.9,87.9],
+     "target_over_forecast": [0.0,0.0,-0.0,23.7,26.8,29.8,32.9,35.9]
+    },
+    "sessional_kinder_children": [0,0,0,11,16,22,22,22],
+    "occupancy_incl_sessional_pct": {
+     "forecast": [77.9,69.6,61.0,70.4,73.1,76.8,77.4,78.3],
+     "target": [77.9,69.6,60.9,74.8,78.1,82.3,83.5,85.0]
+    }
+   },
+   "weekly": {
+    "spots": {
+     "base_case": [423.9,422.4,420.9,409.1,399.3,387.5,375.8,365.2,356.7,346.2,339.7,329.1,326.4,325.6,319.8,314.1,312.5,311.0,309.5,308.0,309.4,307.9,306.4,304.9,303.3,301.8,300.3,298.8,297.3,295.7,294.2,292.7,291.2],
+     "forecast": [423.9,422.4,420.9,409.1,399.3,387.5,375.8,365.2,356.7,346.2,339.7,329.1,348.3,369.5,363.8,358.0,359.2,360.4,361.7,362.9,367.1,368.3,369.6,370.8,371.5,372.1,372.8,373.5,374.2,375.4,376.6,377.8,379.1],
+     "target": [423.9,422.4,420.9,409.1,399.3,387.5,375.8,365.2,356.7,346.2,339.7,329.1,354.3,381.4,381.6,381.7,383.7,385.7,387.7,389.7,394.7,396.6,398.6,400.6,401.9,403.2,404.5,405.8,407.1,409.0,411.0,413.0,415.0]
+    }
+   },
+   "flows_monthly": {
+    "extra_days": [3.8,5.5,6.9,5.5,5.5,5.5,6.9,5.5],
+    "leavers_and_fewer_days": [15.8,11.6,14.5,11.6,11.6,11.6,14.5,11.6],
+    "school_leavers": [1,41,45,17,0,0,0,0],
+    "pending_starts": [0,2,6,8,0,3,0,0],
+    "new_enrolments_from_enquiries": [1,0,0,43.9,11.0,11.0,11.0,11.0],
+    "new_enrolments_from_enquiries_note": "November includes new children who started 1 to 13 Nov (actual), which sit in the base case"
+   },
+   "pending": {
+    "pulled_through_spots": 11,
+    "form_in_spots_before_conversion": 8,
+    "pull_rate_last_12_weeks": 1.0,
+    "excluded_for_follow_up": {"records": 2, "spots_recorded": 2, "reason": "start date already past with no start, no start date, or no days recorded; counted as nil until updated in Owna"},
+    "source": "Owna via the Dashboard, 15 Nov 26"
+   },
+   "wage_plan_forecast": {
+    "educator_steps_from_base_roster": [1,-1,-3,-2,-2,-2,-2,-2],
+    "total_wages": [196466,209216,179523,177229,202502,194077,185653,194077],
+    "wage_to_revenue_pct": [59.3,67.5,65.0,60.2,67.6,59.4,59.3,61.4]
+   },
+   "income_total_forecast": [331425,309804,276386,294512,299412,326579,312911,316146],
+   "ebitda_forecast": [29940,-2269,-2652,22982,2322,38432,33730,28217],
+   "ebitda_target": [29940,-2269,-2652,33810,14043,59297,44454,40426]
+  },
+  "Craigieburn": {
+   "capacity_spots_a_week": 870,
+   "monthly_closing": {
+    "spots": {
+     "base_case": [321.0,288.8,250.2,240.5,234.1,229.0,221.0,214.6],
+     "forecast": [321.0,288.8,250.2,305.2,315.0,326.1,334.3,344.1],
+     "target": [321.0,288.8,250.2,422.0,446.8,472.9,496.2,521]
+    },
+    "occupancy_pct": {
+     "base_case": [36.9,33.2,28.8,27.6,26.9,26.3,25.4,24.7],
+     "forecast": [36.9,33.2,28.8,35.1,36.2,37.5,38.4,39.6],
+     "target": [36.9,33.2,28.8,48.5,51.4,54.4,57.0,59.9]
+    },
+    "increments_spots": {
+     "forecast_over_base": [0.0,0.0,0.0,64.7,80.9,97.1,113.3,129.5],
+     "target_over_forecast": [-0.0,0.0,-0.0,116.8,131.8,146.8,161.9,176.9]
+    },
+    "sessional_kinder_children": [0,0,0,22,33,44,44,44],
+    "occupancy_incl_sessional_pct": {
+     "forecast": [36.9,33.2,28.8,40.1,43.8,47.6,48.5,49.7],
+     "target": [36.9,33.2,28.8,53.6,58.9,64.5,67.1,70.0]
+    }
+   },
+   "weekly": {
+    "spots": {
+     "base_case": [314.3,321.6,321.0,316.8,307.5,298.1,288.8,280.2,271.6,266.2,258.8,250.2,251.9,250.2,245.4,240.5,238.9,237.4,235.8,234.2,233.8,232.2,230.6,229.1,227.5,225.9,224.3,222.7,221.1,219.5,217.9,216.3,214.7],
+     "forecast": [314.3,321.6,321.0,316.8,307.5,298.1,288.8,280.2,271.6,266.2,258.8,250.2,284.3,314.9,310.1,305.2,307.7,310.1,312.6,315.0,318.8,321.2,323.7,326.1,327.8,329.4,331.0,332.7,334.3,336.8,339.2,341.7,344.1],
+     "target": [314.3,321.6,321.0,316.8,307.5,298.1,288.8,280.2,271.6,266.2,258.8,250.2,313.4,373.3,397.6,422.0,428.2,434.4,440.6,446.8,454.3,460.5,466.7,472.9,477.6,482.2,486.9,491.5,496.2,502.4,508.6,514.8,521.0]
+    }
+   },
+   "flows_monthly": {
+    "extra_days": [5.8,5.5,6.9,5.5,5.5,5.5,6.9,5.5],
+    "leavers_and_fewer_days": [12.0,11.9,14.9,11.9,11.9,11.9,14.9,11.9],
+    "school_leavers": [0,31,35,13,0,0,0,0],
+    "pending_starts": [9.9,5.2,4.4,9.7,0,1.3,0,0],
+    "new_enrolments_from_enquiries": [14,0,0,64.7,16.2,16.2,16.2,16.2],
+    "new_enrolments_from_enquiries_note": "November includes new children who started 1 to 13 Nov (actual), which sit in the base case"
+   },
+   "pending": {
+    "pulled_through_spots": 14,
+    "form_in_spots_before_conversion": 26,
+    "pull_rate_last_12_weeks": 0.63,
+    "excluded_for_follow_up": {"records": 11, "spots_recorded": 1, "reason": "start date already past with no start, no start date, or no days recorded; counted as nil until updated in Owna"},
+    "source": "Owna via the Dashboard, 15 Nov 26"
+   },
+   "wage_plan_forecast": {
+    "educator_steps_from_base_roster": [0,0,-1,0,0,0,0,0],
+    "total_wages": [164223,182454,160988,185912,209206,201441,193677,201441],
+    "wage_to_revenue_pct": [64.1,74.7,74.3,70.8,75.4,62.4,64.3,65.4]
+   },
+   "income_total_forecast": [256298,244366,216768,262430,277623,323003,301119,308067],
+   "ebitda_forecast": [-29438,-58408,-61780,-38155,-47302,5332,-8011,-9522],
+   "ebitda_target": [-29438,-58408,-61780,12210,26615,89138,69996,71086]
+  }
+ },
+ "weeks_ending": ["2026-11-15","2026-11-22","2026-11-29","2026-12-06","2026-12-13","2026-12-20","2026-12-27","2027-01-03","2027-01-10","2027-01-17","2027-01-24","2027-01-31","2027-02-07","2027-02-14","2027-02-21","2027-02-28","2027-03-07","2027-03-14","2027-03-21","2027-03-28","2027-04-04","2027-04-11","2027-04-18","2027-04-25","2027-05-02","2027-05-09","2027-05-16","2027-05-23","2027-05-30","2027-06-06","2027-06-13","2027-06-20","2027-06-27"],
+ "caae_line": {
+  "basis": "if CAAE funds every shortfall; funding drawn to hold a $20,000 minimum bank; not repaid within the year in this model",
+  "opening_principal_15_nov_26": 1811150,
+  "loan_limit_principal": 1900000,
+  "monthly": {
+   "forecast": {"drawdown_needed": [85550,64736,101968,35452,53802,22741,5694,0], "cumulative_principal": [1896700,1961436,2063404,2098856,2152658,2175399,2181093,2181093]},
+   "target": {"drawdown_needed": [85550,64736,101968,0,0,0,0,0], "cumulative_principal": [1896700,1961436,2063404,2063404,2063404,2063404,2063404,2063404]}
+  },
+  "first_week_over_limit": {"forecast": "06 Dec 26", "target": "06 Dec 26"},
+  "capitalised_interest": "6-month bank bill rate + 5%, reset January and July; added to the loan, not paid"
+ },
+ "funding": {
+  "forecast": {"peak_unfunded_capital_need": 281093, "peak_week_ending": "09 May 27", "funding_in_nov_to_jun": 369943, "bank_at_27_jun_27": 217147, "ebitda_full_year": -211676},
+  "target": {"peak_unfunded_capital_need": 163405, "peak_week_ending": "31 Jan 27", "funding_in_nov_to_jun": 252255, "bank_at_27_jun_27": 540761, "ebitda_full_year": 221372}
+ },
+ "wage_range": {
+  "likely_step_rule": {"forecast_peak": 281093, "target_peak": 163405},
+  "low_wages_follow_income": {"forecast_peak": 196706, "target_peak": 139362},
+  "high_no_step_down": {"forecast_peak": 357272, "target_peak": 206479},
+  "note": "Occupancy and every other cost held the same in all three. Settled at the roster review."
+ },
+ "five_year_view": {
+  "years": ["FY23","FY24","FY25","FY26","FY27","FY28","FY29","FY30"],
+  "basis": {
+   "FY23-FY26": "actual (client workbook history on the Dashboard)",
+   "FY27": "Jul-Oct 26 Xero actuals plus the model to Jun 27",
+   "FY28-FY30": "Outlook FY28-FY30 sheet: fees and wages +3.5% a year, rent and overheads +3%, same wage step rule, summer dip"
+  },
+  "caveat": "Craigieburn Forecast FY28-FY30 still uses a placeholder path to 70% by Sep 28, not the 12-week trend; to be re-run. Show it labelled 'placeholder path' until then.",
+  "centres": {
+   "South Morang": {
+    "actual": {"ebitda": [714610,834616,945942,621689,null,null,null,null], "income": [3523240,4039011,4080503,3932253,null,null,null,null], "margin_pct": [20.3,20.7,23.2,15.8,null,null,null,null]},
+    "forecast": {"ebitda": [null,null,null,null,302580,293987,327302,342594], "income": [null,null,null,null,3812458,3862632,3997824,4137747], "margin_pct": [null,null,null,null,7.9,7.6,8.2,8.3]},
+    "target": {"ebitda": [null,null,null,null,368927,508959,550424,573848], "income": [null,null,null,null,3927791,4209676,4357015,4509511], "margin_pct": [null,null,null,null,9.4,12.1,12.6,12.7]},
+    "budget": {"ebitda": [null,null,null,null,658833,null,null,null], "income": [null,null,null,null,4035750,null,null,null], "margin_pct": [null,null,null,null,16.3,null,null,null]}
+   },
+   "Craigieburn": {
+    "actual": {"ebitda": [null,null,null,-681857,null,null,null,null], "income": [null,null,null,816933,null,null,null,null], "margin_pct": [null,null,null,-83.5,null,null,null,null]},
+    "forecast": {"ebitda": [null,null,null,null,-514257,264569,873488,921088], "income": [null,null,null,null,3135513,4294803,5523210,5752116], "margin_pct": [null,null,null,null,-16.4,6.2,15.8,16.0]},
+    "target": {"ebitda": [null,null,null,null,-147554,871811,929423,967114], "income": [null,null,null,null,3657843,5424485,5614342,5810844], "margin_pct": [null,null,null,null,-4.0,16.1,16.6,16.6]},
+    "budget": {"ebitda": [null,null,null,null,297716,null,null,null], "income": [null,null,null,null,4807967,null,null,null], "margin_pct": [null,null,null,null,6.2,null,null,null]}
+   }
+  }
+ },
+ "loan_outlook_forecast": {
+  "first_repayment": "Mar 28",
+  "principal_under_1_9m": "Aug 28",
+  "at_30_jun_30": {"principal": 201948, "capitalised_interest": 986491, "total": 1188439},
+  "repaid_about": "Oct 31",
+  "note": "repayment rule per claude/ffip/261115 - CAAE loan rule and five-year outlook - first cut v0.1.md"
+ }
+}

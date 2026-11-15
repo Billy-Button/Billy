@@ -111,22 +111,23 @@ def perf_rows(c):
     rows = [_rn(by["New enquiries"]), _nb(n["c10"]), _nb(n["ts"]), _rn(by["Tours completed"]),
             _nb(n["of"]), _nb(n["pe"]), _rn(by["Enrolment complete"]), _rn(by["Started"]), _rn(by["Lost spots"])]
     return build_rows(rows)
-sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows(_split(DATA["South Morang"]["rows"])[0]))
-cb_occ = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], build_rows(_split(DATA["Craigieburn"]["rows"])[0]))
+sm_occ = centre(1, "South Morang", DATA["South Morang"]["places"], build_rows([r for r in _split(DATA["South Morang"]["rows"])[0] if r[0] == "q"]))
+cb_occ = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], build_rows([r for r in _split(DATA["Craigieburn"]["rows"])[0] if r[0] == "q"]))
 sm_pf = centre(1, "South Morang", DATA["South Morang"]["places"], perf_rows("South Morang"))
 cb_pf = centre(2, "Craigieburn", DATA["Craigieburn"]["places"], perf_rows("Craigieburn"))
 
 home = f'''
 <section id="home" class="scr">
   <div class="hero">
-    <div class="txt"><div class="hello" id="hello">Hello</div><div class="hello-sub" id="hello-sub">Where wonder leads learning</div></div>
+    <div class="txt"><div class="hello" id="hello">Hello</div><div class="hello-sub" id="hello-sub" style="font-size:16px;white-space:nowrap">Figures to {pl.Y:%a} {pl.Y.day} {pl.Y:%b}</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="Billy Button Early Learning">
   </div>
   <div class="tiles">
-    {tile("report", "Occupancy", "Occupancy to base case, end Feb 27", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
+    {tile("report", "Occupancy", "Summary · Yesterday · Week · Month", ICON_REPORT, "rgba(110,139,87,.18); color:#4d6a3a", "Live", live=True)}
     {tile("wages", "Wages", wg.tile_line(), ICON_KPI, "rgba(164,88,35,.15); color:#7a3f17", "Live", live=True)}
-    {tile("perf", "Pipeline", "Yesterday · Week · Month", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
+    {tile("perf", "Pipeline", "Summary · Yesterday · Week · Month", ICON_FU, "rgba(227,155,45,.2); color:#8a5a10", "Live", live=True)}
     {tile("tours", "Tours", f"SM {tr.CENTRE_PCT['South Morang']}% · CB {tr.CENTRE_PCT['Craigieburn']}% · target 80%", ICON_TR, "rgba(94,128,160,.18); color:#3f5f7d", "Live", live=True)}
+    {tile("forecast", "Forecast", "Occupancy and wages to June", ICON_KPI, "rgba(253,197,70,.5); color:#7a3f17", "Draft")}
     {tile("kpis", "KPIs & Trends", "12 months, centre by centre", ICON_KPI, "rgba(253,197,70,.35); color:#7a5a10", "Live", live=True)}
   </div>
   <div class="home-foot"><span id="who">Billy · Billy Button reporting</span><span>v{ISSUE}</span></div>
@@ -134,12 +135,13 @@ home = f'''
 
 BACK = '<button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>'
 report = ow.occ_section(logo, BACK, sm_occ, cb_occ, legend, foot, WEEK_LABEL)
+forecast = ow.forecast_section(logo, BACK, sm_occ, cb_occ, legend, WEEK_LABEL)
 
 perf = f'''
 <section id="perf" class="scr" hidden>
   <header class="topbar">
     <button class="back" data-go="home" aria-label="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="ttl"><h1>Pipeline</h1><div class="sub" id="pf-sub" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}" data-f="Forecast · {pl.FLAB} · draft">Week ending {pl.WLAB}</div></div>
+    <div class="ttl"><h1>Pipeline</h1><div class="sub" id="pf-sub" data-s="Last week against the average" data-d="Yesterday · {pl.YLAB}" data-w="Week ending {pl.WLAB}" data-m="Month ending {pl.MLAB}">Last week against the average</div></div>
     <img class="logo" src="data:image/png;base64,{logo}" alt="">
   </header>
   <div class="pfbar">
@@ -148,21 +150,21 @@ perf = f'''
     <button type="button" role="tab" aria-selected="false" data-pf="pf-cb">Craigieburn</button>
   </nav>
   <nav class="pdtabs" role="tablist" aria-label="Period">
+    <button type="button" role="tab" aria-selected="true" data-pd="s">Summary</button>
     <button type="button" role="tab" aria-selected="false" data-pd="d">Yesterday</button>
-    <button type="button" role="tab" aria-selected="true" data-pd="w">Week</button>
+    <button type="button" role="tab" aria-selected="false" data-pd="w">Week</button>
     <button type="button" role="tab" aria-selected="false" data-pd="m">Month</button>
-    <button type="button" role="tab" aria-selected="false" data-pd="f">Forecast</button>
   </nav>
   </div>
   <div class="screens">
+    <div id="pf-sm-s" class="screen">{pl.summary("South Morang")}</div>
+    <div id="pf-cb-s" class="screen" hidden>{pl.summary("Craigieburn")}</div>
     <div id="pf-sm-d" class="screen" hidden>{pl.yesterday("South Morang")}</div>
-    <div id="pf-sm-w" class="screen">{pl.week("South Morang")}</div>
+    <div id="pf-sm-w" class="screen" hidden>{pl.week("South Morang")}</div>
     <div id="pf-sm-m" class="screen" hidden>{pl.month("South Morang")}</div>
-    <div id="pf-sm-f" class="screen" hidden>{pl.forecast("South Morang")}</div>
     <div id="pf-cb-d" class="screen" hidden>{pl.yesterday("Craigieburn")}</div>
     <div id="pf-cb-w" class="screen" hidden>{pl.week("Craigieburn")}</div>
     <div id="pf-cb-m" class="screen" hidden>{pl.month("Craigieburn")}</div>
-    <div id="pf-cb-f" class="screen" hidden>{pl.forecast("Craigieburn")}</div>
   </div>
   <details class="foot"><summary>About this screen</summary>
   <p>Figures from the Billy Button dashboard, built overnight. <b>Yesterday</b> is the last working day. <b>Week</b> and <b>Month</b> are pegged to the last complete week and month. The forecast on every chart is the three-month average; the target is the Target case in the forecast model.</p>
@@ -224,6 +226,7 @@ page = f'''<!DOCTYPE html>
 <div class="app">
 {home}
 {report}
+{forecast}
 {perf}
 {tr.section(logo)}
 {cash}
@@ -233,7 +236,7 @@ page = f'''<!DOCTYPE html>
 </div>
 <script>
 (function(){{
-  var scrs = ['home','report','perf','tours','cash','people','kpis','wages'];
+  var scrs = ['home','report','perf','tours','cash','people','kpis','wages','forecast'];
   var screens = {{'south-morang': document.getElementById('south-morang'), 'craigieburn': document.getElementById('craigieburn')}};
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.toggle:not(.fu):not(.tr):not(.pf):not(.kp):not(.wg) button'));
   function showCentre(id, push){{
