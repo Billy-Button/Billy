@@ -1,10 +1,13 @@
-# Enrolled occupancy (headline occupancy)
+# Enrolled occupancy (headline occupancy, as Owna shows it)
 
 Definition (agreed by Cameron 16 Nov 26): booked days a week of every child currently enrolled in Owna,
-including children not yet started, divided by licensed places x 5. Point in time, one decimal.
-Places: South Morang 108, Craigieburn 174. Plus casual days booked in the last full week (see below).
+including children not yet started, plus casual days booked in the last full Mon-Fri week,
+divided by licensed places x 5. Point in time, one decimal. Places: South Morang 108, Craigieburn 174.
 
-Refresh each weekday: run this and rewrite kpi/enrolled.py (SNAP = snapshot_completed_at, AS_AT = as_at).
+Refresh each weekday. Save each result as JSON, then from src:
+  python3 kpi/enrolled_refresh.py enrolled.json casual.json "<snapshot_completed_at>" "<Mon d-Fri d Mon of last full week, e.g. 9-13 Nov>"
+
+enrolled.json:
 
     select centre_key, count(*) children, sum(booked_days_per_week) spots,
      count(*) filter (where active_from > current_date) ns_children,
@@ -12,8 +15,7 @@ Refresh each weekday: run this and rewrite kpi/enrolled.py (SNAP = snapshot_comp
      current_date as_at
     from semantic_v2.owna_child where attending group by 1
 
-Casuals (added 16 Nov at Cameron's request): casual days booked in the last full Mon-Fri week.
-Rewrite CAS and CAS_WEEK in kpi/enrolled.py from:
+casual.json (last full Monday to Friday before today):
 
     select centre_key, sum(casual) cas from semantic_v2.current_owna_occupancy_day
-    where occurred_on between <last Monday> and <last Friday> group by 1
+    where occurred_on between date '<last Monday>' and date '<last Friday>' group by 1
