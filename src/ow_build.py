@@ -5,6 +5,7 @@ import occ as O
 import pipeline_build as pl
 import wages_build as wg
 PLACES = {"South Morang": 108, "Craigieburn": 174}
+import kpi.enrolled as EN, datetime as _dt
 OCC_T = {"South Morang": 85, "Craigieburn": 70}
 DAY = {}
 for c, d, b, a, k, h in O.D: DAY[(c, dt.date.fromisoformat(d))] = (b or 0, a or 0, k or 0, h or 0)
@@ -38,7 +39,7 @@ OD = {"occ": "All Owna booked child-days, casual days included, ÷ licensed plac
       "cas": "Casual days booked in Owna. They are inside the occupancy figure.",
       "net": "Spots gained from children starting, less spots lost from children leaving (school leavers apart). The detail is on the Pipeline screen."}
 def first_chart(c, now, nxt):
-    lv = [fo(c, k) for k in LAYERS]; cols = [("Last week", None)] + [(FM_[i], i) for i in nxt]
+    lv = [fo(c, k) for k in LAYERS]; cols = [("Enrolled", None)] + [(FM_[i], i) for i in nxt]
     W, H, L, R, T, B = 340, 150, 4, 4, 22, 18; bw = (W - L - R) / len(cols); hi = max([now] + [lv[2][i] for i in nxt]) * 1.1
     ys = lambda p: T + (H - T - B) * (1 - p / hi); y0 = H - B; g = ""
     for j, (lab, i) in enumerate(cols):
@@ -71,16 +72,19 @@ def occ_yesterday(c):
 def occ_summary(c):
     if not REG_OK: return pending_note()
     nxt = list(range(NOWI + 1, NOWI + 4)); bc = fo(c, "base_case"); now = occ_pct(c, pl.WEEKS[-1])
-    ch = f'<div class="fc-leg"><span><i style="background:{pl.INK};opacity:.78"></i>Actual</span>{LEG3}</div>' + first_chart(c, now, nxt)
+    ch = f'<div class="fc-leg"><span><i style="background:{pl.INK};opacity:.78"></i>Enrolled</span>{LEG3}</div>' + first_chart(c, 100 * (EN.E[c][1] + EN.CAS[c]) / (PLACES[c] * 5), nxt)
+    en, es, nn, ns = EN.E[c]; ca = EN.CAS[c]; ep = 100 * (es + ca) / (PLACES[c] * 5); ad = _dt.date.fromisoformat(EN.AS_AT)
     top = (f'<li class="pd-r oc-first"><div class="pd-t"><b>Occupancy</b></div>'
-           f'<div class="fc-hd"><div><span>Last week</span><b>{now:.0f}%</b><em>Owna, to {pl.WEEKS[-1][-1]:%a} {pl.WEEKS[-1][-1].day} {pl.WEEKS[-1][-1]:%b}</em></div><div class="ar">→</div>'
+           f'<div class="fc-hd"><div><span>Enrolled</span><b>{ep:.1f}%</b><em>{es+ca:.0f} of {PLACES[c]*5} spots, as at {ad:%a} {ad.day} {ad:%b}</em></div><div class="ar">→</div>'
            f'<div class="k"><span>Base Case, end {FM_[nxt[-1]]}</span><b>{bc[nxt[-1]]:.0f}%</b><em>end {FM_[nxt[0]]} {bc[nxt[0]]:.0f}% · {FM_[nxt[1]]} {bc[nxt[1]]:.0f}%</em></div></div>{ch}'
-           f'<p class="oc-def">{DEF_BASE}</p><p class="oc-def">{DEF_REST}</p><p class="mtag">{MODEL_TAG}</p>'
-           + pl.det([("Last week:", f"booked child-days, casual days included, over {PLACES[c]} places × open days. From Owna."),
+           f'<p class="oc-def"><b>Enrolled occupancy</b> is the booked days a week of every child enrolled in Owna, including {nn} not yet started ({ns:.0f} spots), plus last week\'s {ca} casual days ({EN.CAS_WEEK}), ÷ {PLACES[c]} licensed places × 5. Without casuals: {100*es/(PLACES[c]*5):.1f}%.</p>'
+           + f'<p class="oc-def">{DEF_BASE}</p><p class="oc-def">{DEF_REST}</p><p class="mtag">{MODEL_TAG}</p>'
+           + pl.det([("Enrolled:", f"{en} children enrolled in Owna, {es:.0f} booked days a week, including {nn} children not yet started, plus {ca} casual days last week ({EN.CAS_WEEK}). Dashboard snapshot {EN.SNAP[:10]}."),
+                     ("Last week:", f"booked child-days, casual days included, over {PLACES[c]} places × open days: {now:.1f}%. From Owna."),
                      ("Basis:", "long day care spots a week, casual included, over licensed places × 5. Each month is the position at the end of that month."),
                      ("Columns:", f"each of the next three months, from the Financial Model. The white number is the Base Case; the +numbers are the points the {FCL} and the Target add. The levels are from the model; each +number is the difference between one level and the next."),
                      ("More:", "every month to June is on the Forecast screen.")]) + '</li>')
-    return f'<div class="pd"><ul class="pd-l">{top}</ul>' + pl.about("Last week is from Owna. The three months ahead are from the Financial Model; the app calculates none of them.") + '</div>'
+    return f'<div class="pd"><ul class="pd-l">{top}</ul>' + pl.about("Enrolled and last week are from Owna. The three months ahead are from the Financial Model; the app calculates none of them.") + '</div>'
 def occ_charts(c, periods, labels, groups, marks, n_avg, word):
     occ = [occ_pct(c, p) for p in periods]
     came = [100 * tot(c, odays(p), 1) / tot(c, odays(p), 0) if tot(c, odays(p), 0) else None for p in periods]
