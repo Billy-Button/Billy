@@ -3,7 +3,7 @@
 SNAP = "2026-11-17T03:08:05+11:00"
 AS_AT = "2026-11-17"
 # centre: (children, booked spots a week, not-yet-started children, their spots)
-E = {"Craigieburn": (106, 317.0, 4, 7.0), "South Morang": (152, 427.0, 4, 11.0)}
+E = {'Craigieburn': (106, 317.0, 4, 7.0), 'South Morang': (152, 427.0, 4, 11.0)}
 # casual days booked in the last full week (Mon-Fri), current_owna_occupancy_day.casual
 CAS_WEEK = "9-13 Nov"
-CAS = {"Craigieburn": 7, "South Morang": 9}
+CAS = {'South Morang': 9, 'Craigieburn': 7}
