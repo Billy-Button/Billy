@@ -24,7 +24,7 @@ def yday(c):
     lo_s, lo_c = ev(c, [DAY], 'lo'), ev(c, [DAY], 'lo', 1)
     wk = ev(c, WK, 'pe', 1) + ev(c, WK, 'st') - ev(c, WK, 'lo')
     return dict(pe=(pe_f, pe_s), st=(st_c, st_s), lo=(lo_c, lo_s), net=pe_s + st_s - lo_s, wk=wk,
-                enq=ev(c, [DAY], 'enq'), ts=ev(c, [DAY], 'ts'), of=ev(c, [DAY], 'of'))
+                enq=ev(c, [DAY], 'enq'), tc=ev(c, [DAY], 'tc'), ts=ev(c, [DAY], 'ts'), of=ev(c, [DAY], 'of'))
 Yd = {k: yday(n) for k, n, _ in CEN}
 def verdict(net, gains, losses):
     if gains == 0 and losses == 0: return "Quiet day", "#8a837b"
@@ -39,9 +39,10 @@ def yd_card():
         pe_f = sum(v['pe'][0] for v in vals); pe_s = sum(v['pe'][1] for v in vals)
         st_c = sum(v['st'][0] for v in vals); st_s = sum(v['st'][1] for v in vals)
         lo_c = sum(v['lo'][0] for v in vals); lo_s = sum(v['lo'][1] for v in vals)
-        wk = sum(v['wk'] for v in vals); enq = sum(v['enq'] for v in vals); ts = sum(v['ts'] for v in vals)
+        wk = sum(v['wk'] for v in vals); enq = sum(v['enq'] for v in vals); ts = sum(v['ts'] for v in vals); tc = sum(v['tc'] for v in vals)
         split = "" if scope != "both" else f' <span class="mk-sub">(SM {Yd["sm"]["net"]:+g}, CB {Yd["cb"]["net"]:+g})</span>'
         rows = (f'<tr><td>{'✅' if enq else '◦'} New enquiries</td><td>{enq:g}</td><td></td></tr>'
+                f'<tr><td>{'✅' if tc else '◦'} Tours completed</td><td>{tc:g}</td><td></td></tr>'
                 f'<tr><td>{'✅' if pe_s else '◦'} New pending <small>forms in</small></td><td>{pe_f:g}</td><td class="{"pos" if pe_s else ""}">{("+%g" % pe_s) if pe_s else "0"}</td></tr>'
                 f'<tr><td>{'✅' if st_s else '◦'} Pending → enrolled <small>started</small></td><td>{st_c:g}</td><td class="{"pos" if st_s else ""}">{("+%g" % st_s) if st_s else "0"}</td></tr>'
                 f'<tr><td>{'⚠️' if lo_s else '◦'} Left</td><td>{lo_c:g}</td><td class="{"neg" if lo_s else ""}">{("−%g" % lo_s) if lo_s else "0"}</td></tr>'
