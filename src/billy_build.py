@@ -301,4 +301,6 @@ if __name__ == "__main__":
     import os as _os; out = pathlib.Path(_os.environ.get("BILLY_OUT", "/mnt/user-data/outputs")); out.mkdir(parents=True, exist_ok=True)
     p = out / f"261106 - Billy app - v{ISSUE}.html"
     p.write_text(page, encoding="utf-8")
-    print(p, len(page)//1024, "KB")
+    import subprocess as _sp, sys as _sys
+    _sp.run([_sys.executable, str(pathlib.Path(__file__).resolve().parent / "home_build.py"), str(p), str(p)], check=True)
+    print(p, p.stat().st_size//1024, "KB")
