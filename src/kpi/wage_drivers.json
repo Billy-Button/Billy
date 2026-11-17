@@ -1,0 +1,130 @@
+{
+"snap": "2026-11-16T03:06:27+11:00",
+"note": "owna_month_end worked_hours, paid_leave_hours; booked child-days Mon-Fri less Vic public holidays; open days",
+"months": {
+"South Morang": {
+"2025-11": {
+"worked": 3499.5,
+"leave": 346.9,
+"bcd": 1797,
+"open_days": 19
+},
+"2025-12": {
+"worked": 3696.8,
+"leave": 233.6,
+"bcd": 1973,
+"open_days": 21
+},
+"2026-01": {
+"worked": 3358.6,
+"leave": 249.6,
+"bcd": 1792,
+"open_days": 20
+},
+"2026-02": {
+"worked": 3635.3,
+"leave": 122.8,
+"bcd": 1620,
+"open_days": 20
+},
+"2026-03": {
+"worked": 3743.3,
+"leave": 217.5,
+"bcd": 1694,
+"open_days": 21
+},
+"2026-04": {
+"worked": 3723.0,
+"leave": 302.7,
+"bcd": 1687,
+"open_days": 20
+},
+"2026-05": {
+"worked": 3392.4,
+"leave": 386.5,
+"bcd": 1669,
+"open_days": 21
+},
+"2026-06": {
+"worked": 3393.2,
+"leave": 251.8,
+"bcd": 1744,
+"open_days": 21
+},
+"2026-07": {
+"worked": 3686.8,
+"leave": 345.5,
+"bcd": 1924,
+"open_days": 23
+},
+"2026-08": {
+"worked": 3271.7,
+"leave": 212.4,
+"bcd": 1736,
+"open_days": 21
+},
+"2026-09": {
+"worked": 3198.5,
+"leave": 208.9,
+"bcd": 1813,
+"open_days": 21
+},
+"2026-10": {
+"worked": 3346.6,
+"leave": 93.4,
+"bcd": 1883,
+"open_days": 22
+}
+},
+"Craigieburn": {
+"2026-03": {
+"worked": 2350.3,
+"leave": 52.5,
+"bcd": 874,
+"open_days": 21
+},
+"2026-04": {
+"worked": 2744.1,
+"leave": 45.0,
+"bcd": 1016,
+"open_days": 20
+},
+"2026-05": {
+"worked": 2470.5,
+"leave": 188.0,
+"bcd": 1088,
+"open_days": 21
+},
+"2026-06": {
+"worked": 2921.4,
+"leave": 173.9,
+"bcd": 1138,
+"open_days": 21
+},
+"2026-07": {
+"worked": 3295.9,
+"leave": 247.6,
+"bcd": 1331,
+"open_days": 23
+},
+"2026-08": {
+"worked": 3057.7,
+"leave": 228.6,
+"bcd": 1220,
+"open_days": 21
+},
+"2026-09": {
+"worked": 3175.8,
+"leave": 166.0,
+"bcd": 1239,
+"open_days": 21
+},
+"2026-10": {
+"worked": 2895.2,
+"leave": 158.6,
+"bcd": 1325,
+"open_days": 22
+}
+}
+}
+}
