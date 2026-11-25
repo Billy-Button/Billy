@@ -1,7 +1,7 @@
 # Enrolled occupancy: every current Owna enrolment (attending), including children not yet started.
 # Source: semantic_v2.owna_child where attending. Refresh with the SQL in ENROLLED.md.
-SNAP = "2026-11-25T03:07:51+11:00"
-AS_AT = "2026-11-25"
+SNAP = "2026-11-26T03:09:04+11:00"
+AS_AT = "2026-11-26"
 # centre: (children, booked spots a week, not-yet-started children, their spots)
 E = {'Craigieburn': (106, 314.0, 3, 6.0), 'South Morang': (152, 428.0, 5, 14.0)}
 # casual days booked in the last full week (Mon-Fri), current_owna_occupancy_day.casual
